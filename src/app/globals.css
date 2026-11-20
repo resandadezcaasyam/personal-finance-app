@@ -1,0 +1,42 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Palette: pine ink on cool paper, amber for caution. Values are H S% L% for alpha support. */
+:root {
+  --bg: 150 14% 95%;
+  --surface: 0 0% 100%;
+  --sunken: 150 12% 91%;
+  --line: 150 10% 84%;
+  --ink: 160 30% 10%;
+  --muted: 160 8% 38%;
+  --brand: 166 78% 21%;
+  --brand-ink: 0 0% 100%;
+  --gain: 152 60% 26%;
+  --loss: 8 66% 42%;
+  --warn: 36 82% 36%;
+  color-scheme: light;
+}
+.dark {
+  --bg: 165 22% 7%;
+  --surface: 165 18% 10%;
+  --sunken: 165 16% 13%;
+  --line: 165 12% 20%;
+  --ink: 150 20% 92%;
+  --muted: 155 10% 66%;
+  --brand: 163 55% 46%;
+  --brand-ink: 165 30% 6%;
+  --gain: 152 50% 56%;
+  --loss: 8 78% 66%;
+  --warn: 38 85% 60%;
+  color-scheme: dark;
+}
+
+html { -webkit-text-size-adjust: 100%; }
+body { @apply bg-bg text-ink font-sans antialiased; }
+.num { font-variant-numeric: tabular-nums lining-nums; }
+:focus-visible { outline: 2px solid hsl(var(--brand)); outline-offset: 2px; }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+}
+dialog::backdrop { background: hsl(var(--ink) / 0.45); }

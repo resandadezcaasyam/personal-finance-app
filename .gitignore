@@ -1,0 +1,29 @@
+node_modules/
+.next/
+out/
+coverage/
+*.tsbuildinfo
+next-env.d.ts
+
+# Personal financial data - NEVER commit
+data/*
+!data/.gitkeep
+*.db
+*.db-wal
+*.db-shm
+*.sqlite
+*.sqlite3
+backups/
+uploads/
+exports/
+statements/
+receipts/
+
+# Secrets
+.env
+.env.*
+!.env.example
+*.pem
+npm-debug.log*
+.DS_Store
+Thumbs.db
