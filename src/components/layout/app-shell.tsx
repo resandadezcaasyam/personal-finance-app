@@ -67,7 +67,7 @@ export function AppShell({ profile, children }: { profile: "personal" | "demo"; 
 
       {open && (
         <div className="fixed inset-0 z-40 lg:hidden" role="dialog" aria-modal="true" aria-label="Menu">
-          <div className="absolute inset-0 bg-ink/45" onClick={() => setOpen(false)} />
+          <div className="absolute inset-0 bg-black/55" onClick={() => setOpen(false)} />
           <div className="absolute inset-y-0 left-0 flex w-72 max-w-[85vw] flex-col gap-5 overflow-y-auto bg-surface p-4">
             <div className="flex items-center justify-between">
               <Brand />

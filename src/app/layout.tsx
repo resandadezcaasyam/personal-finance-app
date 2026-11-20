@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { AppShell } from "@/components/layout/app-shell";
+import { ToastProvider } from "@/components/toast";
 import { getActiveProfile } from "@/lib/db/client";
 
 export const metadata: Metadata = {
@@ -19,7 +20,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <head><script dangerouslySetInnerHTML={{ __html: themeScript }} /></head>
       <body>
         <a href="#main" className="sr-only focus:not-sr-only focus:fixed focus:left-2 focus:top-2 focus:z-50 focus:rounded-md focus:bg-surface focus:px-3 focus:py-2">Lewati ke konten</a>
-        <AppShell profile={profile}><div id="main">{children}</div></AppShell>
+        <ToastProvider><AppShell profile={profile}><div id="main">{children}</div></AppShell></ToastProvider>
       </body>
     </html>
   );

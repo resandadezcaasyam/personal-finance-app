@@ -23,7 +23,7 @@ export function DataTable<T>({ columns, rows, rowKey, empty }: { columns: Column
           {rows.map((r) => (
             <tr key={rowKey(r)} className="border-b border-line last:border-0">
               {columns.map((c) => (
-                <td key={c.key} className={cn("px-5 py-3", c.align === "right" && "num text-right")}>{c.render(r)}</td>
+                <td key={c.key} className={cn("px-5 py-3", c.align === "right" && "num whitespace-nowrap text-right")}>{c.render(r)}</td>
               ))}
             </tr>
           ))}

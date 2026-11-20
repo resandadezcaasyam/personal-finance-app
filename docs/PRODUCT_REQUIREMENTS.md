@@ -15,8 +15,8 @@ A privacy-first, local-first personal finance OS (Windows laptop, `http://localh
 | # | Name | Commit message | Status |
 |---|------|----------------|--------|
 | 1 | Foundation, database & UI shell | `feat: initialize personal finance os` | Done |
-| 2 | Core ledger & accounts (accounts, income, expenses, transfers, reconciliation, dashboard metrics) | `feat: implement core financial ledger` | Next |
-| 3 | Debt, installments & bills | `feat: implement debt and bills management` | |
+| 2 | Core ledger & accounts (accounts, income, expenses, transfers, reconciliation, dashboard metrics) | `feat: implement core financial ledger` | Done |
+| 3 | Debt, installments & bills | `feat: implement debt and bills management` | Next |
 | 4 | Smart capture (NL parser, OCR, imports, inbox, dedupe, matching, templates) | `feat: implement smart transaction capture` | |
 | 5 | Cash flow forecasting (daily engine, scenarios, payday survival) | `feat: implement cash flow forecasting` | |
 | 6 | Early repayment simulator & strategies | `feat: implement early repayment simulator` | |
@@ -31,3 +31,12 @@ Per-phase acceptance criteria are tracked in `DEVELOPMENT_PROGRESS.md` and `NEXT
 - Navigation/layout work; dark/light works. ✔
 - No external runtime requests. ✔
 - Builds without TypeScript errors. ✔
+
+## Phase 2 acceptance criteria
+- Income increases the correct account balance. ✔ (unit + browser tested)
+- Expenses decrease the correct account balance. ✔
+- Transfers update both accounts without creating income or expenses. ✔
+- Editing transactions correctly recalculates balances. ✔
+- Reconciliation adjustments are traceable. ✔ (adjustment row + audit log)
+- All records persist after restart. ✔
+- Unit tests cover core ledger calculations. ✔ (24 ledger tests)

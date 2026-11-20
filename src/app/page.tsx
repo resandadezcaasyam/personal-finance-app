@@ -1,36 +1,56 @@
-import { Landmark, TrendingUp, TrendingDown, Scale, PieChart, ArrowLeftRight, Database, Wallet } from "lucide-react";
+import Link from "next/link";
+import { Landmark, TrendingUp, TrendingDown, Scale, PieChart, ArrowLeftRight, Database, Wallet, ArrowRight } from "lucide-react";
 import { PageHeader } from "@/components/page-header";
 import { Card, CardBody, CardHeader, CardTitle } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { SpendingChart } from "@/components/ledger/spending-chart";
+import { getDb } from "@/lib/db/client";
 import { getDbStatus } from "@/lib/db/status";
-import { formatDateID, todayWIB, formatNumber } from "@/lib/format";
+import { getDashboardSummary } from "@/lib/ledger/summary";
+import { currentMonthWIB, formatDateID, formatIDR, formatMonthID, formatNumber, todayWIB } from "@/lib/format";
+import type { LedgerEntry } from "@/lib/ledger/types";
 
 export const dynamic = "force-dynamic";
 
-const METRICS = [
-  { label: "Total kas", icon: Wallet },
-  { label: "Pemasukan bulan ini", icon: TrendingUp },
-  { label: "Pengeluaran bulan ini", icon: TrendingDown },
-  { label: "Arus kas bersih", icon: Scale },
-];
+function entrySign(r: LedgerEntry) {
+  if (r.kind === "income" || (r.kind === "adjustment" && r.adj_direction === "in")) return { text: "text-gain", sign: "+" };
+  if (r.kind === "transfer") return { text: "", sign: "" };
+  return { text: "text-loss", sign: "−" };
+}
 
 export default function DashboardPage() {
   const s = getDbStatus();
+  const month = currentMonthWIB();
+  const d = getDashboardSummary(getDb(), month);
+  const hasAccounts = d.accounts.length > 0;
+  const metrics = [
+    { label: "Total kas", icon: Wallet, value: d.totalCash, tone: d.totalCash < 0 ? "text-loss" : "", note: `${d.accounts.length} akun aktif` },
+    { label: "Pemasukan bulan ini", icon: TrendingUp, value: d.income, tone: "", note: formatMonthID(month) },
+    { label: "Pengeluaran bulan ini", icon: TrendingDown, value: d.expense, tone: "", note: formatMonthID(month) },
+    { label: "Arus kas bersih", icon: Scale, value: d.net, tone: d.net < 0 ? "text-loss" : d.net > 0 ? "text-gain" : "", note: "Pemasukan − pengeluaran" },
+  ];
   return (
     <>
-      <PageHeader title="Dasbor" description={`Hari ini, ${formatDateID(todayWIB())} (WIB)`} />
+      <PageHeader title="Dasbor" description={`Hari ini, ${formatDateID(todayWIB())} (WIB). Transfer antar akun tidak dihitung sebagai pemasukan atau pengeluaran.`} />
 
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        {METRICS.map(({ label, icon: Icon }) => (
+        {metrics.map(({ label, icon: Icon, value, tone, note }) => (
           <Card key={label}>
             <CardBody>
-              <div className="flex items-center justify-between text-sm text-muted">
-                {label}
-                <Icon className="h-4 w-4" aria-hidden />
-              </div>
-              <p className="num mt-3 text-2xl font-semibold text-muted" aria-label="Belum ada data">—</p>
-              <p className="mt-1 text-xs text-muted">Belum ada data · aktif di Fase 2</p>
+              <div className="flex items-center justify-between text-sm text-muted">{label}<Icon className="h-4 w-4" aria-hidden /></div>
+              {hasAccounts ? (
+                <>
+                  <p className={`num mt-3 whitespace-nowrap text-xl font-semibold xl:text-[1.35rem] ${tone}`}>{formatIDR(value)}</p>
+                  <p className="mt-1 text-xs text-muted">{note}</p>
+                </>
+              ) : (
+                <>
+                  <p className="num mt-3 text-xl font-semibold text-muted" aria-label="Belum ada data">—</p>
+                  <p className="mt-1 text-xs text-muted">Belum ada akun</p>
+                </>
+              )}
             </CardBody>
           </Card>
         ))}
@@ -38,31 +58,50 @@ export default function DashboardPage() {
 
       <div className="mt-6 grid gap-6 lg:grid-cols-3">
         <Card className="lg:col-span-2">
-          <CardHeader><CardTitle>Transaksi terbaru</CardTitle></CardHeader>
-          <CardBody>
-            <EmptyState
-              icon={ArrowLeftRight}
-              title="Belum ada transaksi"
-              description="Pencatatan akun, pemasukan, dan pengeluaran dibuka di Fase 2. Tidak ada angka yang dikarang di sini; dasbor hanya menampilkan data yang benar-benar tercatat."
-            />
-          </CardBody>
+          <CardHeader><CardTitle>Transaksi terbaru</CardTitle>{d.recent.length > 0 && <Link href="/transactions" className="inline-flex items-center gap-1 text-sm font-medium text-brand">Lihat semua<ArrowRight className="h-3.5 w-3.5" aria-hidden /></Link>}</CardHeader>
+          {d.recent.length === 0 ? (
+            <CardBody>
+              <EmptyState icon={ArrowLeftRight} title="Belum ada transaksi" description={hasAccounts ? "Catat pengeluaran atau pemasukan pertama Anda." : "Mulai dengan menambahkan akun, lalu catat transaksi pertama Anda."}
+                action={<Link href={hasAccounts ? "/transactions" : "/accounts"}><Button size="sm">{hasAccounts ? "Catat transaksi" : "Tambah akun"}</Button></Link>} />
+            </CardBody>
+          ) : (
+            <ul className="divide-y divide-line">
+              {d.recent.map((r) => {
+                const { text, sign } = entrySign(r);
+                return (
+                  <li key={`${r.src}-${r.id}`} className="flex items-center justify-between gap-3 px-5 py-3 text-sm">
+                    <div className="min-w-0">
+                      <p className="truncate font-medium">{r.kind === "transfer" ? `Transfer ${r.account_name} → ${r.to_account_name}` : r.description || r.merchant || r.category_name || "(tanpa keterangan)"}</p>
+                      <p className="text-xs text-muted">{formatDateID(r.occurred_on)}{r.kind !== "transfer" ? ` · ${r.account_name}` : ""}{r.kind === "adjustment" ? " · Penyesuaian" : ""}</p>
+                    </div>
+                    <span className={`num shrink-0 ${text}`}>{sign}{formatIDR(r.amount)}</span>
+                  </li>
+                );
+              })}
+            </ul>
+          )}
         </Card>
 
         <Card>
-          <CardHeader><CardTitle>Saldo akun</CardTitle></CardHeader>
-          <CardBody>
-            <EmptyState
-              icon={Landmark}
-              title="Belum ada akun"
-              description="Tambahkan akun seperti BCA, SeaBank, atau tunai setelah modul akun tersedia."
-            />
-          </CardBody>
+          <CardHeader><CardTitle>Saldo akun</CardTitle>{hasAccounts && <Link href="/accounts" className="text-sm font-medium text-brand">Kelola</Link>}</CardHeader>
+          {hasAccounts ? (
+            <ul className="divide-y divide-line">
+              {d.accounts.map((a) => (
+                <li key={a.id} className="flex items-center justify-between gap-3 px-5 py-3 text-sm">
+                  <span className="truncate">{a.name}</span>
+                  <span className={`num shrink-0 ${a.balance < 0 ? "text-loss" : ""}`}>{formatIDR(a.balance)}</span>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <CardBody><EmptyState icon={Landmark} title="Belum ada akun" description="Tambahkan akun seperti BCA, SeaBank, atau tunai." action={<Link href="/accounts"><Button size="sm">Tambah akun</Button></Link>} /></CardBody>
+          )}
         </Card>
 
         <Card className="lg:col-span-2">
-          <CardHeader><CardTitle>Rincian pengeluaran</CardTitle></CardHeader>
+          <CardHeader><CardTitle>Rincian pengeluaran · {formatMonthID(month)}</CardTitle></CardHeader>
           <CardBody>
-            <EmptyState icon={PieChart} title="Belum ada pengeluaran" description="Grafik kategori muncul setelah ada pengeluaran yang dicatat." />
+            {d.spendingByCategory.length > 0 ? <SpendingChart data={d.spendingByCategory} /> : <EmptyState icon={PieChart} title="Belum ada pengeluaran bulan ini" description="Grafik kategori muncul setelah ada pengeluaran yang dicatat." />}
           </CardBody>
         </Card>
 

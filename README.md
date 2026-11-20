@@ -2,7 +2,18 @@
 
 Aplikasi keuangan pribadi yang **privat dan berjalan lokal**. Semua data tersimpan di komputer Anda (SQLite). Tidak memerlukan internet setelah instalasi.
 
-**Status:** Fase 1 dari 8 selesai (fondasi, database, kerangka UI). Lihat `docs/DEVELOPMENT_PROGRESS.md`.
+**Status:** Fase 2 dari 8 selesai (ledger inti: akun, pemasukan, pengeluaran, transfer, rekonsiliasi, dasbor). Lihat `docs/DEVELOPMENT_PROGRESS.md`.
+
+## Fitur yang sudah tersedia
+
+- **Akun & Saldo:** tambah/ubah/arsipkan akun (Tunai, Bank, E-wallet), rekonsiliasi saldo. Saldo dihitung dari ledger, bukan disimpan.
+- **Transaksi:** catat, ubah, batalkan; cari, filter, urutkan, rentang tanggal. Nominal boleh ditulis `25rb`, `9,5jt`, atau `1.250.000`.
+- **Transfer** antar akun (tidak dihitung sebagai pemasukan/pengeluaran), biaya admin opsional.
+- **Pemasukan** (termasuk konfigurasi pemasukan berulang) dan **Pengeluaran** (grafik per kategori).
+- **Dasbor** dengan total kas, pemasukan/pengeluaran bulan ini, saldo akun, dan transaksi terbaru.
+- **Mode demo** dengan data fiktif terpisah, dan manajemen kategori di Pengaturan.
+
+Catatan: transaksi tidak boleh bertanggal di masa depan. Tagihan dan cicilan terjadwal hadir di Fase 3.
 
 ## Instalasi (Windows CMD)
 
@@ -39,7 +50,7 @@ npm start
 
 - Database pribadi: `data\finance.db` (dibuat otomatis, tidak masuk Git).
 - Mode demo: `data\demo.db` (data fiktif, aktifkan di Pengaturan).
-- Cadangan otomatis sebelum migrasi: `data\backups\`.
+- Cadangan otomatis sebelum migrasi skema: `data\backups\`. Saat memperbarui dari Fase 1 ke Fase 2, periksa folder ini: berkas `.bak` akan dibuat otomatis.
 - Cadangan manual: tutup aplikasi, lalu `copy data\finance.db data\backups\finance-manual.bak`.
 
 ## Troubleshooting

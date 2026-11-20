@@ -4,6 +4,10 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { getDbStatus } from "@/lib/db/status";
+import { getDb } from "@/lib/db/client";
+import { listCategories } from "@/lib/ledger/categories";
+import { CategoryManager } from "@/components/ledger/category-manager";
+import { ResetDemoButton } from "@/components/reset-demo-button";
 import { DEFAULT_SETTINGS } from "@/lib/db/defaults";
 import { switchProfile } from "./actions";
 
@@ -12,6 +16,7 @@ export const dynamic = "force-dynamic";
 export default function SettingsPage() {
   const s = getDbStatus();
   const demo = s.profile === "demo";
+  const categories = listCategories(getDb(), { includeArchived: true });
   return (
     <>
       <PageHeader title="Pengaturan" description="Tampilan, mode demo, dan informasi penyimpanan lokal." />
@@ -37,6 +42,7 @@ export default function SettingsPage() {
               <input type="hidden" name="profile" value={demo ? "personal" : "demo"} />
               <Button type="submit" variant={demo ? "primary" : "secondary"}>{demo ? "Kembali ke data pribadi" : "Aktifkan mode demo"}</Button>
             </form>
+            <ResetDemoButton />
           </CardBody>
         </Card>
 
@@ -58,6 +64,11 @@ export default function SettingsPage() {
             <p><span className="text-muted">Versi skema: </span>{s.schemaVersion}</p>
             <p className="text-muted">Semua data tersimpan di komputer ini. Cadangan otomatis dibuat di <code>data/backups</code> sebelum migrasi skema.</p>
           </CardBody>
+        </Card>
+
+        <Card className="lg:col-span-2">
+          <CardHeader><CardTitle>Kategori</CardTitle></CardHeader>
+          <CardBody><CategoryManager categories={categories} /></CardBody>
         </Card>
       </div>
     </>

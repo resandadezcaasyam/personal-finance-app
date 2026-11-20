@@ -28,7 +28,10 @@ export function dbPathFor(profile: Profile) {
   return path.join(dataDir(), profile === "demo" ? "demo.db" : "finance.db");
 }
 
-const cache = new Map<string, Database.Database>();
+// Shared across module instances: Next.js can load this file separately for pages and server actions,
+// and a per-module cache would leave one of them holding a stale handle after demo.db is rebuilt.
+const g = globalThis as unknown as { __pfosDbCache?: Map<string, Database.Database> };
+const cache: Map<string, Database.Database> = (g.__pfosDbCache ??= new Map());
 
 export function openDatabase(file: string): Database.Database {
   fs.mkdirSync(path.dirname(file), { recursive: true });
@@ -61,4 +64,16 @@ export function getDb(profile: Profile = getActiveProfile()): Database.Database 
     cache.set(file, db);
   }
   return db;
+}
+
+/** Delete and rebuild the fictional demo database. Safe: demo.db never holds personal data. */
+export function resetDemoDatabase() {
+  const file = dbPathFor("demo");
+  const open = cache.get(file);
+  if (open) {
+    open.close();
+    cache.delete(file);
+  }
+  for (const suffix of ["", "-wal", "-shm"]) fs.rmSync(file + suffix, { force: true });
+  getDb("demo");
 }
