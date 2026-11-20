@@ -53,9 +53,13 @@ export interface ForecastInput {
   /** Which income rule is "payday" (null = auto), or an explicit date. */
   paydayRuleId: number | null;
   paydayOverride: string | null;
+  /** Extra dated cash outflows that are not recurring (e.g. a simulated early repayment). Absent/empty = no effect. */
+  oneOffs?: OneOff[];
 }
 
-export type EventKind = "income" | "installment" | "bill";
+export interface OneOff { date: string; label: string; amount: number; id?: number; note?: string | null }
+
+export type EventKind = "income" | "installment" | "bill" | "oneoff";
 export interface ProjectedEvent {
   date: string;
   kind: EventKind;
@@ -66,7 +70,7 @@ export interface ProjectedEvent {
   /** True when the amount is an estimate or unknown. */
   uncertain: boolean;
   note: string | null;
-  source: { type: "income_rule" | "installment" | "bill"; id: number };
+  source: { type: "income_rule" | "installment" | "bill" | "oneoff"; id: number };
 }
 
 export interface DayRow {
@@ -75,6 +79,8 @@ export interface DayRow {
   income: number;
   installments: number;
   bills: number;
+  /** Dated one-off outflows (zero unless the input has `oneOffs`). */
+  oneOffs: number;
   spending: number;
   net: number;
   closing: number;
@@ -89,6 +95,7 @@ export interface MonthRow {
   spending: number;
   installments: number;
   bills: number;
+  oneOffs: number;
   net: number;
   closing: number;
   lowest: number;
@@ -122,7 +129,7 @@ export interface ForecastResult {
   events: ProjectedEvent[];
   months: MonthRow[];
   summary: {
-    openingCash: number; closingCash: number; totalIncome: number; totalSpending: number; totalInstallments: number; totalBills: number;
+    openingCash: number; closingCash: number; totalIncome: number; totalSpending: number; totalInstallments: number; totalBills: number; totalOneOffs: number;
     lowest: { date: string; balance: number }; firstDeficitDate: string | null; deficitDays: number; deficitPeriods: DeficitPeriod[];
   };
   survival: PaydaySurvival | null;
@@ -221,6 +228,13 @@ export function runForecast(input: ForecastInput, rawParams: ScenarioParams, dis
       });
     });
   }
+  // One-off outflows: dated, exact, never scaled by the scenario.
+  for (const o of input.oneOffs ?? []) {
+    if (o.amount <= 0) continue;
+    const date = clampToToday(o.date);
+    if (date > last) continue;
+    events.push({ date, kind: "oneoff", label: o.label, amount: o.amount, overdue: false, uncertain: false, note: o.note ?? null, source: { type: "oneoff", id: o.id ?? 0 } });
+  }
   events.sort((a, b) => a.date.localeCompare(b.date) || (a.kind === b.kind ? a.label.localeCompare(b.label) : a.kind === "income" ? -1 : 1));
 
   // Daily roll-forward. Habitual spending uses cumulative rounding so the total over N days is round(daily x N).
@@ -234,9 +248,9 @@ export function runForecast(input: ForecastInput, rawParams: ScenarioParams, dis
     const ev = byDate.get(date) ?? [];
     const sum = (k: EventKind) => ev.filter((e) => e.kind === k).reduce((s, e) => s + e.amount, 0);
     const spending = i === 0 ? 0 : Math.round(daily * i) - Math.round(daily * (i - 1));
-    const income = sum("income"), installments = sum("installment"), bills = sum("bill");
-    const net = income - installments - bills - spending;
-    days.push({ date, opening: balance, income, installments, bills, spending, net, closing: balance + net, events: ev });
+    const income = sum("income"), installments = sum("installment"), bills = sum("bill"), oneOffs = sum("oneoff");
+    const net = income - installments - bills - oneOffs - spending;
+    days.push({ date, opening: balance, income, installments, bills, oneOffs, spending, net, closing: balance + net, events: ev });
     balance += net;
   }
 
@@ -263,10 +277,10 @@ export function runForecast(input: ForecastInput, rawParams: ScenarioParams, dis
     const m = d.date.slice(0, 7);
     let row = months[months.length - 1];
     if (!row || row.month !== m) {
-      row = { month: m, partial: months.length === 0 && d.date !== `${m}-01`, opening: d.opening, income: 0, spending: 0, installments: 0, bills: 0, net: 0, closing: d.closing, lowest: d.closing, lowestDate: d.date, status: "surplus" };
+      row = { month: m, partial: months.length === 0 && d.date !== `${m}-01`, opening: d.opening, income: 0, spending: 0, installments: 0, bills: 0, oneOffs: 0, net: 0, closing: d.closing, lowest: d.closing, lowestDate: d.date, status: "surplus" };
       months.push(row);
     }
-    row.income += d.income; row.spending += d.spending; row.installments += d.installments; row.bills += d.bills; row.net += d.net; row.closing = d.closing;
+    row.income += d.income; row.spending += d.spending; row.installments += d.installments; row.bills += d.bills; row.oneOffs += d.oneOffs; row.net += d.net; row.closing = d.closing;
     if (d.closing < row.lowest) { row.lowest = d.closing; row.lowestDate = d.date; }
   }
   for (const m of months) m.status = m.net >= 0 ? "surplus" : "deficit";
@@ -275,7 +289,7 @@ export function runForecast(input: ForecastInput, rawParams: ScenarioParams, dis
     today, displayDays, params, days: shown, events: shownEvents, months,
     summary: {
       openingCash: input.openingCash, closingCash: shown[shown.length - 1].closing, totalIncome: sumD((d) => d.income), totalSpending: sumD((d) => d.spending),
-      totalInstallments: sumD((d) => d.installments), totalBills: sumD((d) => d.bills), lowest: { date: lowest.date, balance: lowest.closing },
+      totalInstallments: sumD((d) => d.installments), totalBills: sumD((d) => d.bills), totalOneOffs: sumD((d) => d.oneOffs), lowest: { date: lowest.date, balance: lowest.closing },
       firstDeficitDate: deficitPeriods[0]?.from ?? null, deficitDays: deficitPeriods.reduce((s, p) => s + p.days, 0), deficitPeriods,
     },
     survival: payday(input, params, days, events),
@@ -310,7 +324,7 @@ function payday(input: ForecastInput, params: ScenarioParams, days: DayRow[], ev
   for (const d of period) if (d.closing < low.closing) low = d;
   // Obligations only (no habitual spending): how much headroom is there?
   let cum = input.openingCash, minCum = input.openingCash;
-  for (const d of period) { cum += d.income - d.installments - d.bills; if (cum < minCum) minCum = cum; }
+  for (const d of period) { cum += d.income - d.installments - d.bills - d.oneOffs; if (cum < minCum) minCum = cum; }
   const spendDays = Math.max(1, idx - 1);
   const safeTotal = minCum - params.buffer;
   const baselinePerDay = Math.round((input.baselineDailySpend * params.spending_pct) / 100);

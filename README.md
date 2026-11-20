@@ -2,7 +2,7 @@
 
 Aplikasi keuangan pribadi yang **privat dan berjalan lokal**. Semua data tersimpan di komputer Anda (SQLite). Tidak memerlukan internet setelah instalasi.
 
-**Status:** Fase 5 dari 8 selesai (ledger, utang/tagihan, pencatatan cerdas, dan proyeksi arus kas). Lihat `docs/DEVELOPMENT_PROGRESS.md`.
+**Status:** Fase 6 dari 8 selesai (ledger, utang/tagihan, pencatatan cerdas, proyeksi arus kas, dan simulasi pelunasan dini). Lihat `docs/DEVELOPMENT_PROGRESS.md`.
 
 ## Fitur yang sudah tersedia
 
@@ -18,9 +18,14 @@ Aplikasi keuangan pribadi yang **privat dan berjalan lokal**. Semua data tersimp
 - **Kotak Masuk Pintar:** semua hasil impor/OCR berhenti di sini dulu. Tinjau, ubah, setujui massal. Hanya yang disetujui memengaruhi saldo. Duplikat ditandai, dan pembayaran yang cocok dengan cicilan, tagihan, atau transfer antar akun dicatat dengan benar (tanpa pengeluaran ganda).
 - **Aturan merchant:** 90+ aturan bawaan (Fore Coffee → Kopi, PLN → Listrik, Netflix → Langganan) dan aturan buatan Anda dari koreksi kategori.
 - **Proyeksi Arus Kas:** perkiraan saldo harian untuk 1, 3, 6, atau 12 bulan dari saldo sekarang, pemasukan berulang, cicilan yang belum dibayar, tagihan, dan kebiasaan belanja. Ada analisis "cukup sampai gajian?" lengkap dengan batas belanja aman per hari, saldo terendah, periode defisit, skenario baseline/konservatif/optimis/kustom yang bisa disimpan, grafik (garis padat = aktual, putus-putus = proyeksi), tabel bulanan, dan kalender keuangan. Semua angka proyeksi diberi label dan tidak mengubah saldo Anda.
+- **Simulasi Pelunasan Dini:** bandingkan terus mencicil dengan melunasi lebih awal (penuh atau sebagian) selama 12 bulan: saldo kas, saldo terendah, risiko kekurangan uang, total pembayaran, dan tanggal bebas utang. Biaya, denda, rebat bunga, dan kuotasi pelunasan bisa diisi. Aplikasi tidak pernah mengarang penghematan bunga. Bisa juga membandingkan strategi snowball, avalanche, cicilan minimum, dan urutan kustom. Simulasi tidak mengubah catatan Anda; pelunasan sungguhan dicatat terpisah setelah konfirmasi.
 - **Mode demo** dengan data fiktif terpisah, dan manajemen kategori di Pengaturan.
 
 Catatan: transaksi tidak boleh bertanggal di masa depan. Jadwal cicilan dan tagihan adalah rencana, bukan pembayaran: saldo baru berubah saat Anda mencatat pembayaran. Rumus bunga adalah konvensi umum; jika berbeda dari kontrak penyedia, gunakan jadwal manual.
+
+## Catatan simulasi pelunasan
+
+Aplikasi tidak mengetahui aturan kontrak penyedia. Karena itu penghematan bunga hanya dihitung dari rebat (%) atau kuotasi pelunasan yang Anda isi sendiri; tanpa itu, total yang dibayar sama dengan jadwal ditambah biaya/denda. Tanyakan kuotasi pelunasan resmi ke penyedia sebelum memutuskan. Hasil simulasi adalah proyeksi, bukan saran keuangan.
 
 ## Catatan proyeksi
 

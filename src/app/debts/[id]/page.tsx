@@ -47,7 +47,7 @@ export default function DebtDetailPage({ params }: { params: { id: string } }) {
       <div className="mt-4 max-w-md"><Progress value={debt.total_rows ? (debt.paid_rows / debt.total_rows) * 100 : 0} label="Progres pelunasan" /><p className="mt-1 text-xs text-muted">{debt.paid_rows} dari {debt.total_rows} cicilan lunas{debt.opening_paid_count > 0 && ` · ${debt.opening_paid_count} sudah dibayar sebelum dicatat (tidak memengaruhi saldo)`}</p></div>
       {debt.notes && <p className="mt-3 text-sm text-muted">Catatan: {debt.notes}</p>}
 
-      <div className="mt-6"><DebtDetailActions debt={debt} openRows={openRows} accounts={accounts} today={today} hasPayments={hasPayments} /></div>
+      <div className="mt-6 flex flex-wrap items-center gap-3"><DebtDetailActions debt={debt} openRows={openRows} accounts={accounts} today={today} hasPayments={hasPayments} />{debt.status === "active" && <Link href={`/early-repayment?debt=${debt.id}`} className="inline-flex h-10 items-center rounded-md border border-line px-4 text-sm font-medium hover:bg-sunken">Simulasikan pelunasan dini</Link>}</div>
 
       <Card className="mt-8">
         <CardHeader><CardTitle>Jadwal cicilan</CardTitle></CardHeader>

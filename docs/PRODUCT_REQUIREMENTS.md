@@ -19,8 +19,8 @@ A privacy-first, local-first personal finance OS (Windows laptop, `http://localh
 | 3 | Debt, installments & bills | `feat: implement debt and bills management` | Done |
 | 4 | Smart capture (NL parser, OCR, imports, inbox, dedupe, matching, templates) | `feat: implement smart transaction capture` | Done |
 | 5 | Cash flow forecasting (daily engine, scenarios, payday survival) | `feat: implement cash flow forecasting` | Done |
-| 6 | Early repayment simulator & strategies | `feat: implement early repayment simulator` | Next |
-| 7 | Automation, budgets, goals, insights, reports/exports, optional Ollama | `feat: implement automation and analytics` | |
+| 6 | Early repayment simulator & strategies | `feat: implement early repayment simulator` | Done |
+| 7 | Automation, budgets, goals, insights, reports/exports, optional Ollama | `feat: implement automation and analytics` | Next |
 | 8 | Security, backup/restore, E2E tests, offline verification, final docs | `chore: finalize testing and security` | |
 
 Per-phase acceptance criteria are tracked in `DEVELOPMENT_PROGRESS.md` and `NEXT_PHASE.md`. Process rules: one phase at a time, read existing code first, never reset data, real logic only, tests/typecheck/lint/build every phase, stop after each phase.
@@ -67,3 +67,12 @@ Per-phase acceptance criteria are tracked in `DEVELOPMENT_PROGRESS.md` and `NEXT
 - Monthly opening and closing balances reconcile. ✔ (asserted in unit tests and on the rendered table)
 - Scenario assumptions are clearly displayed. ✔ ("Asumsi yang dipakai" + "Dari mana angkanya")
 - Financial calculations have passing tests. ✔ (53 forecast tests)
+
+## Phase 6 acceptance criteria
+- Baseline matches the standard forecast. ✔ (Scenario A is the same `runForecast` call; asserted by JSON equality in unit tests and on real data)
+- Repayment scenarios recalculate subsequent obligations. ✔ (later installments removed or reduced, one-off cash-out on the date)
+- Penalties and fees are included. ✔ (extra cash out; never reduce the obligation)
+- Partial settlements are handled appropriately. ✔ (oldest-first across the installments after the date, fees -> interest -> principal)
+- Real data remains unchanged after simulation. ✔ (row-count tests and browser check; only an explicit, separate confirmation records a real payment)
+- Scenarios can be saved and reopened. ✔ (save, open, compare side by side, duplicate, delete)
+- Calculation tests pass. ✔ (43 simulator tests)

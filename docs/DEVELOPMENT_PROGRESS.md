@@ -1,27 +1,31 @@
 # Development Progress
 
-**Current phase:** 5 of 8 complete. Next: Phase 6.
+**Current phase:** 6 of 8 complete. Next: Phase 7.
 
-## Phases 1-4: done
-Foundation and demo mode; core ledger; debts, installments and bills; smart capture (Catat Cepat, OCR, imports, inbox, rules, matching). See git history.
+## Phases 1-5: done
+Foundation and demo mode; core ledger; debts, installments and bills; smart capture; cash-flow forecasting. See git history.
 
-## Phase 5: done (`feat: implement cash flow forecasting`)
-- **Forecast engine** (pure, deterministic): daily projection for 1/3/6/12 months from today's actual cash, recurring income, unpaid installments, bills and habitual spending. Opening and closing reconcile day by day and month by month.
-- **/forecast page:** summary cards (cash now, projected closing, lowest balance, negative days), **"Cukup sampai gajian?"** with safe-to-spend per day, deficit periods with suggestions, chart (solid actual vs dashed projection, today marker, lowest-point marker), scenario comparison, assumptions and sources, monthly projection table with surplus/deficit status, financial calendar (month grid with events and projected end-of-day balance), collapsible daily detail.
-- **Scenarios:** baseline, conservative, optimistic, custom (income %, spending %, bills %, delay days, cash buffer), payday rule or manual date; save, re-open and delete named scenarios (migration `0005_forecast_scenarios.sql`).
-- **Data-quality warnings** shown next to the numbers: no income rules, no/short spending history, pending inbox items not counted, bills with unknown amounts, overdue obligations, income treated as already received.
-- Dashboard "Proyeksi 30 hari" card; demo data now includes a fictional monthly salary.
+## Phase 6: done (`feat: implement early repayment simulator`)
+- **/early-repayment:** choose a debt, a date (today to 12 months), full or partial, optional provider quotation, rebate %, early-repayment fee, penalty, the underlying forecast scenario and a cash buffer.
+- **A vs B comparison** over 12 months: closing cash, lowest balance and date, negative days, liquidity risk (rendah/sedang/tinggi), payments on the debt, total remaining payments, scheduled interest+fees remaining, average installments per month, routine monthly surplus, debt-free date, each with the difference. A plain-language verdict above the table.
+- **Payment breakdown** on the repayment date (installments covered, schedule cost, rebate/quotation, fee, penalty, total cash-out) and an honest note: no interest saving is assumed unless the user enters a rebate or quotation; the scheduled interest is shown only as an upper bound.
+- **Chart** (A solid, B dashed, repayment-date marker) and a monthly comparison table.
+- **Strategy comparison** for all active debts: minimum, snowball, avalanche, custom priority, with an extra monthly budget and optional rebate; debt-free month, months, total paid, interest+fees paid, saving vs minimum, month each debt clears, ranking basis, and a 4-line chart (distinct dash patterns).
+- **Saved scenarios:** save, re-open, compare up to 4 side by side (recomputed with today's data), duplicate, delete.
+- **Real repayment is separate:** a confirmation dialog records an actual full settlement (today, no rebate/quotation) through the normal debt-payment path; otherwise the page explains why and links to the debt page. Debt pages link to the simulator.
+- Engine extension: optional `oneOffs` (dated outflows). No migration.
 
 ## Verification (Linux sandbox, Node 22)
 - `npm run typecheck`, `npm run lint`, `npm run build`: clean.
-- `npm test`: **280 tests passing** across 15 files (53 new: 37 engine, 16 data layer).
-- Browser E2E (Playwright/Chromium, clean database): empty-state warnings; payday analysis matches a hand calculation (lowest Rp 4.025.000, safe Rp 1.037.500/day); every monthly row reconciles and chains; chart shows a solid and a dashed line; conservative < baseline < optimistic; custom assumptions via form/URL; scenario save/re-open/delete; hostile URL parameters handled; manual payday beyond the display horizon; calendar with salary, installment and bill plus month navigation; low cash produces a deficit from the right day, "Tidak cukup", shortfall and a deficit period; paying an installment removes it from the forecast (Rp 672.000 -> Rp 448.000); viewing forecasts writes nothing (row counts unchanged); dashboard card; persistence after restart; demo mode; dark mode and mobile screenshots.
-- Zero non-localhost requests and zero page errors during the E2E run.
-- Real upgrade 4 -> 5 on a populated on-disk database: data intact, new index present, pre-migration backup created, forecast immediately used the existing salary rule.
+- `npm test`: **323 tests passing** across 16 files (43 new: engine one-offs, settlement maths, A-vs-B scenarios, strategies, real-database behavior, scenario storage, URL parsing).
+- Browser E2E (Playwright/Chromium, clean database; numbers computed by hand beforehand): empty state; link from the debt page; full settlement + fee gives cash-out Rp 1.140.000 and closing B - A = -Rp 20.000; 50% rebate gives payoff Rp 1.060.000 and +Rp 40.000; quotation gives +Rp 100.000; partial Rp 500rb pays #2 and part of #3 oldest-first; six validation messages; hostile URL parameters; **all simulations leave the database and balances unchanged**; scenario save, duplicate-name refusal, compare, duplicate, delete, re-open; strategies (all pay the same total Rp 1.944.000 and finish sooner than minimum; with a 100% rebate avalanche saves more than snowball; custom order); low cash + settling before payday gives Risiko Tinggi and one negative day; real recording only when allowed, balance reduced by outstanding + fee and debt settled; settled debt no longer offered.
+- Zero non-localhost requests and zero page errors during the E2E run; persistence after restart, demo mode, dark mode and mobile screenshots reviewed.
 
 ## Not yet verified / known limitations
 - Windows CMD with a real `npm install` has not been run.
-- Accuracy depends on history: with a few weeks of data the habitual-spending average is rough (the page warns below 14 days). It cannot anticipate large one-off expenses, seasonality, or income that has no recurring rule.
-- Income occurrences are matched to money already received with a 5-day / 15% rule; unusual patterns (split salaries, very irregular freelance income) can still be double counted or missed. Phase 7 adds "missing income confirmation".
-- Mobile layout of the forecast page was captured but not reviewed in detail; the monthly table scrolls horizontally on narrow screens.
-- Interest or fees on overdue installments are not projected (only the unpaid remainder).
+- The simulator cannot know contract terms: early-repayment fees, rebates and quotations must be entered by the user; partial payments are modelled as paying the next installments earlier with no assumed interest saving; real contracts may recalculate the schedule differently.
+- Avalanche ranking uses scheduled interest+fees per rupiah of remaining principal as a proxy for the true rate.
+- The strategy comparison models the debts only (it does not feed the extra budget back into the cash-flow forecast); the page shows the baseline routine surplus as a hint for choosing a budget.
+- Only single-debt simulations are saved; strategy comparisons live in the URL.
+- A real settlement with a rebate or quotation cannot be recorded automatically (the ledger has no way to represent a waived amount); the user records the amount actually paid on the debt page.
+- The horizon is fixed at 12 months.

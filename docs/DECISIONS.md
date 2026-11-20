@@ -47,3 +47,11 @@
 45. **Payday survival is conservative about order:** it checks the lowest point on the way to payday, not only the balance on that day. Safe-to-spend uses only income and scheduled obligations so it answers "how much can I spend", not "how much do I usually spend".
 46. **Actual history on the chart is the total of accounts active now**, reconstructed from the ledger; money that moved to an archived account is not part of it.
 47. **Saved scenarios keep assumptions + a snapshot**; re-opening recomputes with today's data (a snapshot is for reference only).
+48. **The simulator reuses the forecast engine instead of a parallel model.** One-off outflows were added to the engine; Scenario A is the unmodified forecast so the two can never disagree.
+49. **Installments due on or before the repayment date are paid as scheduled; the settlement covers the later ones.** It avoids double counting and matches how the forecast already places obligations.
+50. **Savings are never assumed.** A rebate % or a provider quotation entered by the user is the only source; otherwise the scheduled interest is shown as an upper bound, explicitly not a promise. Partial payments assume no saving.
+51. **Rebate applies to full settlements and to prepaid installments in the strategy comparison, not to partial payments** in the single-debt simulator, to avoid inventing contract behavior.
+52. **Avalanche ranks by scheduled interest+fees per rupiah of remaining principal.** The stored interest rate is unreliable across models (flat, reducing, manual), so the ranking uses numbers that are in the schedule and shows them.
+53. **Strategies prepay whole installments only,** with rollover of unspent budget, so costs and rebates stay exact.
+54. **Recording a real settlement is separate, explicit and narrow:** full, dated today, no rebate/quotation, amount computed on the server. Other cases are explained and point to the debt page.
+55. **Only the single-debt simulation can be saved;** strategy comparisons are recomputed from the URL (shareable) and not stored.
