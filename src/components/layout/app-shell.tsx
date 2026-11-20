@@ -43,11 +43,11 @@ function NavList({ onNavigate }: { onNavigate?: () => void }) {
                       title={item.label}
                       className={cn(
                         "group relative flex h-8 items-center gap-3 rounded-lg px-2.5 text-[13px] font-medium transition-colors collapsed:justify-center collapsed:px-0",
-                        current ? "bg-brand/10 text-brand" : "text-ink/80 hover:bg-sunken hover:text-ink",
+                        current ? "bg-tint text-brand-text" : "text-ink/80 hover:bg-sunken hover:text-ink",
                       )}
                     >
                       {current && <span className="absolute -left-3 top-1/2 h-4 w-[3px] -translate-y-1/2 rounded-full bg-brand collapsed:-left-2" aria-hidden />}
-                      <Icon className={cn("h-[18px] w-[18px] shrink-0", current ? "text-brand" : "text-muted group-hover:text-ink")} aria-hidden />
+                      <Icon className={cn("h-[18px] w-[18px] shrink-0", current ? "text-brand-text" : "text-muted group-hover:text-ink")} aria-hidden />
                       <span className="truncate collapsed:sr-only">{text}</span>
                     </Link>
                   </li>

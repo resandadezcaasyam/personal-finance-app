@@ -4,7 +4,7 @@ import { formatCompactIDR, shiftDate } from "@/lib/format";
 import type { AgendaItem } from "@/lib/obligations";
 
 export const STATUS_STYLE: Record<AgendaItem["status"], string> = {
-  paid: "bg-brand/15 text-brand line-through decoration-1",
+  paid: "bg-brand/15 text-brand-text line-through decoration-1",
   partial: "bg-warn/15 text-warn",
   overdue: "bg-loss/15 text-loss",
   due: "bg-sunken text-ink",

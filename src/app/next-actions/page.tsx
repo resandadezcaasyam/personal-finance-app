@@ -25,7 +25,7 @@ export default function NextActionsPage({ searchParams }: { searchParams: Record
   const view = searchParams.view === "review" ? "review" : "next";
   const actions = loadActions(db, today, { backupDir: getActiveProfile() === "personal" ? backupDir() : null });
   const review = loadDailyReview(db, today);
-  const tab = (v: string, label: string) => <Link key={v} href={`/next-actions?view=${v}`} aria-current={view === v ? "page" : undefined} className={cn("-mb-px border-b-2 px-4 py-2 text-sm font-medium", view === v ? "border-brand text-brand" : "border-transparent text-muted hover:text-ink")}>{label}</Link>;
+  const tab = (v: string, label: string) => <Link key={v} href={`/next-actions?view=${v}`} aria-current={view === v ? "page" : undefined} className={cn("-mb-px border-b-2 px-4 py-2 text-sm font-medium", view === v ? "border-brand text-brand-text" : "border-transparent text-muted hover:text-ink")}>{label}</Link>;
 
   return (
     <>
@@ -78,7 +78,7 @@ export default function NextActionsPage({ searchParams }: { searchParams: Record
             </Card>
 
             <Card>
-              <CardHeader><CardTitle><span className="flex items-center gap-2"><InboxIcon className="h-4 w-4" aria-hidden />Impor belum ditinjau</span></CardTitle><Link href="/inbox" className="text-sm font-medium text-brand">Buka kotak masuk</Link></CardHeader>
+              <CardHeader><CardTitle><span className="flex items-center gap-2"><InboxIcon className="h-4 w-4" aria-hidden />Impor belum ditinjau</span></CardTitle><Link href="/inbox" className="text-sm font-medium text-brand-text">Buka kotak masuk</Link></CardHeader>
               <CardBody className="space-y-3 text-sm">
                 <dl className="space-y-1.5">
                   <div className="flex justify-between"><dt className="text-muted">Siap disetujui</dt><dd className="num">{review.inbox.newItems}</dd></div>
@@ -101,7 +101,7 @@ export default function NextActionsPage({ searchParams }: { searchParams: Record
             <Card>
               <CardHeader><CardTitle><span className="flex items-center gap-2"><Scale className="h-4 w-4" aria-hidden />Perlu dicek</span></CardTitle></CardHeader>
               <CardBody className="space-y-3 text-sm">
-                <p className="flex justify-between"><span className="text-muted">Jadwal berulang menunggu keputusan</span>{review.plannedPending > 0 ? <Link href="/automation" className="font-medium text-brand underline">{review.plannedPending} jadwal</Link> : <span>0</span>}</p>
+                <p className="flex justify-between"><span className="text-muted">Jadwal berulang menunggu keputusan</span>{review.plannedPending > 0 ? <Link href="/automation" className="font-medium text-brand-text underline">{review.plannedPending} jadwal</Link> : <span>0</span>}</p>
                 {review.discrepancies.length === 0 ? <p className="text-muted">Tidak ada akun yang perlu direkonsiliasi.</p> : <ul className="space-y-1.5">{review.discrepancies.map((d) => <li key={d.account} className="flex items-start gap-2"><AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-warn" aria-hidden /><span><strong>{d.account}</strong>: {d.reason}. <Link href="/accounts" className="underline">Rekonsiliasi</Link></span></li>)}</ul>}
               </CardBody>
             </Card>

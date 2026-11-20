@@ -1,9 +1,10 @@
 "use client";
 import { CartesianGrid, ComposedChart, Line, ReferenceLine, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { formatCompactIDR, formatDateID, formatIDR, formatMonthID } from "@/lib/format";
+import { CHART } from "@/lib/chart-colors";
 
-const A = "#0f766e";
-const B = "#b45309";
+const A = CHART.primary;   // scenario A: keep paying
+const B = CHART.cyan;      // scenario B: settle early
 const tickDate = (d: string) => `${d.slice(8, 10)}/${d.slice(5, 7)}`;
 const tip = { background: "hsl(var(--surface))", border: "1px solid hsl(var(--line))", borderRadius: 8, color: "hsl(var(--ink))" };
 
@@ -21,7 +22,7 @@ export function ScenarioChart({ points, repayDate }: { points: ScenarioPoint[]; 
             <XAxis dataKey="date" tickFormatter={tickDate} interval={step} tick={{ fontSize: 11, fill: "currentColor" }} stroke="currentColor" strokeOpacity={0.3} />
             <YAxis tickFormatter={(v: number) => formatCompactIDR(v)} width={78} tick={{ fontSize: 11, fill: "currentColor" }} stroke="currentColor" strokeOpacity={0.3} />
             <Tooltip contentStyle={tip} labelFormatter={(d: string) => formatDateID(d)} formatter={(v: number, n: string) => [formatIDR(v), n === "a" ? "A: lanjut mencicil" : "B: pelunasan dini"]} />
-            <ReferenceLine y={0} stroke="#be123c" strokeOpacity={0.7} />
+            <ReferenceLine y={0} stroke={CHART.loss} strokeOpacity={0.7} />
             <ReferenceLine x={repayDate} stroke="currentColor" strokeOpacity={0.5} strokeDasharray="2 2" label={{ value: "Pelunasan", position: "insideTopRight", fontSize: 11, fill: "currentColor" }} />
             <Line type="monotone" dataKey="a" name="a" stroke={A} strokeWidth={2.5} dot={false} isAnimationActive={false} />
             <Line type="monotone" dataKey="b" name="b" stroke={B} strokeWidth={2.5} strokeDasharray="7 5" dot={false} isAnimationActive={false} />
@@ -36,7 +37,7 @@ export function ScenarioChart({ points, repayDate }: { points: ScenarioPoint[]; 
   );
 }
 
-const COLORS: Record<string, { c: string; d?: string }> = { minimum: { c: "#64748b", d: "2 4" }, snowball: { c: "#0f766e" }, avalanche: { c: "#b45309", d: "7 5" }, custom: { c: "#4f46e5", d: "10 3 2 3" } };
+const COLORS: Record<string, { c: string; d?: string }> = { minimum: { c: CHART.slate, d: "2 4" }, snowball: { c: CHART.primary }, avalanche: { c: CHART.cyan, d: "7 5" }, custom: { c: CHART.navy, d: "10 3 2 3" } };
 const NAMES: Record<string, string> = { minimum: "Cicilan minimum", snowball: "Snowball", avalanche: "Avalanche", custom: "Kustom" };
 
 /** Remaining debt per month under each strategy. Different dash patterns so it is readable without color. */

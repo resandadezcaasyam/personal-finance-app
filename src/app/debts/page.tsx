@@ -34,7 +34,7 @@ function DebtTable({ debts }: { debts: DebtSummary[] }) {
             const [label, tone] = STATUS_BADGE[d.status];
             return (
               <tr key={d.id} className="border-b border-line last:border-0">
-                <td className="px-5 py-3"><Link href={`/debts/${d.id}`} className="font-medium text-brand hover:underline">{d.provider}</Link>{d.label && <p className="text-xs text-muted">{d.label}</p>}</td>
+                <td className="px-5 py-3"><Link href={`/debts/${d.id}`} className="font-medium text-brand-text hover:underline">{d.provider}</Link>{d.label && <p className="text-xs text-muted">{d.label}</p>}</td>
                 <td className="num whitespace-nowrap px-5 py-3 text-right">{formatIDR(d.outstanding)}</td>
                 <td className="num whitespace-nowrap px-5 py-3 text-right">{formatIDR(d.remaining_principal)}</td>
                 <td className="min-w-36 px-5 py-3"><Progress value={d.total_rows ? (d.paid_rows / d.total_rows) * 100 : 0} label={`Progres ${d.provider}`} /><p className="mt-1 text-xs text-muted">{d.paid_rows} dari {d.total_rows} cicilan</p></td>
@@ -83,7 +83,7 @@ export default function DebtsPage({ searchParams }: { searchParams: Record<strin
 
       {o.totalInstallments > 0 && (
         <div className="mt-4 flex items-center gap-3 text-sm text-muted">
-          <CheckCircle2 className="h-4 w-4 shrink-0 text-brand" aria-hidden />
+          <CheckCircle2 className="h-4 w-4 shrink-0 text-brand-text" aria-hidden />
           <span className="shrink-0">Penyelesaian cicilan aktif: {o.paidInstallments} dari {o.totalInstallments} ({o.completionPct}%)</span>
           <div className="max-w-xs flex-1"><Progress value={o.completionPct} label="Penyelesaian cicilan" /></div>
         </div>
@@ -106,7 +106,7 @@ export default function DebtsPage({ searchParams }: { searchParams: Record<strin
       <nav aria-label="Tampilan" className="mb-4 mt-8 flex gap-1 border-b border-line">
         {TABS.map(([v, l]) => (
           <Link key={v} href={`/debts?view=${v}${v !== "debts" ? `&month=${month}` : ""}`} aria-current={view === v ? "page" : undefined}
-            className={cn("-mb-px border-b-2 px-4 py-2 text-sm font-medium", view === v ? "border-brand text-brand" : "border-transparent text-muted hover:text-ink")}>{l}</Link>
+            className={cn("-mb-px border-b-2 px-4 py-2 text-sm font-medium", view === v ? "border-brand text-brand-text" : "border-transparent text-muted hover:text-ink")}>{l}</Link>
         ))}
       </nav>
 

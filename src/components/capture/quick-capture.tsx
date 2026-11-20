@@ -121,7 +121,7 @@ export function QuickCapture({ accounts, categories, templates, today, aiEnabled
       {notice && <p role="status" className="rounded-md border border-line bg-sunken px-3 py-2 text-sm">{notice}</p>}
       {msg && <p role="alert" className="rounded-md border border-loss/40 bg-loss/10 px-3 py-2 text-sm text-loss">{msg}</p>}
       {done && (
-        <p role="status" className="flex flex-wrap items-center gap-2 rounded-md border border-brand/40 bg-brand/10 px-3 py-2 text-sm text-brand">
+        <p role="status" className="flex flex-wrap items-center gap-2 rounded-md border border-brand/40 bg-brand/10 px-3 py-2 text-sm text-brand-text">
           <CheckCheck className="h-4 w-4" aria-hidden />{done.posted > 0 && `${done.posted} transaksi sudah dicatat. `}{done.queued > 0 && `${done.queued} item menunggu di kotak masuk. `}
           <Link href={done.queued ? "/inbox" : "/transactions"} className="font-medium underline">{done.queued ? "Buka kotak masuk" : "Lihat transaksi"}</Link>
         </p>

@@ -37,7 +37,7 @@ export function ScenarioManager({ fields, saved, canSave }: { fields: Record<str
         <ul className="divide-y divide-line rounded-md border border-line text-sm">
           {saved.map((s) => (
             <li key={s.id} className="flex flex-wrap items-center justify-between gap-2 px-3 py-2">
-              <div className="min-w-0"><Link href={s.openHref} className="font-medium text-brand underline">{s.name}</Link><p className="text-xs text-muted">{s.summary}</p></div>
+              <div className="min-w-0"><Link href={s.openHref} className="font-medium text-brand-text underline">{s.name}</Link><p className="text-xs text-muted">{s.summary}</p></div>
               <div className="flex items-center gap-1">
                 <Link href={s.toggleHref} className="inline-flex h-8 items-center rounded-md border border-line px-2 text-xs hover:bg-sunken">{s.compared ? "✓ Dibandingkan" : "Bandingkan"}</Link>
                 <Button size="sm" variant="ghost" aria-label={`Duplikat ${s.name}`} disabled={pending} onClick={() => act(() => duplicateRepayScenarioAction(s.id), "Skenario diduplikat")}><Copy className="h-4 w-4" aria-hidden /></Button>

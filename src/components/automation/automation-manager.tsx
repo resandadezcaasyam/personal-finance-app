@@ -105,7 +105,7 @@ export function AutomationManager({ planned, rules, patterns, accounts, categori
                   <tr key={`${p.rule_id}-${p.due_date}`} className="border-b border-line align-top last:border-0">
                     <td className="whitespace-nowrap px-4 py-3">{formatDateID(p.due_date)}</td>
                     <td className="px-4 py-3"><span className="font-medium">{p.name}</span> <Badge tone={p.type === "income" ? "brand" : "neutral"}>{p.type === "income" ? "Pemasukan" : "Pengeluaran"}</Badge>
-                      {p.match && <p className="mt-1 flex items-center gap-1 text-xs text-brand"><Link2 className="h-3 w-3" aria-hidden />Cocok dengan transaksi {formatDateID(p.match.date)} · {formatIDR(p.match.amount)}</p>}</td>
+                      {p.match && <p className="mt-1 flex items-center gap-1 text-xs text-brand-text"><Link2 className="h-3 w-3" aria-hidden />Cocok dengan transaksi {formatDateID(p.match.date)} · {formatIDR(p.match.amount)}</p>}</td>
                     <td className={`num whitespace-nowrap px-4 py-3 text-right ${p.type === "income" ? "text-gain" : ""}`}>{p.type === "income" ? "+" : "−"}{formatIDR(p.amount)}</td>
                     <td className="px-4 py-3">{p.account_name ?? <span className="text-muted">—</span>}</td>
                     <td className="px-4 py-3">{stateBadge(p)}</td>
@@ -128,7 +128,7 @@ export function AutomationManager({ planned, rules, patterns, accounts, categori
           <ul className="grid gap-3 md:grid-cols-2">
             {patterns.map((s) => (
               <li key={s.key} className="rounded-card border border-line bg-surface p-4">
-                <p className="flex items-center gap-2 font-medium"><Wand2 className="h-4 w-4 text-brand" aria-hidden />{s.name}</p>
+                <p className="flex items-center gap-2 font-medium"><Wand2 className="h-4 w-4 text-brand-text" aria-hidden />{s.name}</p>
                 <p className="mt-1 text-sm text-muted">{s.type === "income" ? "Pemasukan" : "Pengeluaran"} {formatIDR(s.amount)} · {s.frequency === "monthly" ? `tiap bulan sekitar tanggal ${s.day_of_month}` : "tiap minggu"} · {s.account_name}{s.category_name ? ` · ${s.category_name}` : ""}</p>
                 <p className="mt-1 text-xs text-muted">Terdeteksi {s.occurrences} kali, terakhir {formatDateID(s.last_date)}.</p>
                 <div className="mt-3 flex gap-2">

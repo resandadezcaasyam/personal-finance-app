@@ -1,8 +1,9 @@
 "use client";
 import { Bar, CartesianGrid, ComposedChart, Legend, Line, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { formatCompactIDR, formatIDR, formatMonthID } from "@/lib/format";
+import { CHART } from "@/lib/chart-colors";
 
-const INCOME = "#0f766e", EXPENSE = "#b45309", NET = "#4f46e5", DEBT = "#be123c";
+const INCOME = CHART.primary, EXPENSE = CHART.cyan, NET = CHART.navy, DEBT = CHART.loss;
 const tip = { background: "hsl(var(--surface))", border: "1px solid hsl(var(--line))", borderRadius: 8, color: "hsl(var(--ink))" };
 const axis = { fontSize: 11, fill: "currentColor" } as const;
 const mt = (m: string) => `${m.slice(5)}/${m.slice(2, 4)}`;

@@ -56,11 +56,11 @@ export default function InboxPage({ searchParams }: { searchParams: Record<strin
       <nav aria-label="Status" className="mb-4 flex flex-wrap gap-1 border-b border-line">
         {TABS.map(([v, l]) => (
           <Link key={v} href={`/inbox?status=${v}${batch ? `&batch=${batch}` : ""}`} aria-current={!rulesTab && status === v ? "page" : undefined}
-            className={cn("-mb-px flex items-center gap-1.5 border-b-2 px-3 py-2 text-sm font-medium", !rulesTab && status === v ? "border-brand text-brand" : "border-transparent text-muted hover:text-ink")}>
+            className={cn("-mb-px flex items-center gap-1.5 border-b-2 px-3 py-2 text-sm font-medium", !rulesTab && status === v ? "border-brand text-brand-text" : "border-transparent text-muted hover:text-ink")}>
             {l}{countOf(v) ? <Badge tone={v === "potential_duplicate" ? "loss" : v === "needs_review" ? "warn" : "neutral"}>{countOf(v)}</Badge> : null}
           </Link>
         ))}
-        <Link href="/inbox?tab=rules" aria-current={rulesTab ? "page" : undefined} className={cn("-mb-px ml-auto border-b-2 px-3 py-2 text-sm font-medium", rulesTab ? "border-brand text-brand" : "border-transparent text-muted hover:text-ink")}>Aturan merchant</Link>
+        <Link href="/inbox?tab=rules" aria-current={rulesTab ? "page" : undefined} className={cn("-mb-px ml-auto border-b-2 px-3 py-2 text-sm font-medium", rulesTab ? "border-brand text-brand-text" : "border-transparent text-muted hover:text-ink")}>Aturan merchant</Link>
       </nav>
       {body}
     </>

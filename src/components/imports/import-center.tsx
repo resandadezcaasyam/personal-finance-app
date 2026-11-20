@@ -103,7 +103,7 @@ export function ReceiptUploader() {
           ))}
         </ul>
       )}
-      {jobs.some((j) => j.state === "ok") && <p className="mt-3 text-sm"><Link href="/inbox?status=needs_review" className="font-medium text-brand underline">Tinjau hasil di kotak masuk</Link> <span className="text-muted">— belum ada yang tercatat di buku besar sebelum Anda menyetujuinya.</span></p>}
+      {jobs.some((j) => j.state === "ok") && <p className="mt-3 text-sm"><Link href="/inbox?status=needs_review" className="font-medium text-brand-text underline">Tinjau hasil di kotak masuk</Link> <span className="text-muted">— belum ada yang tercatat di buku besar sebelum Anda menyetujuinya.</span></p>}
     </div>
   );
 }
@@ -189,11 +189,11 @@ export function StatementImporter({ accounts, today }: { accounts: AccountWithBa
 
       {result && (
         <div role="status" className="space-y-1 rounded-card border border-brand/40 bg-brand/10 p-4 text-sm">
-          <p className="flex items-center gap-2 font-medium text-brand"><CheckCircle2 className="h-4 w-4" aria-hidden />{result.imported} baris masuk kotak masuk{result.needsReview > 0 && `, ${result.needsReview} perlu ditinjau`}.</p>
+          <p className="flex items-center gap-2 font-medium text-brand-text"><CheckCircle2 className="h-4 w-4" aria-hidden />{result.imported} baris masuk kotak masuk{result.needsReview > 0 && `, ${result.needsReview} perlu ditinjau`}.</p>
           {result.duplicates > 0 && <p>{result.duplicates} baris dilewati karena sudah pernah diimpor.</p>}
           {result.skippedRows > 0 && <p className="text-muted">{result.skippedRows} baris bukan transaksi (saldo awal, total, dll.) diabaikan.</p>}
           {result.errors.length > 0 && <p className="text-warn">{result.errors.length} baris tidak dapat dibaca. Lihat rinciannya di Riwayat impor.</p>}
-          <p><Link href={`/inbox?batch=${result.batchId}`} className="font-medium text-brand underline">Tinjau hasil impor</Link> <span className="text-muted">· belum ada yang tercatat di buku besar sebelum disetujui.</span></p>
+          <p><Link href={`/inbox?batch=${result.batchId}`} className="font-medium text-brand-text underline">Tinjau hasil impor</Link> <span className="text-muted">· belum ada yang tercatat di buku besar sebelum disetujui.</span></p>
         </div>
       )}
 
@@ -275,7 +275,7 @@ export function ImportHistory({ batches }: { batches: BatchRow[] }) {
               <td className="px-4 py-2.5">{b.account_name ?? "—"}</td>
               <td className="num px-4 py-2.5 text-right">{b.imported_count}</td><td className="num px-4 py-2.5 text-right">{b.duplicate_count}</td>
               <td className={`num px-4 py-2.5 text-right ${b.error_count ? "text-warn" : ""}`}>{b.error_count}</td>
-              <td className="whitespace-nowrap px-4 py-2.5 text-right"><Link href={`/inbox?status=all&batch=${b.id}`} className="text-brand underline">Lihat item</Link>{b.error_count > 0 && <Button size="sm" variant="ghost" onClick={() => setView(b)}>Galat</Button>}</td>
+              <td className="whitespace-nowrap px-4 py-2.5 text-right"><Link href={`/inbox?status=all&batch=${b.id}`} className="text-brand-text underline">Lihat item</Link>{b.error_count > 0 && <Button size="sm" variant="ghost" onClick={() => setView(b)}>Galat</Button>}</td>
             </tr>))}</tbody>
         </table>
       </div>

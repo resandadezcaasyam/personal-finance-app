@@ -4,7 +4,8 @@
 
 /*
  * Design tokens (H S% L%, so Tailwind alpha utilities work). Semantic names only; components never hardcode colors.
- * Light: slate neutrals + teal accent. Dark: deep navy neutrals + bright teal.
+ * Light: slate neutrals + blue brand (#155DFC). Dark: deep navy neutrals + soft blue.
+ * `--brand` is the FILL blue (buttons, indicators, charts); `--brand-text` is one step darker so blue TEXT meets WCAG AA.
  * TEXT colors (gain/loss/warn/muted) are one step darker than the pure brand palette so they meet WCAG AA 4.5:1;
  * `--warn-fill` is the brighter amber used for icons, dots and charts (non-text).
  */
@@ -13,12 +14,17 @@
   --surface: 0 0% 100%;  /* #FFFFFF */
   --sidebar: 0 0% 100%;  /* #FFFFFF */
   --sunken: 210 40% 96%;  /* #F1F5F9 */
+  --tint: 214 100% 97%;  /* #EFF6FF */
   --line: 214 32% 91%;  /* #E2E8F0 */
   --ink: 222 47% 11%;  /* #0F172A */
   --muted: 217 18% 39%;  /* #526077 */
-  --brand: 175 77% 26%;  /* #0F766E */
-  --brand-hover: 176 69% 22%;  /* #115E59 */
+  --brand: 221 97% 54%;  /* #155DFC */
+  --brand-hover: 224 76% 48%;  /* #1D4ED8 */
+  --brand-text: 224 76% 48%;  /* #1D4ED8 */
   --brand-ink: 0 0% 100%;  /* #FFFFFF */
+  --accent: 221 83% 53%;  /* #2563EB */
+  --cyan: 189 94% 43%;  /* #06B6D4 */
+  --soft: 212 96% 78%;  /* #93C5FD */
   --gain: 163 94% 24%;  /* #047857 */
   --loss: 0 70% 45%;  /* #C42323 */
   --warn: 26 90% 33%;  /* #A04A08 */
@@ -27,16 +33,21 @@
   color-scheme: light;
 }
 .dark {
-  --bg: 219 49% 7%;  /* #090F1A */
-  --surface: 216 37% 13%;  /* #151F2E */
-  --sidebar: 221 39% 11%;  /* #111827 */
-  --sunken: 215 35% 16%;  /* #1B2738 */
-  --line: 215 30% 21%;  /* #253244 */
+  --bg: 222 56% 7%;  /* #080E1C */
+  --surface: 220 48% 12%;  /* #101A2E */
+  --sidebar: 222 52% 10%;  /* #0C1426 */
+  --sunken: 220 42% 15%;  /* #172238 */
+  --tint: 221 51% 16%;  /* #14213D */
+  --line: 219 37% 21%;  /* #22304A */
   --ink: 210 40% 98%;  /* #F8FAFC */
   --muted: 215 20% 65%;  /* #94A3B8 */
-  --brand: 172 66% 50%;  /* #2DD4BF */
-  --brand-hover: 171 77% 64%;  /* #5EEAD4 */
-  --brand-ink: 173 84% 10%;  /* #042F2A */
+  --brand: 213 94% 68%;  /* #60A5FA */
+  --brand-hover: 212 96% 78%;  /* #93C5FD */
+  --brand-text: 213 94% 68%;  /* #60A5FA */
+  --brand-ink: 222 72% 10%;  /* #07122B */
+  --accent: 217 91% 60%;  /* #3B82F6 */
+  --cyan: 188 86% 53%;  /* #22D3EE */
+  --soft: 218 43% 41%;  /* #3B5B94 */
   --gain: 158 64% 52%;  /* #34D399 */
   --loss: 0 91% 71%;  /* #F87171 */
   --warn: 43 96% 56%;  /* #FBBF24 */
@@ -52,7 +63,7 @@ html { -webkit-text-size-adjust: 100%; }
 body { @apply bg-bg font-sans text-sm text-ink antialiased; font-feature-settings: "cv11", "ss03"; }
 .num { font-variant-numeric: tabular-nums lining-nums; font-feature-settings: "tnum", "lnum"; }
 :focus-visible { outline: 2px solid hsl(var(--brand)); outline-offset: 2px; border-radius: 6px; }
-::selection { background: hsl(var(--brand) / 0.22); }
+::selection { background: hsl(var(--brand) / 0.2); }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
 }

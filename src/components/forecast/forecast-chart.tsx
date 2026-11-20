@@ -1,10 +1,11 @@
 "use client";
 import { CartesianGrid, ComposedChart, Line, ReferenceDot, ReferenceLine, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { formatCompactIDR, formatDateID, formatIDR } from "@/lib/format";
+import { CHART } from "@/lib/chart-colors";
 
 // Two clearly different line styles: ACTUAL is solid, FORECAST is dashed. Colors work in light and dark themes.
-const ACTUAL = "#0f766e";
-const FORECAST = "#b45309";
+const ACTUAL = CHART.primary;   // recorded balance
+const FORECAST = CHART.cyan;    // projection
 
 export interface ChartPoint { date: string; actual: number | null; forecast: number | null }
 
@@ -25,18 +26,18 @@ export function ForecastChart({ points, today, lowest }: { points: ChartPoint[];
               labelFormatter={(d: string) => formatDateID(d)}
               formatter={(v: number, name: string) => [formatIDR(v), name === "actual" ? "Aktual" : "Proyeksi"]}
             />
-            <ReferenceLine y={0} stroke="#be123c" strokeOpacity={0.7} />
+            <ReferenceLine y={0} stroke={CHART.loss} strokeOpacity={0.7} />
             <ReferenceLine x={today} stroke="currentColor" strokeOpacity={0.5} strokeDasharray="2 2" label={{ value: "Hari ini", position: "insideTopRight", fontSize: 11, fill: "currentColor" }} />
             <Line type="monotone" dataKey="actual" name="actual" stroke={ACTUAL} strokeWidth={2.5} dot={false} connectNulls={false} isAnimationActive={false} />
             <Line type="monotone" dataKey="forecast" name="forecast" stroke={FORECAST} strokeWidth={2.5} strokeDasharray="7 5" dot={false} connectNulls={false} isAnimationActive={false} />
-            <ReferenceDot x={lowest.date} y={lowest.balance} r={5} fill={lowest.balance < 0 ? "#be123c" : FORECAST} stroke="none" />
+            <ReferenceDot x={lowest.date} y={lowest.balance} r={5} fill={lowest.balance < 0 ? CHART.loss : FORECAST} stroke="none" />
           </ComposedChart>
         </ResponsiveContainer>
       </div>
       <ul className="mt-2 flex flex-wrap items-center gap-x-5 gap-y-1 text-xs text-muted">
         <li className="flex items-center gap-2"><svg width="28" height="6" aria-hidden><line x1="0" y1="3" x2="28" y2="3" stroke={ACTUAL} strokeWidth="2.5" /></svg>Saldo aktual (dari catatan Anda)</li>
         <li className="flex items-center gap-2"><svg width="28" height="6" aria-hidden><line x1="0" y1="3" x2="28" y2="3" stroke={FORECAST} strokeWidth="2.5" strokeDasharray="7 5" /></svg>Proyeksi (perkiraan, bukan catatan)</li>
-        <li className="flex items-center gap-2"><span className="h-2.5 w-2.5 rounded-full" style={{ background: lowest.balance < 0 ? "#be123c" : FORECAST }} aria-hidden />Saldo terendah</li>
+        <li className="flex items-center gap-2"><span className="h-2.5 w-2.5 rounded-full" style={{ background: lowest.balance < 0 ? CHART.loss : FORECAST }} aria-hidden />Saldo terendah</li>
       </ul>
     </div>
   );

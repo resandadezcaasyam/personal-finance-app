@@ -3,7 +3,7 @@ import { cn } from "@/lib/utils";
 // Restrained: a soft tint, a hairline ring, small type. Meaning always comes with text, never color alone.
 const tones = {
   neutral: "bg-sunken text-muted ring-line",
-  brand: "bg-brand/10 text-brand ring-brand/20",
+  brand: "bg-brand/10 text-brand-text ring-brand/20",
   gain: "bg-gain/10 text-gain ring-gain/20",
   warn: "bg-warn-fill/15 text-warn ring-warn-fill/30",
   loss: "bg-loss/10 text-loss ring-loss/20",

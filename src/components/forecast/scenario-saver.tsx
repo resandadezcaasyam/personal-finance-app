@@ -32,7 +32,7 @@ export function ScenarioSaver({ saved, params, months }: { saved: (SavedScenario
         <ul className="divide-y divide-line rounded-md border border-line text-sm">
           {saved.map((s) => (
             <li key={s.id} className="flex flex-wrap items-center justify-between gap-2 px-3 py-2">
-              <span><Link href={s.href} className="font-medium text-brand underline">{s.name}</Link> <span className="text-muted">· pemasukan {s.params.income_pct}%, belanja {s.params.spending_pct}%, tagihan {s.params.bills_pct}%, telat {s.params.income_delay_days} hari</span></span>
+              <span><Link href={s.href} className="font-medium text-brand-text underline">{s.name}</Link> <span className="text-muted">· pemasukan {s.params.income_pct}%, belanja {s.params.spending_pct}%, tagihan {s.params.bills_pct}%, telat {s.params.income_delay_days} hari</span></span>
               <Button size="sm" variant="ghost" aria-label={`Hapus skenario ${s.name}`} disabled={pending} onClick={() => startTransition(async () => { const r = await deleteScenarioAction(s.id); toast(r.ok ? "Skenario dihapus" : r.message ?? "Gagal", r.ok ? "ok" : "error"); })}><Trash2 className="h-4 w-4" aria-hidden /></Button>
             </li>
           ))}

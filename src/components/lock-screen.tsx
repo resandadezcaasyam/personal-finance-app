@@ -9,7 +9,7 @@ export function LockScreen() {
   const [state, action] = useFormState(loginAction, { ok: false });
   return (
     <main className="mx-auto flex min-h-screen max-w-sm flex-col justify-center gap-5 px-6" aria-labelledby="lock-title">
-      <div className="flex items-center gap-2 font-display text-xl font-semibold"><Lock className="h-5 w-5 text-brand" aria-hidden />Personal Finance OS</div>
+      <div className="flex items-center gap-2 font-display text-xl font-semibold"><Lock className="h-5 w-5 text-brand-text" aria-hidden />Personal Finance OS</div>
       <div>
         <h1 id="lock-title" className="font-display text-2xl font-semibold">Aplikasi terkunci</h1>
         <p className="mt-1 text-sm text-muted">Masukkan PIN untuk membuka data keuangan Anda.</p>
