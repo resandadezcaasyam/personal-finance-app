@@ -123,3 +123,13 @@ export function formatDateTimeID(iso: string): string {
   const t = new Date(Date.parse(iso) + 7 * 3_600_000).toISOString();
   return `${formatDateID(t.slice(0, 10))} ${t.slice(11, 13)}.${t.slice(14, 16)}`;
 }
+
+const SHORT_MONTHS = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agu", "Sep", "Okt", "Nov", "Des"];
+/** "2026-11-20" -> "20 Nov". */
+export function formatDateShortID(isoDate: string): string {
+  return `${Number(isoDate.slice(8, 10))} ${SHORT_MONTHS[Number(isoDate.slice(5, 7)) - 1] ?? ""}`;
+}
+/** "2026-11" -> "Nov 26" (chart axes). */
+export function formatMonthShortID(month: string): string {
+  return `${SHORT_MONTHS[Number(month.slice(5, 7)) - 1] ?? ""} ${month.slice(2, 4)}`;
+}

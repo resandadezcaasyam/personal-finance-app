@@ -16,7 +16,7 @@ async function login(page: Page, pin: string, expectOpen = true) {
   await page.goto("/");
   await page.fill("#lock-pin", pin);
   await page.getByRole("button", { name: "Buka", exact: true }).click();
-  if (expectOpen) await expect(page.getByRole("heading", { name: "Dasbor" })).toBeVisible();
+  if (expectOpen) await expect(page.getByRole("heading", { name: "Ringkasan Keuangan" })).toBeVisible();
 }
 /** Clear the persisted lockout without waiting it out (the test would otherwise need to sleep 30 s). */
 function clearLockout() {
@@ -26,6 +26,9 @@ function clearLockout() {
 const form = (page: Page, title: string) => page.locator("form", { has: page.getByRole("heading", { name: title }) });
 
 test.describe("PIN protection", () => {
+  // Never leave the app locked for later specs, even if a test in this file fails halfway.
+  test.afterAll(() => { fs.rmSync(authFile(), { force: true }); });
+
   test("enabling needs a strong-enough PIN and stores only a hash", async ({ page }) => {
     await page.goto("/settings");
     await page.getByLabel("PIN baru (min. 4 karakter)").fill("1234");
@@ -79,7 +82,7 @@ test.describe("PIN protection", () => {
   test("the right PIN opens the app; the cookie is HttpOnly and SameSite=Strict; a forged cookie does not work", async ({ browser }) => {
     const { ctx, page } = await fresh(browser);
     await login(page, PIN);
-    await expect(page.getByRole("heading", { name: "Dasbor" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Ringkasan Keuangan" })).toBeVisible();
     const c = (await ctx.cookies()).find((x) => x.name === "pfos_session")!;
     expect(c).toMatchObject({ httpOnly: true, sameSite: "Strict", path: "/" });
     expect(c.value).not.toContain(PIN);
@@ -152,7 +155,7 @@ test.describe("PIN protection", () => {
   test("changing the PIN needs the current one and signs out every other session", async ({ browser }) => {
     const a = await fresh(browser), b = await fresh(browser);
     await login(a.page, PIN); await login(b.page, PIN);
-    await expect(a.page.getByRole("heading", { name: "Dasbor" })).toBeVisible();
+    await expect(a.page.getByRole("heading", { name: "Ringkasan Keuangan" })).toBeVisible();
     await b.page.goto("/settings");
     const f = form(b.page, "Ubah PIN");
     await f.getByLabel("PIN saat ini").fill("wrong1");
@@ -171,7 +174,7 @@ test.describe("PIN protection", () => {
     await login(c.page, PIN, false);
     await expect(c.page.locator("p[role=alert]")).toContainText("PIN salah");
     await login(c.page, PIN2);
-    await expect(c.page.getByRole("heading", { name: "Dasbor" })).toBeVisible();
+    await expect(c.page.getByRole("heading", { name: "Ringkasan Keuangan" })).toBeVisible();
     await a.ctx.close(); await b.ctx.close(); await c.ctx.close();
     clearLockout();
   });
@@ -185,7 +188,7 @@ test.describe("PIN protection", () => {
     await b.page.reload();
     await expect(b.page.getByRole("heading", { name: "Aplikasi terkunci" })).toBeVisible();
     await login(a.page, PIN2);
-    await expect(a.page.getByRole("heading", { name: "Dasbor" })).toBeVisible();
+    await expect(a.page.getByRole("heading", { name: "Ringkasan Keuangan" })).toBeVisible();
     await a.ctx.close(); await b.ctx.close();
   });
 

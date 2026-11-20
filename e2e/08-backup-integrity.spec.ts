@@ -39,6 +39,7 @@ test.describe("backup, restore and data health", () => {
     await page.getByRole("dialog").getByRole("button", { name: "Ya, pulihkan" }).click();
     await expect.poll(() => one("SELECT COUNT(*) FROM accounts WHERE name='Dompet Uji'"), { timeout: 20_000 }).toBe(0);
     expect(one("SELECT COUNT(*) FROM transactions")).toBe(txBefore);
+    await page.waitForTimeout(1800); // the page reloads itself after a restore; let that finish before navigating
     await page.goto("/backup");
     await expect(page.locator("tr", { hasText: "-pre-restore.db" }).first()).toBeVisible();
   });

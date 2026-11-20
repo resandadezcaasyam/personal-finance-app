@@ -18,11 +18,21 @@ test.describe("smoke", () => {
   test("navigation offers all areas, the skip link exists, and the version is shown", async ({ page }) => {
     await page.goto("/");
     const nav = page.getByRole("navigation", { name: "Navigasi utama" });
-    for (const label of ["Dasbor", "Transaksi", "Akun & Saldo", "Utang & Cicilan", "Proyeksi Arus Kas", "Simulasi Pelunasan Dini", "Target Tabungan", "Langkah Keuangan Berikutnya", "Laporan & Analitik", "Aturan Otomasi", "Cadangan & Kesehatan Data", "Pengaturan"]) {
+    for (const label of ["Dasbor", "Transaksi", "Akun & Saldo", "Utang & Cicilan", "Proyeksi Arus Kas", "Simulasi Pelunasan", "Target Tabungan", "Langkah Berikutnya", "Laporan & Analitik", "Aturan Otomasi", "Cadangan & Data", "Pengaturan"]) {
       await expect(nav.getByText(label, { exact: true }), label).toBeVisible();
     }
     await expect(page.getByRole("link", { name: "Lewati ke konten" })).toHaveCount(1);
     await expect(page.getByText(/Versi 1\.0\.0/).first()).toBeVisible();
+  });
+
+  test("a brand-new install shows compact, honest empty states (no fake numbers)", async ({ page }) => {
+    await page.goto("/");
+    await expect(page.getByRole("heading", { name: "Ringkasan Keuangan" })).toBeVisible();
+    await expect(page.getByLabel("Belum ada data")).toHaveCount(4); // four KPI cards show an em dash, not zeros or invented values
+    await expect(page.getByText("Belum ada akun").first()).toBeVisible();
+    await expect(page.getByText("Belum ada transaksi")).toBeVisible();
+    await expect(page.getByText("Belum ada arus kas")).toBeVisible();
+    await expect(page.locator("main")).not.toContainText(/%\s*vs /); // no made-up comparisons
   });
 
   test("an unknown page returns a 404, not a crash", async ({ page }) => {
