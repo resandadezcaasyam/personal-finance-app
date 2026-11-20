@@ -214,7 +214,7 @@ export default function DashboardPage({ searchParams }: { searchParams: SP }) {
                         <div className="min-w-0 flex-1"><p className="truncate text-[13px] font-medium">{a.name}</p><p className="text-xs text-muted">{ACCOUNT_TYPE_LABEL[a.type] ?? a.type}</p></div>
                         <span className={cn("num shrink-0 text-[13px] font-semibold", a.balance < 0 && "text-loss")}>{formatIDR(a.balance)}</span>
                       </div>
-                      {share > 0 && <div className="ml-12 mt-2 h-1.5 overflow-hidden rounded-full bg-sunken" aria-hidden><div className="h-full rounded-full bg-brand" style={{ width: `${Math.max(3, Math.round(share))}%` }} /></div>}
+                      {share > 0 && <div className="ml-12 mt-2 h-1.5 overflow-hidden rounded-full bg-sunken" aria-hidden><div className="h-full rounded-full bg-grad-accent" style={{ width: `${Math.max(3, Math.round(share))}%` }} /></div>}
                     </li>
                   );
                 })}

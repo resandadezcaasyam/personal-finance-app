@@ -14,13 +14,17 @@ export function IncomeExpenseChart({ data }: { data: { month: string; income: nu
     <div className="h-72 w-full" role="img" aria-label="Grafik pemasukan dan pengeluaran per bulan beserta selisihnya. Datanya ada di tabel ringkasan bulanan di bawah.">
       <ResponsiveContainer width="100%" height="100%">
         <ComposedChart data={data} margin={{ top: 12, right: 12, left: 4, bottom: 4 }}>
+          <defs>
+            <linearGradient id="barIncome" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#3B82F6" /><stop offset="100%" stopColor="#2563EB" /></linearGradient>
+            <linearGradient id="barExpense" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#22D3EE" /><stop offset="100%" stopColor="#06B6D4" /></linearGradient>
+          </defs>
           <CartesianGrid strokeDasharray="3 3" stroke="currentColor" strokeOpacity={0.12} />
           <XAxis dataKey="month" tickFormatter={mt} tick={axis} stroke="currentColor" strokeOpacity={0.3} />
           <YAxis tickFormatter={(v: number) => formatCompactIDR(v)} width={78} tick={axis} stroke="currentColor" strokeOpacity={0.3} />
           <Tooltip contentStyle={tip} labelFormatter={(m: string) => formatMonthID(m)} formatter={(v: number, n: string) => [formatIDR(v), names[n] ?? n]} />
           <Legend formatter={(n: string) => names[n] ?? n} />
-          <Bar dataKey="income" name="income" fill={INCOME} isAnimationActive={false} radius={[3, 3, 0, 0]} />
-          <Bar dataKey="expense" name="expense" fill={EXPENSE} isAnimationActive={false} radius={[3, 3, 0, 0]} />
+          <Bar dataKey="income" name="income" fill="url(#barIncome)" isAnimationActive={false} radius={[3, 3, 0, 0]} />
+          <Bar dataKey="expense" name="expense" fill="url(#barExpense)" isAnimationActive={false} radius={[3, 3, 0, 0]} />
           <Line type="monotone" dataKey="net" name="net" stroke={NET} strokeWidth={2.2} strokeDasharray="6 4" dot={{ r: 3 }} isAnimationActive={false} />
         </ComposedChart>
       </ResponsiveContainer>

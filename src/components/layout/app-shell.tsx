@@ -43,10 +43,10 @@ function NavList({ onNavigate }: { onNavigate?: () => void }) {
                       title={item.label}
                       className={cn(
                         "group relative flex h-8 items-center gap-3 rounded-lg px-2.5 text-[13px] font-medium transition-colors collapsed:justify-center collapsed:px-0",
-                        current ? "bg-tint text-brand-text" : "text-ink/80 hover:bg-sunken hover:text-ink",
+                        current ? "bg-[linear-gradient(90deg,hsl(var(--brand)/0.14),hsl(var(--brand)/0.03))] text-brand-text" : "text-ink/80 hover:bg-sunken hover:text-ink",
                       )}
                     >
-                      {current && <span className="absolute -left-3 top-1/2 h-4 w-[3px] -translate-y-1/2 rounded-full bg-brand collapsed:-left-2" aria-hidden />}
+                      {current && <span className="absolute -left-3 top-1/2 h-4 w-[3px] -translate-y-1/2 rounded-full bg-grad-accent shadow-[0_0_10px_rgb(37_99_235/0.55)] collapsed:-left-2" aria-hidden />}
                       <Icon className={cn("h-[18px] w-[18px] shrink-0", current ? "text-brand-text" : "text-muted group-hover:text-ink")} aria-hidden />
                       <span className="truncate collapsed:sr-only">{text}</span>
                     </Link>
@@ -64,7 +64,7 @@ function NavList({ onNavigate }: { onNavigate?: () => void }) {
 function Brand({ compactable = false }: { compactable?: boolean }) {
   return (
     <Link href="/" className="flex items-center gap-2.5 rounded-lg">
-      <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-brand text-brand-ink"><Wallet className="h-[18px] w-[18px]" aria-hidden /></span>
+      <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-grad-fill text-brand-ink shadow-glow ring-1 ring-inset ring-white/15"><Wallet className="h-[18px] w-[18px]" aria-hidden /></span>
       <span className={cn("leading-tight", compactable && "collapsed:sr-only")}>
         <span className="block text-sm font-semibold tracking-tight">Personal Finance OS</span>
         <span className="block text-[11px] text-muted">Keuangan pribadi · lokal</span>
@@ -114,7 +114,7 @@ export function AppShell({ profile, authEnabled = false, children }: { profile: 
 
   return (
     <div className="min-h-screen lg:grid lg:grid-cols-[var(--sidebar-w)_minmax(0,1fr)] lg:transition-[grid-template-columns] lg:duration-200">
-      <aside className="hidden border-r border-line bg-sidebar lg:block" aria-label="Sidebar">
+      <aside className="hidden border-r border-line bg-sidebar/80 backdrop-blur-xl lg:block" aria-label="Sidebar">
         <div className="sticky top-0 flex h-screen flex-col">
           <div className="flex h-14 shrink-0 items-center border-b border-line px-4 collapsed:justify-center collapsed:px-0"><Brand compactable /></div>
           <div className="flex-1 overflow-y-auto overflow-x-hidden px-3 py-3"><NavList /></div>
@@ -137,7 +137,7 @@ export function AppShell({ profile, authEnabled = false, children }: { profile: 
       )}
 
       <div className="min-w-0">
-        <header className="sticky top-0 z-30 flex h-14 items-center gap-2 border-b border-line bg-bg/85 px-4 backdrop-blur lg:px-8">
+        <header className="sticky top-0 z-30 flex h-14 items-center gap-2 border-b border-line bg-bg/65 px-4 backdrop-blur-xl lg:px-8">
           <Button variant="ghost" size="icon" className="lg:hidden" aria-label="Buka menu" onClick={() => setOpen(true)}><Menu className="h-[18px] w-[18px]" /></Button>
           <Button variant="ghost" size="icon" className="hidden lg:inline-flex" aria-label={collapsed ? "Perluas sidebar" : "Ciutkan sidebar"} aria-pressed={collapsed} onClick={toggleCollapsed}>
             {collapsed ? <PanelLeftOpen className="h-[18px] w-[18px]" /> : <PanelLeftClose className="h-[18px] w-[18px]" />}

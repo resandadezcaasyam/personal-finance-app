@@ -36,7 +36,7 @@ export function MonthCalendar({ month, items, today }: { month: string; items: A
               <div key={i} role="gridcell" className={cn("min-h-24 border-b border-r border-line p-1.5 text-xs [&:nth-child(7n)]:border-r-0", !d && "bg-sunken/50")}>
                 {d && (
                   <>
-                    <span className={cn("inline-flex h-5 min-w-5 items-center justify-center rounded-full px-1", d === today && "bg-brand text-brand-ink font-semibold")}>{Number(d.slice(8))}</span>
+                    <span className={cn("inline-flex h-5 min-w-5 items-center justify-center rounded-full px-1", d === today && "bg-grad-fill text-brand-ink font-semibold")}>{Number(d.slice(8))}</span>
                     <ul className="mt-1 space-y-1">
                       {list.slice(0, 3).map((it, k) => (
                         <li key={k}>

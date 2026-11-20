@@ -17,8 +17,9 @@ export function SpendingChart({ data, stacked = false }: { data: CategorySpend[]
       <div className="relative mx-auto h-44 w-44 shrink-0" aria-hidden>
         <ResponsiveContainer width="100%" height="100%">
           <PieChart>
+            <defs><linearGradient id="donutGrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stopColor="#1D4ED8" /><stop offset="55%" stopColor="#3B82F6" /><stop offset="100%" stopColor="#06B6D4" /></linearGradient></defs>
             <Pie rootTabIndex={-1} data={items} dataKey="total" nameKey="name" innerRadius={56} outerRadius={84} paddingAngle={3} cornerRadius={6} stroke="none" isAnimationActive={false}>
-              {items.map((_, i) => <Cell key={i} fill={CATEGORY_PALETTE[i % CATEGORY_PALETTE.length]} />)}
+              {items.map((_, i) => <Cell key={i} fill={i === 0 ? "url(#donutGrad)" : CATEGORY_PALETTE[i % CATEGORY_PALETTE.length]} />)}
             </Pie>
             <Tooltip formatter={(v: number) => formatIDR(v)} contentStyle={{ background: "hsl(var(--surface))", border: "1px solid hsl(var(--line))", borderRadius: 12, color: "hsl(var(--ink))", fontSize: 12, boxShadow: "0 8px 24px -6px rgb(15 23 42 / 0.18)" }} />
           </PieChart>

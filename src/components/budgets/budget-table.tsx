@@ -32,7 +32,7 @@ function Row({ line, month }: { line: BudgetLine; month: string }) {
       <td className="num whitespace-nowrap px-4 py-3 text-right">{formatIDR(line.actual)}</td>
       <td className={`num whitespace-nowrap px-4 py-3 text-right ${line.remaining !== null && line.remaining < 0 ? "text-loss" : ""}`}>{line.remaining === null ? "—" : formatIDR(line.remaining)}</td>
       <td className="min-w-32 px-4 py-3">
-        {line.budget !== null && <div role="progressbar" aria-valuenow={pct} aria-valuemin={0} aria-valuemax={100} aria-label={`Pemakaian ${line.name}`} className="h-1.5 w-full overflow-hidden rounded-full bg-sunken"><div className={`h-full rounded-full ${line.status === "over" ? "bg-loss" : line.status === "warning" ? "bg-warn" : "bg-brand"}`} style={{ width: `${pct}%` }} /></div>}
+        {line.budget !== null && <div role="progressbar" aria-valuenow={pct} aria-valuemin={0} aria-valuemax={100} aria-label={`Pemakaian ${line.name}`} className="h-1.5 w-full overflow-hidden rounded-full bg-sunken"><div className={`h-full rounded-full ${line.status === "over" ? "bg-loss" : line.status === "warning" ? "bg-warn" : "bg-grad-accent"}`} style={{ width: `${pct}%` }} /></div>}
         <p className="mt-1 text-xs text-muted">{line.pct === null ? "—" : Number.isFinite(line.pct) ? `${Math.round(line.pct * 100)}%` : "tanpa batas"}</p></td>
       <td className="px-4 py-3"><Badge tone={tone}>{label}</Badge></td>
     </tr>

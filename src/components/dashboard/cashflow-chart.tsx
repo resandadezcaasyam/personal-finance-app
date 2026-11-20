@@ -34,8 +34,11 @@ export function CashFlowChart({ data }: { data: TrendPoint[] }) {
         <ResponsiveContainer width="100%" height="100%">
           <ComposedChart data={data} margin={{ top: 10, right: 12, left: 0, bottom: 0 }} accessibilityLayer={false}>
             <defs>
+              <linearGradient id="strokeIncome" x1="0" y1="0" x2="1" y2="0">
+                <stop offset="0%" stopColor="#2563EB" /><stop offset="55%" stopColor="#3B82F6" /><stop offset="100%" stopColor="#06B6D4" />
+              </linearGradient>
               <linearGradient id="fadeIncome" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor={INCOME} stopOpacity={0.16} />
+                <stop offset="0%" stopColor={INCOME} stopOpacity={0.22} />
                 <stop offset="100%" stopColor={INCOME} stopOpacity={0} />
               </linearGradient>
             </defs>
@@ -43,7 +46,7 @@ export function CashFlowChart({ data }: { data: TrendPoint[] }) {
             <XAxis dataKey="month" tickFormatter={formatMonthShortID} tickLine={false} axisLine={false} tick={{ fontSize: 12, fill: "currentColor" }} tickMargin={10} />
             <YAxis tickFormatter={(v: number) => formatCompactIDR(v)} width={64} tickLine={false} axisLine={false} tick={{ fontSize: 12, fill: "currentColor" }} />
             <Tooltip content={<Tip />} cursor={{ stroke: "currentColor", strokeOpacity: 0.35, strokeDasharray: "4 4" }} />
-            <Area type="monotone" dataKey="income" stroke={INCOME} strokeWidth={2.5} fill="url(#fadeIncome)" dot={false} activeDot={{ r: 5, stroke: "hsl(var(--surface))", strokeWidth: 2, fill: INCOME }} isAnimationActive={false} />
+            <Area type="monotone" dataKey="income" stroke="url(#strokeIncome)" strokeWidth={3} fill="url(#fadeIncome)" dot={false} activeDot={{ r: 5, stroke: "hsl(var(--surface))", strokeWidth: 2, fill: INCOME }} isAnimationActive={false} />
             <Line type="monotone" dataKey="expense" stroke={EXPENSE} strokeWidth={2.5} dot={false} activeDot={{ r: 5, stroke: "hsl(var(--surface))", strokeWidth: 2, fill: EXPENSE }} isAnimationActive={false} />
             <Line type="monotone" dataKey="net" stroke="currentColor" strokeOpacity={0.7} strokeWidth={1.75} strokeDasharray="5 5" dot={false} activeDot={{ r: 4, stroke: "hsl(var(--surface))", strokeWidth: 2 }} isAnimationActive={false} />
           </ComposedChart>

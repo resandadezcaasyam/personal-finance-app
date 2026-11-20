@@ -44,17 +44,19 @@ test.describe("accessibility and responsive layout", () => {
     await expect(page.getByRole("link", { name: "Lewati ke konten" })).toBeFocused();
   });
 
-  test("on a phone no page scrolls sideways", async ({ browser }) => {
-    const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, baseURL: "http://localhost:3100" });
-    const page = await ctx.newPage();
-    const wide: string[] = [];
-    for (const p of ALL_PAGES) {
-      await page.goto(p);
-      await page.waitForLoadState("networkidle");
-      const o = await page.evaluate(() => ({ sw: document.documentElement.scrollWidth, cw: document.documentElement.clientWidth }));
-      if (o.sw > o.cw + 1) wide.push(`${p}: ${o.sw} > ${o.cw}`);
-    }
-    await ctx.close();
-    expect(wide).toEqual([]);
-  });
+  for (const width of [360, 390, 768, 1024]) {
+    test(`at ${width}px no page scrolls sideways`, async ({ browser }) => {
+      const ctx = await browser.newContext({ viewport: { width, height: 844 }, baseURL: "http://localhost:3100" });
+      const page = await ctx.newPage();
+      const wide: string[] = [];
+      for (const p of ALL_PAGES) {
+        await page.goto(p);
+        await page.waitForLoadState("networkidle");
+        const o = await page.evaluate(() => ({ sw: document.documentElement.scrollWidth, cw: document.documentElement.clientWidth }));
+        if (o.sw > o.cw + 1) wide.push(`${p}: ${o.sw} > ${o.cw}`);
+      }
+      await ctx.close();
+      expect(wide).toEqual([]);
+    });
+  }
 });

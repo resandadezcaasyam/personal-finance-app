@@ -82,7 +82,7 @@ export default function ReportsPage({ searchParams: sp }: { searchParams: Record
                     {r.expenseByCategory.map((c) => (
                       <li key={c.name} className="px-5 py-3">
                         <div className="flex items-center justify-between gap-3"><span className="font-medium">{c.name}</span><span className="num">{formatIDR(c.total)} <span className="text-muted">· {pctText(c.pct)}</span></span></div>
-                        <div className="mt-1.5 h-1.5 w-full overflow-hidden rounded-full bg-sunken"><div className="h-full rounded-full bg-brand" style={{ width: `${Math.min(100, Math.round(c.pct * 100))}%` }} /></div>
+                        <div className="mt-1.5 h-1.5 w-full overflow-hidden rounded-full bg-sunken"><div className="h-full rounded-full bg-grad-accent" style={{ width: `${Math.min(100, Math.round(c.pct * 100))}%` }} /></div>
                         {c.children.length > 1 && <ul className="mt-2 space-y-0.5 text-xs text-muted">{c.children.map((x) => <li key={x.name} className="flex justify-between"><span>{x.name}</span><span className="num">{formatIDR(x.total)}</span></li>)}</ul>}
                       </li>
                     ))}

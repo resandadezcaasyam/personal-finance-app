@@ -17,7 +17,7 @@ export function DebtCards({ debts, today }: { debts: DebtSummary[]; today: strin
         const days = d.status === "active" && d.next_due_date ? daysBetween(today, d.next_due_date) : null;
         return (
           <li key={d.id}>
-            <Link href={`/debts/${d.id}`} className="group flex h-full flex-col rounded-card border border-line bg-surface p-5 shadow-card transition-colors hover:border-brand/40">
+            <Link href={`/debts/${d.id}`} className="group flex h-full flex-col rounded-card border border-line bg-surface p-5 shadow-card transition-all hover:-translate-y-0.5 hover:border-brand/40">
               <div className="flex items-start justify-between gap-3">
                 <div className="flex min-w-0 items-center gap-3">
                   <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-tint text-brand-text"><CreditCard className="h-5 w-5" aria-hidden /></span>

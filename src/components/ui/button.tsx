@@ -5,8 +5,8 @@ type Variant = "primary" | "secondary" | "ghost" | "danger";
 type Size = "sm" | "md" | "icon";
 
 const variants: Record<Variant, string> = {
-  primary: "bg-brand text-brand-ink shadow-card hover:bg-brand-hover",
-  secondary: "border border-line bg-surface text-ink shadow-card hover:bg-sunken",
+  primary: "bg-grad-fill text-brand-ink shadow-glow ring-1 ring-inset ring-white/10 hover:brightness-110 hover:shadow-[0_10px_24px_-8px_rgb(37_99_235/0.65)]",
+  secondary: "border border-line bg-surface/80 text-ink shadow-card backdrop-blur hover:border-brand/30 hover:bg-tint/70",
   ghost: "text-ink hover:bg-sunken",
   danger: "bg-loss text-white shadow-card hover:opacity-90",
 };

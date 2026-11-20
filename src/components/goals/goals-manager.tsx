@@ -75,7 +75,7 @@ export function GoalsManager({ goals, histories, accounts, today, hint }: { goal
   const archived = goals.filter((g) => g.status === "archived");
 
   const card = (g: GoalView) => (
-    <li key={g.id} className="rounded-card border border-line bg-surface p-5 shadow-card">
+    <li key={g.id} className="rounded-card border border-line bg-surface p-5 shadow-card transition-transform hover:-translate-y-0.5">
       <div className="flex flex-wrap items-start justify-between gap-2">
         <div className="flex min-w-0 items-center gap-3">
           <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-tint text-brand-text">{(() => { const KindIcon = { emergency: ShieldCheck, travel: Plane, purchase: ShoppingBag, custom: Target }[g.kind] ?? Target; return <KindIcon className="h-5 w-5" aria-hidden />; })()}</span>

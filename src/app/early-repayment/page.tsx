@@ -168,7 +168,7 @@ export default function EarlyRepaymentPage({ searchParams: sp }: { searchParams:
                   ]).map((c) => (
                     <article key={c.k} className={cn("rounded-card border p-5 shadow-card", c.b ? "border-brand/30 bg-tint/60" : "border-line bg-surface")}>
                       <div className="flex items-center gap-3">
-                        <span className={cn("flex h-9 w-9 shrink-0 items-center justify-center rounded-xl text-sm font-semibold", c.b ? "bg-brand text-brand-ink" : "bg-tint text-brand-text")} aria-hidden>{c.k}</span>
+                        <span className={cn("flex h-9 w-9 shrink-0 items-center justify-center rounded-xl text-sm font-semibold", c.b ? "bg-grad-fill text-brand-ink shadow-glow" : "bg-tint text-brand-text")} aria-hidden>{c.k}</span>
                         <div className="min-w-0"><h3 className="truncate text-sm font-semibold">Skenario {c.k}: {c.title}</h3><p className="truncate text-xs text-muted">{c.note}</p></div>
                       </div>
                       <p className="mt-4 text-xs text-muted">Kas akhir (12 bulan)</p>

@@ -2,7 +2,7 @@ import * as React from "react";
 import { cn } from "@/lib/utils";
 
 const control =
-  "w-full rounded-lg border border-line bg-surface px-3 text-sm text-ink shadow-card transition-colors placeholder:text-muted/80 hover:border-muted/40 focus-visible:border-brand disabled:opacity-60 aria-[invalid=true]:border-loss";
+  "w-full rounded-lg border border-line bg-surface px-3 text-sm text-ink shadow-card transition-colors placeholder:text-muted/80 hover:border-muted/40 focus-visible:border-brand focus-visible:shadow-[0_0_0_4px_hsl(var(--brand)/0.12)] disabled:opacity-60 aria-[invalid=true]:border-loss";
 
 export const Input = React.forwardRef<HTMLInputElement, React.InputHTMLAttributes<HTMLInputElement>>(function Input({ className, ...p }, ref) {
   return <input ref={ref} className={cn(control, "h-9", className)} {...p} />;

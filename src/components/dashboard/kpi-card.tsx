@@ -24,10 +24,11 @@ export function KpiCard({ label, value, icon: Icon, negative, caption, delta, st
   const Arrow = good === null ? Minus : up ? ArrowUpRight : ArrowDownRight;
   const chipText = delta ? `${delta.pct > 0 ? "+" : delta.pct < 0 ? "−" : ""}${Math.abs(Math.round(delta.pct))}%` : status?.label;
   return (
-    <section className={cn("min-w-0 rounded-card border bg-surface p-5 shadow-card", emphasis ? "border-brand/30" : "border-line")}>
+    <section className={cn("group relative min-w-0 overflow-hidden rounded-card border bg-surface p-5 shadow-card hover:-translate-y-0.5", emphasis ? "border-brand/30 bg-[linear-gradient(160deg,hsl(var(--brand)/0.10),transparent_55%)]" : "border-line")}>
+      {emphasis && <span className="pointer-events-none absolute inset-x-0 top-0 h-px bg-grad-accent" aria-hidden />}
       <div className="flex items-center justify-between gap-3">
         <div className="flex min-w-0 items-center gap-3">
-          <span className={cn("flex h-10 w-10 shrink-0 items-center justify-center rounded-xl", emphasis ? "bg-brand text-brand-ink" : "bg-tint text-brand-text")}><Icon className="h-5 w-5" aria-hidden /></span>
+          <span className={cn("flex h-10 w-10 shrink-0 items-center justify-center rounded-xl", emphasis ? "bg-grad-fill text-brand-ink shadow-glow ring-1 ring-inset ring-white/15" : "bg-tint text-brand-text ring-1 ring-inset ring-brand/10 transition-colors group-hover:bg-brand/15")}><Icon className="h-5 w-5" aria-hidden /></span>
           <h2 className="truncate text-[13px] font-medium text-muted">{label}</h2>
         </div>
         {delta && (

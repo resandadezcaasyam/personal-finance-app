@@ -35,10 +35,12 @@ const config: Config = {
         // Kept as an alias so existing `font-display` headings are now sans-serif too.
         display: ['"Inter Variable"', "Inter", '"Segoe UI"', "system-ui", "-apple-system", "Roboto", "Arial", "sans-serif"],
       },
-      borderRadius: { card: "16px" },
+      borderRadius: { card: "18px" },
+      backgroundImage: { "grad-accent": "var(--grad-accent)", "grad-fill": "var(--grad-fill)" },
       boxShadow: {
         card: "0 1px 2px 0 rgb(15 23 42 / 0.04), 0 4px 16px -8px rgb(21 93 252 / 0.10)",
-        pop: "0 8px 24px -6px rgb(15 23 42 / 0.18), 0 2px 6px -2px rgb(15 23 42 / 0.08)",
+        pop: "0 12px 32px -8px rgb(15 23 42 / 0.28), 0 2px 6px -2px rgb(15 23 42 / 0.1)",
+        glow: "var(--glow)",
       },
     },
   },

@@ -108,7 +108,7 @@ export function AccountsManager({ accounts, archived, today }: { accounts: Accou
             const share = positiveTotal > 0 && a.balance > 0 ? (a.balance / positiveTotal) * 100 : 0;
             return (
               <li key={a.id}>
-                <article data-account-name={a.name} className="flex h-full flex-col rounded-card border border-line bg-surface p-5 shadow-card">
+                <article data-account-name={a.name} className="flex h-full flex-col rounded-card border border-line bg-surface p-5 shadow-card transition-transform hover:-translate-y-0.5">
                   <div className="flex items-start justify-between gap-3">
                     <div className="flex min-w-0 items-center gap-3">
                       <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-tint text-brand-text"><Icon className="h-5 w-5" aria-hidden /></span>
@@ -121,7 +121,7 @@ export function AccountsManager({ accounts, archived, today }: { accounts: Accou
                   </div>
                   <p data-balance className={`num mt-5 text-[26px] font-semibold leading-8 tracking-tight ${a.balance < 0 ? "text-loss" : ""}`}>{formatIDR(a.balance)}</p>
                   <p className="mt-1 text-xs text-muted">{share > 0 ? `${Math.round(share)}% dari total kas` : a.balance < 0 ? "Saldo negatif: periksa pencatatan" : "Tidak ada saldo positif"} · saldo awal {formatIDR(a.initial_balance)}</p>
-                  <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-sunken" aria-hidden><div className="h-full rounded-full bg-brand" style={{ width: `${share > 0 ? Math.max(3, Math.round(share)) : 0}%` }} /></div>
+                  <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-sunken" aria-hidden><div className="h-full rounded-full bg-grad-accent" style={{ width: `${share > 0 ? Math.max(3, Math.round(share)) : 0}%` }} /></div>
                   <div className="mt-auto flex flex-wrap gap-2 pt-5">
                     <Link href={`/transactions?account=${a.id}`} aria-label={`Riwayat ${a.name}`} className="inline-flex h-8 items-center gap-1.5 rounded-lg border border-line bg-surface px-3 text-[13px] font-medium shadow-card transition-colors hover:bg-sunken"><History className="h-4 w-4" aria-hidden />Riwayat</Link>
                     <Button size="sm" variant="secondary" onClick={() => setDlg({ kind: "reconcile", account: a })} aria-label={`Rekonsiliasi ${a.name}`}><Scale className="h-4 w-4" aria-hidden />Rekonsiliasi</Button>
