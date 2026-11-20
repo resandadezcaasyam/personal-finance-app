@@ -21,7 +21,7 @@ export function ThemeToggle() {
       aria-label={next === "dark" ? "Aktifkan mode gelap" : "Aktifkan mode terang"}
       onClick={() => { applyTheme(next); setMode(next); }}
     >
-      {mode === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+      {mode === "dark" ? <Sun className="h-[18px] w-[18px]" /> : <Moon className="h-[18px] w-[18px]" />}
     </Button>
   );
 }

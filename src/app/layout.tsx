@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import "@fontsource-variable/inter/wght.css";
 import "./globals.css";
 import { AppShell } from "@/components/layout/app-shell";
 import { ToastProvider } from "@/components/toast";
@@ -13,8 +14,8 @@ export const metadata: Metadata = {
 };
 export const dynamic = "force-dynamic";
 
-// Applies the saved theme before first paint to avoid a flash. Inline, so no external request.
-const themeScript = `try{var t=localStorage.getItem('theme');if(!t){t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'}document.documentElement.classList.toggle('dark',t==='dark')}catch(e){}`;
+// Applies the saved theme and sidebar state before first paint to avoid a flash. Inline, so no external request.
+const themeScript = `try{var t=localStorage.getItem('theme');if(!t){t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'}document.documentElement.classList.toggle('dark',t==='dark');if(localStorage.getItem('sidebar')==='collapsed')document.documentElement.setAttribute('data-sidebar','collapsed')}catch(e){}`;
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   const locked = !hasValidSession();

@@ -18,12 +18,12 @@ export function Dialog({ open, onClose, title, description, children, wide }: { 
       onClose={onClose}
       onClick={(e) => e.target === ref.current && onClose()}
       aria-labelledby="dlg-title"
-      className={`max-h-[90vh] ${wide ? "w-[min(94vw,34rem)]" : "w-[min(92vw,28rem)]"} overflow-y-auto rounded-card border border-line bg-surface p-0 text-ink`}
+      className={`max-h-[90vh] ${wide ? "w-[min(94vw,34rem)]" : "w-[min(92vw,28rem)]"} overflow-y-auto rounded-2xl border border-line bg-surface p-0 text-ink shadow-pop backdrop:backdrop-blur-[2px]`}
     >
-      <div className="flex items-start justify-between gap-3 border-b border-line px-5 py-4">
+      <div className="flex items-start justify-between gap-3 border-b border-line px-5 py-3.5">
         <div>
-          <h2 id="dlg-title" className="text-base font-semibold">{title}</h2>
-          {description && <p className="mt-1 text-sm text-muted">{description}</p>}
+          <h2 id="dlg-title" className="text-[15px] font-semibold tracking-tight">{title}</h2>
+          {description && <p className="mt-1 text-[13px] text-muted">{description}</p>}
         </div>
         <Button variant="ghost" size="icon" onClick={onClose} aria-label="Tutup"><X className="h-4 w-4" /></Button>
       </div>

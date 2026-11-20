@@ -118,6 +118,15 @@ export function TransactionsManager({ rows, accounts, categories, today, allowed
   const [pending, startTransition] = React.useTransition();
   const toast = useToast();
   const closeVoid = () => { setVoiding(null); setErr(undefined); };
+  // The global "Tambah transaksi" button links here with ?tambah=1: open the form once, then clean the address bar.
+  React.useEffect(() => {
+    const u = new URL(window.location.href);
+    if (u.searchParams.get("tambah") === "1") {
+      setDlg({ kind: "create" });
+      u.searchParams.delete("tambah");
+      window.history.replaceState(null, "", `${u.pathname}${u.search}${u.hash}`);
+    }
+  }, []);
 
   const cols: Column<LedgerEntry>[] = [
     { key: "date", header: "Tanggal", render: (r) => <span className="whitespace-nowrap">{formatDateID(r.occurred_on)}</span> },
