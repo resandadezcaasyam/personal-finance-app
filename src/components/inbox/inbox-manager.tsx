@@ -114,7 +114,7 @@ export function InboxManager({ rows, accounts, categories, today, emptyText }: {
   return (
     <>
       {sel.size > 0 && (
-        <div role="region" aria-label="Aksi massal" className="sticky top-14 z-20 mb-3 flex flex-wrap items-center gap-2 rounded-card border border-brand/40 bg-surface p-3 shadow-md">
+        <div role="region" aria-label="Aksi massal" className="sticky top-16 z-20 mb-3 flex flex-wrap items-center gap-2 rounded-card border border-brand/40 bg-surface p-3 shadow-pop">
           <span className="text-sm font-medium">{sel.size} dipilih</span>
           <Button size="sm" onClick={() => approve(ids)} disabled={busy}><Check className="h-4 w-4" aria-hidden />Setujui</Button>
           <Button size="sm" variant="secondary" onClick={() => reject(ids)} disabled={busy}><X className="h-4 w-4" aria-hidden />Tolak</Button>
@@ -131,12 +131,12 @@ export function InboxManager({ rows, accounts, categories, today, emptyText }: {
         </div>
       )}
 
-      <div className="overflow-x-auto rounded-card border border-line bg-surface">
-        <table className="w-full text-sm">
-          <thead><tr className="border-b border-line text-left text-muted">
+      <div className="overflow-x-auto rounded-card border border-line bg-surface shadow-card">
+        <table className="w-full text-[13px]">
+          <thead><tr className="bg-sunken/70 text-left">
             <th scope="col" className="w-10 px-4 py-2.5"><input type="checkbox" aria-label="Pilih semua di halaman ini" className="h-4 w-4" checked={allSelected} disabled={pendingRows.length === 0} onChange={() => setSel(allSelected ? new Set() : new Set(pendingRows.map((r) => r.id)))} /></th>
-            <th scope="col" className="px-3 py-2.5 font-medium">Tanggal</th><th scope="col" className="px-3 py-2.5 font-medium">Keterangan</th><th scope="col" className="px-3 py-2.5 font-medium">Akun</th>
-            <th scope="col" className="px-3 py-2.5 font-medium">Kategori</th><th scope="col" className="px-3 py-2.5 text-right font-medium">Nominal</th><th scope="col" className="px-3 py-2.5 font-medium">Status</th><th scope="col" className="px-3 py-2.5 text-right font-medium">Aksi</th>
+            <th scope="col" className="px-3 py-2.5 font-medium">Tanggal</th><th scope="col" className="px-3 py-2.5 font-medium">Keterangan</th><th scope="col" className="px-3 py-2.5 font-medium">Akun &amp; kategori</th>
+            <th scope="col" className="px-3 py-2.5 text-right font-medium">Nominal &amp; status</th><th scope="col" className="px-3 py-2.5"><span className="sr-only">Aksi</span></th>
           </tr></thead>
           <tbody>
             {rows.map((r) => {
@@ -146,7 +146,7 @@ export function InboxManager({ rows, accounts, categories, today, emptyText }: {
                 <tr key={r.id} className={`border-b border-line align-top last:border-0 ${r.status === "rejected" ? "opacity-60" : ""}`}>
                   <td className="px-4 py-3">{canAct && <input type="checkbox" className="h-4 w-4" aria-label={`Pilih ${r.description ?? "item"}`} checked={sel.has(r.id)} onChange={() => toggle(r.id)} />}</td>
                   <td className="whitespace-nowrap px-3 py-3">{r.occurred_on ? formatDateID(r.occurred_on) : <Badge tone="warn">Belum ada</Badge>}</td>
-                  <td className="min-w-[16rem] px-3 py-3">
+                  <td className="min-w-[14rem] px-3 py-3">
                     <p className="font-medium">{r.description || "(tanpa keterangan)"}</p>
                     <div className="mt-1 flex flex-wrap items-center gap-1.5 text-xs text-muted">
                       <Badge>{SOURCE[r.source_kind] ?? r.source_kind}</Badge>
@@ -158,10 +158,8 @@ export function InboxManager({ rows, accounts, categories, today, emptyText }: {
                     {r.note && canAct && <p className="mt-1 text-xs text-muted">{r.note}</p>}
                     {r.status === "approved" && r.posted_ref && <p className="mt-1 text-xs text-muted">Tercatat sebagai {r.posted_ref.startsWith("transfer") ? "transfer" : r.posted_ref.startsWith("debt") ? "pembayaran cicilan" : r.posted_ref.startsWith("bill") ? "pembayaran tagihan" : "transaksi"}</p>}
                   </td>
-                  <td className="px-3 py-3">{r.account_name ?? <span className="text-warn">Belum dipilih</span>}</td>
-                  <td className="px-3 py-3">{r.type === "transfer" ? "—" : r.category_name ? <>{r.parent_category_name ? `${r.parent_category_name} › ` : ""}{r.category_name}{r.category_source === "rule" && <span className="ml-1 text-xs text-muted">(aturan)</span>}</> : <span className="text-warn">Belum ada</span>}</td>
-                  <td className={`num whitespace-nowrap px-3 py-3 text-right ${r.type === "income" ? "text-gain" : ""}`}>{r.amount ? `${r.type === "income" ? "+" : "−"}${formatIDR(r.amount)}` : <Badge tone="warn">Belum ada</Badge>}</td>
-                  <td className="px-3 py-3"><Badge tone={tone}>{label}</Badge></td>
+                  <td className="px-3 py-3"><div className="text-[13px] font-medium">{r.account_name ?? <span className="text-warn">Belum dipilih</span>}</div><div className="mt-1 text-xs text-muted">{r.type === "transfer" ? "—" : r.category_name ? <>{r.parent_category_name ? `${r.parent_category_name} › ` : ""}{r.category_name}{r.category_source === "rule" && <span className="ml-1 text-xs text-muted">(aturan)</span>}</> : <span className="text-warn">Belum ada</span>}</div></td>
+                  <td className={`num whitespace-nowrap px-3 py-3 text-right ${r.type === "income" ? "text-gain" : r.type === "expense" ? "text-loss" : ""}`}><div className="font-semibold">{r.amount ? `${r.type === "income" ? "+" : "−"}${formatIDR(r.amount)}` : <Badge tone="warn">Belum ada</Badge>}</div><div className="mt-1.5 flex justify-end"><Badge tone={tone}>{label}</Badge></div></td>
                   <td className="whitespace-nowrap px-3 py-3 text-right">
                     {canAct && (
                       <div className="flex justify-end gap-1">

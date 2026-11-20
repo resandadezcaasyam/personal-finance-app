@@ -53,14 +53,17 @@ export default function InboxPage({ searchParams }: { searchParams: Record<strin
   return (
     <>
       <PageHeader title="Kotak Masuk Pintar" description="Semua transaksi dari impor, OCR, dan Catat Cepat berhenti di sini dulu. Periksa, ubah, lalu setujui. Hanya item yang disetujui yang masuk ke buku besar dan memengaruhi saldo." />
-      <nav aria-label="Status" className="mb-4 flex flex-wrap gap-1 border-b border-line">
-        {TABS.map(([v, l]) => (
-          <Link key={v} href={`/inbox?status=${v}${batch ? `&batch=${batch}` : ""}`} aria-current={!rulesTab && status === v ? "page" : undefined}
-            className={cn("-mb-px flex items-center gap-1.5 border-b-2 px-3 py-2 text-sm font-medium", !rulesTab && status === v ? "border-brand text-brand-text" : "border-transparent text-muted hover:text-ink")}>
-            {l}{countOf(v) ? <Badge tone={v === "potential_duplicate" ? "loss" : v === "needs_review" ? "warn" : "neutral"}>{countOf(v)}</Badge> : null}
-          </Link>
-        ))}
-        <Link href="/inbox?tab=rules" aria-current={rulesTab ? "page" : undefined} className={cn("-mb-px ml-auto border-b-2 px-3 py-2 text-sm font-medium", rulesTab ? "border-brand text-brand-text" : "border-transparent text-muted hover:text-ink")}>Aturan merchant</Link>
+      <nav aria-label="Status" className="mb-5 flex max-w-full flex-wrap items-center gap-0.5 rounded-xl bg-sunken p-1">
+        {TABS.map(([v, l]) => {
+          const active = !rulesTab && status === v;
+          return (
+            <Link key={v} href={`/inbox?status=${v}${batch ? `&batch=${batch}` : ""}`} aria-current={active ? "page" : undefined}
+              className={cn("flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-[13px] font-medium transition-colors", active ? "bg-surface text-brand-text shadow-card" : "text-muted hover:text-ink")}>
+              {l}{countOf(v) ? <Badge tone={v === "potential_duplicate" ? "loss" : v === "needs_review" ? "warn" : "neutral"}>{countOf(v)}</Badge> : null}
+            </Link>
+          );
+        })}
+        <Link href="/inbox?tab=rules" aria-current={rulesTab ? "page" : undefined} className={cn("ml-auto rounded-lg px-3 py-1.5 text-[13px] font-medium transition-colors", rulesTab ? "bg-surface text-brand-text shadow-card" : "text-muted hover:text-ink")}>Aturan merchant</Link>
       </nav>
       {body}
     </>

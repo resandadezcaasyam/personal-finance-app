@@ -161,8 +161,35 @@ export default function EarlyRepaymentPage({ searchParams: sp }: { searchParams:
                   </Card>
                 </section>
 
+                <section aria-label="Ringkasan skenario A dan B" className="mt-6 grid gap-4 md:grid-cols-2">
+                  {([
+                    { k: "A", title: "Lanjut mencicil", note: "Sesuai jadwal tanpa pelunasan", m: ma, free: sim.debtFreeA, b: false },
+                    { k: "B", title: `${s.mode === "full" ? "Lunasi" : "Bayar sebagian"} ${formatDateID(s.date)}`, note: `Uang keluar ${formatIDR(s.cashOut)}`, m: mb, free: sim.debtFreeB, b: true },
+                  ]).map((c) => (
+                    <article key={c.k} className={cn("rounded-card border p-5 shadow-card", c.b ? "border-brand/30 bg-tint/60" : "border-line bg-surface")}>
+                      <div className="flex items-center gap-3">
+                        <span className={cn("flex h-9 w-9 shrink-0 items-center justify-center rounded-xl text-sm font-semibold", c.b ? "bg-brand text-brand-ink" : "bg-tint text-brand-text")} aria-hidden>{c.k}</span>
+                        <div className="min-w-0"><h3 className="truncate text-sm font-semibold">Skenario {c.k}: {c.title}</h3><p className="truncate text-xs text-muted">{c.note}</p></div>
+                      </div>
+                      <p className="mt-4 text-xs text-muted">Kas akhir (12 bulan)</p>
+                      <p className={cn("num text-[26px] font-semibold leading-8 tracking-tight", c.m.closingCash < 0 && "text-loss")}>{formatIDR(c.m.closingCash)}</p>
+                      <dl className="mt-4 grid grid-cols-2 gap-x-4 gap-y-3 text-[13px]">
+                        <div><dt className="text-xs text-muted">Saldo terendah</dt><dd className={cn("num font-medium", c.m.lowest.balance < 0 && "text-loss")}>{formatIDR(c.m.lowest.balance)}</dd></div>
+                        <div><dt className="text-xs text-muted">Hari saldo negatif</dt><dd className="num font-medium">{c.m.deficitDays}</dd></div>
+                        <div><dt className="text-xs text-muted">Risiko likuiditas</dt><dd><Badge tone={RISK[c.m.risk][0]}>{RISK[c.m.risk][1]}</Badge></dd></div>
+                        <div><dt className="text-xs text-muted">Bebas utang</dt><dd className="font-medium">{c.free ? formatDateID(c.free) : "—"}</dd></div>
+                      </dl>
+                      {c.b && (
+                        <p className="mt-4 rounded-lg bg-surface/80 px-3 py-2 text-xs ring-1 ring-inset ring-line">
+                          Selisih kas akhir terhadap A: <strong className={cn("num", mb.closingCash - ma.closingCash < 0 ? "text-loss" : mb.closingCash - ma.closingCash > 0 ? "text-gain" : "")}>{signed(mb.closingCash - ma.closingCash)}</strong>
+                        </p>
+                      )}
+                    </article>
+                  ))}
+                </section>
+
                 <section aria-labelledby="h-cmp" className="mt-8">
-                  <h2 id="h-cmp" className="mb-2 font-display text-xl font-semibold">3. Perbandingan <Badge tone="warn">Proyeksi</Badge></h2>
+                  <h2 id="h-cmp" className="mb-2 text-lg font-semibold tracking-tight">3. Perbandingan <Badge tone="warn">Proyeksi</Badge></h2>
                   <div tabIndex={0} role="region" aria-label="Tabel yang dapat digulir ke samping" className="overflow-x-auto rounded-card border border-line bg-surface">
                     <table className="w-full text-sm">
                       <thead><tr className="border-b border-line text-left text-muted"><th scope="col" className="px-4 py-2.5 font-medium">Ukuran</th><th scope="col" className="px-4 py-2.5 font-medium">A: lanjut mencicil</th><th scope="col" className="px-4 py-2.5 font-medium">B: {s.mode === "full" ? "lunasi" : "bayar sebagian"} {formatDateID(s.date)}</th><th scope="col" className="px-4 py-2.5 text-right font-medium">Selisih (B − A)</th></tr></thead>
@@ -181,7 +208,7 @@ export default function EarlyRepaymentPage({ searchParams: sp }: { searchParams:
                 </section>
 
                 <section aria-labelledby="h-break" className="mt-8">
-                  <h2 id="h-break" className="mb-2 font-display text-xl font-semibold">4. Rincian pembayaran pada {formatDateID(s.date)}</h2>
+                  <h2 id="h-break" className="mb-2 text-lg font-semibold tracking-tight">4. Rincian pembayaran pada {formatDateID(s.date)}</h2>
                   <div className="grid gap-4 lg:grid-cols-2">
                     <Card><CardBody className="p-0"><div tabIndex={0} role="region" aria-label="Tabel yang dapat digulir ke samping" className="overflow-x-auto"><table className="w-full text-sm">
                       <thead><tr className="border-b border-line text-left text-muted"><th scope="col" className="px-4 py-2 font-medium">Cicilan</th><th scope="col" className="px-4 py-2 font-medium">Jatuh tempo</th><th scope="col" className="px-4 py-2 text-right font-medium">Sisa jadwal</th><th scope="col" className="px-4 py-2 text-right font-medium">Dibayar</th><th scope="col" className="px-4 py-2 text-right font-medium">Sisa setelahnya</th></tr></thead>
@@ -226,7 +253,7 @@ export default function EarlyRepaymentPage({ searchParams: sp }: { searchParams:
           })()}
 
           <section aria-labelledby="h-saved" className="mt-8">
-            <h2 id="h-saved" className="mb-2 font-display text-xl font-semibold">Skenario tersimpan</h2>
+            <h2 id="h-saved" className="mb-2 text-lg font-semibold tracking-tight">Skenario tersimpan</h2>
             <Card><CardBody>
               <ScenarioManager canSave={!!sim} saved={savedItems} fields={{ debt: sp.debt ?? "", date: q.raw.date, mode: q.params?.mode ?? "full", amt: q.raw.amount, quote: q.raw.quote, rb: q.raw.rebate, fee: q.raw.fee, pen: q.raw.penalty, preset: q.preset, buf: q.raw.buffer }} />
               {compareCols.length > 0 && (
@@ -248,10 +275,10 @@ export default function EarlyRepaymentPage({ searchParams: sp }: { searchParams:
           </section>
 
           <section aria-labelledby="h-strat" className="mt-10">
-            <h2 id="h-strat" className="mb-1 font-display text-xl font-semibold">Strategi pelunasan beberapa utang</h2>
+            <h2 id="h-strat" className="mb-1 text-lg font-semibold tracking-tight">Strategi pelunasan beberapa utang</h2>
             <p className="mb-3 max-w-prose text-sm text-muted">Semua utang tetap dicicil sesuai jadwal. Anggaran tambahan per bulan dipakai untuk melunasi cicilan berikutnya dari satu utang sasaran, sesuai strategi. Tanpa rebat, semua strategi membayar total yang sama dan hanya berbeda pada kecepatan bebas utang.</p>
             <Card><CardBody className="space-y-5">
-              <form method="get" action="/early-repayment" className="grid gap-3 sm:grid-cols-2 lg:grid-cols-6">
+              <form method="get" action="/early-repayment" className="grid gap-3 sm:grid-cols-2 xl:grid-cols-6">
                 {hidden(["debt", "date", "mode", "amt", "quote", "rb", "fee", "pen", "preset", "buf", "cmp"])}
                 <label className="space-y-1.5 text-sm font-medium lg:col-span-2">Anggaran tambahan per bulan<Input name="extra" defaultValue={q.strategy.rawExtra} inputMode="numeric" placeholder="Contoh: 500rb" className="font-normal" /><span className="block text-xs font-normal text-muted">Surplus rutin Anda ±{formatIDR(Math.max(0, baselineSurplus))} / bulan (proyeksi baseline).</span></label>
                 <label className="space-y-1.5 text-sm font-medium">Rebat bunga (%)<Input name="srb" defaultValue={q.strategy.rawRebate} inputMode="decimal" placeholder="0" className="font-normal" /><span className="block text-xs font-normal text-muted">Berlaku bagi cicilan yang dibayar lebih awal.</span></label>

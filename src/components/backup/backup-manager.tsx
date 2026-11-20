@@ -35,7 +35,7 @@ export function BackupManager({ backups, personal, startupProblem }: { backups: 
 
       <section aria-labelledby="h-bk">
         <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
-          <h2 id="h-bk" className="font-display text-xl font-semibold">Cadangan</h2>
+          <h2 id="h-bk" className="text-lg font-semibold tracking-tight">Cadangan</h2>
           <div className="flex flex-wrap gap-2">
             <a href="/api/export?kind=all" download className="inline-flex h-10 items-center gap-2 rounded-md border border-line px-4 text-sm font-medium hover:bg-sunken"><HardDriveDownload className="h-4 w-4" aria-hidden />Ekspor semua data (JSON)</a>
             <Button disabled={pending || !personal} onClick={() => start(async () => { const r = await createBackupAction(); toast(r.ok ? "Cadangan dibuat" : r.message ?? "Gagal", r.ok ? "ok" : "error"); })}>{pending ? "Memproses…" : "Buat cadangan sekarang"}</Button>
@@ -76,7 +76,7 @@ export function BackupManager({ backups, personal, startupProblem }: { backups: 
 
       <section aria-labelledby="h-int">
         <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
-          <h2 id="h-int" className="font-display text-xl font-semibold">Kesehatan data</h2>
+          <h2 id="h-int" className="text-lg font-semibold tracking-tight">Kesehatan data</h2>
           <Button variant="secondary" disabled={pending} onClick={() => start(async () => { const r = await runIntegrityAction(); if (r.report) setReport(r.report); else toast(r.message ?? "Gagal", "error"); })}><ListChecks className="h-4 w-4" aria-hidden />Periksa integritas</Button>
         </div>
         <p className="mb-3 max-w-prose text-sm text-muted">Memeriksa struktur berkas, keterkaitan antar data, dan kecocokan angka (cicilan, pembayaran, tagihan, target tabungan) dengan buku besar. Pemeriksaan ini hanya membaca dan tidak mengubah apa pun.</p>

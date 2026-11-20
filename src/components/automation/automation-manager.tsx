@@ -94,7 +94,7 @@ export function AutomationManager({ planned, rules, patterns, accounts, categori
   return (
     <div className="space-y-10">
       <section aria-labelledby="h-planned">
-        <h2 id="h-planned" className="mb-1 font-display text-xl font-semibold">Jadwal menunggu keputusan</h2>
+        <h2 id="h-planned" className="mb-1 text-lg font-semibold tracking-tight">Jadwal menunggu keputusan</h2>
         <p className="mb-3 max-w-prose text-sm text-muted">Ini rencana, bukan catatan. Saldo baru berubah setelah Anda mengonfirmasi. Jadwal yang sudah ada transaksinya ditawarkan untuk ditautkan agar tidak dicatat ganda.</p>
         <div className="overflow-x-auto rounded-card border border-line bg-surface">
           {planned.length === 0 ? <div className="p-5"><EmptyState icon={Repeat} title="Tidak ada jadwal yang menunggu" description="Jadwal dari aturan berulang yang jatuh tempo (dan 7 hari ke depan) muncul di sini." /></div> : (
@@ -123,7 +123,7 @@ export function AutomationManager({ planned, rules, patterns, accounts, categori
 
       {patterns.length > 0 && (
         <section aria-labelledby="h-patterns">
-          <h2 id="h-patterns" className="mb-1 font-display text-xl font-semibold">Pola berulang terdeteksi</h2>
+          <h2 id="h-patterns" className="mb-1 text-lg font-semibold tracking-tight">Pola berulang terdeteksi</h2>
           <p className="mb-3 max-w-prose text-sm text-muted">Dari riwayat transaksi Anda: kemunculan teratur dengan nominal yang stabil. Ini hanya saran; tidak ada aturan dibuat sebelum Anda menyetujuinya.</p>
           <ul className="grid gap-3 md:grid-cols-2">
             {patterns.map((s) => (
@@ -143,7 +143,7 @@ export function AutomationManager({ planned, rules, patterns, accounts, categori
 
       <section aria-labelledby="h-rules">
         <div className="mb-3 flex items-center justify-between gap-3">
-          <h2 id="h-rules" className="font-display text-xl font-semibold">Aturan berulang</h2>
+          <h2 id="h-rules" className="text-lg font-semibold tracking-tight">Aturan berulang</h2>
           <Button variant="secondary" onClick={() => setRuleDlg({})}><Plus className="h-4 w-4" aria-hidden />Tambah aturan</Button>
         </div>
         <div className="overflow-x-auto rounded-card border border-line bg-surface">

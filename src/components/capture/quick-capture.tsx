@@ -1,7 +1,8 @@
 "use client";
 import * as React from "react";
+import { cn } from "@/lib/utils";
 import Link from "next/link";
-import { ClipboardPaste, Sparkles, Trash2, Star, Send, CheckCheck, AlertTriangle, Link2 } from "lucide-react";
+import { ClipboardPaste, Sparkles, Trash2, Star, Send, CheckCheck, AlertTriangle, Link2, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog } from "@/components/ui/dialog";
 import { Input, Select, Textarea } from "@/components/ui/form-field";
@@ -96,9 +97,13 @@ export function QuickCapture({ accounts, categories, templates, today, aiEnabled
 
   return (
     <div className="space-y-6">
-      <section className="rounded-card border border-line bg-surface p-5">
-        <label htmlFor="qc-text" className="text-sm font-medium">Ketik transaksi dengan bahasa sehari-hari</label>
-        <Textarea id="qc-text" value={text} onChange={(e) => setText(e.target.value)} rows={3} className="mt-2" placeholder={"kopi 25rb gopay\nmakan 30k cash\ngaji masuk 9.5jt seabank"}
+      <section className="rounded-card border border-line bg-surface p-6 shadow-card">
+        <div className="mb-4 flex items-center gap-3">
+          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-tint text-brand-text"><Zap className="h-5 w-5" aria-hidden /></span>
+          <div><p className="text-base font-semibold tracking-tight">Tulis seperti chat</p><p className="text-[13px] text-muted">Dibaca di komputer ini. Anda memeriksa pratinjaunya sebelum apa pun tercatat.</p></div>
+        </div>
+        <label htmlFor="qc-text" className="text-[13px] font-medium">Ketik transaksi dengan bahasa sehari-hari</label>
+        <Textarea id="qc-text" value={text} onChange={(e) => setText(e.target.value)} rows={4} className="mt-2 text-[15px] leading-6" placeholder={"kopi 25rb gopay\nmakan 30k cash\ngaji masuk 9.5jt seabank"}
           onKeyDown={(e) => { if ((e.ctrlKey || e.metaKey) && e.key === "Enter") read(); }} />
         <p className="mt-1 text-xs text-muted">Satu baris per transaksi, atau pisahkan dengan &ldquo;sama&rdquo;, &ldquo;dan&rdquo;, atau &ldquo;;&rdquo;. Tanggal opsional: kemarin, 17/11, tgl 3. Ctrl+Enter untuk membaca.</p>
         <div className="mt-3 flex flex-wrap gap-2">
@@ -108,7 +113,7 @@ export function QuickCapture({ accounts, categories, templates, today, aiEnabled
         </div>
         <div className="mt-3 flex flex-wrap items-center gap-1.5 text-xs">
           <span className="text-muted">Contoh:</span>
-          {EXAMPLES.map((e) => <button key={e} type="button" onClick={() => setText(e)} className="rounded-full border border-line px-2.5 py-1 hover:bg-sunken">{e}</button>)}
+          {EXAMPLES.map((e) => <button key={e} type="button" onClick={() => setText(e)} className="rounded-full border border-line bg-surface px-2.5 py-1 transition-colors hover:border-brand/40 hover:bg-tint hover:text-brand-text">{e}</button>)}
         </div>
         {templates.length > 0 && (
           <div className="mt-4 flex flex-wrap items-center gap-1.5 border-t border-line pt-4 text-sm">
@@ -129,11 +134,13 @@ export function QuickCapture({ accounts, categories, templates, today, aiEnabled
 
       {rows && (
         <section aria-label="Pratinjau" className="space-y-3">
-          <h2 className="font-display text-xl font-semibold">Pratinjau ({rows.length})</h2>
+          <h2 className="text-lg font-semibold tracking-tight">Pratinjau ({rows.length})</h2>
           <p className="text-sm text-muted">Periksa dan ubah bila perlu. Belum ada yang tercatat sampai Anda menekan tombol di bawah.</p>
           {rows.map((r, idx) => {
             return (
-              <div key={r.key} className="rounded-card border border-line bg-surface p-4">
+              <div key={r.key} className="flex overflow-hidden rounded-card border border-line bg-surface shadow-card">
+                <span className={cn("w-1 shrink-0", r.type === "income" ? "bg-gain" : r.type === "expense" ? "bg-loss" : "bg-brand")} aria-hidden />
+                <div className="min-w-0 flex-1 p-4">
                 <div className="grid gap-3 sm:grid-cols-6">
                   <label className="space-y-1 text-xs text-muted sm:col-span-1">Jenis
                     <Select value={r.type} onChange={(e) => patch(r.key, { type: e.target.value as Row["type"], category_id: null, category_source: null })} className="text-ink">
@@ -168,6 +175,7 @@ export function QuickCapture({ accounts, categories, templates, today, aiEnabled
                     {r.type !== "transfer" && <Button size="sm" variant="ghost" onClick={() => { setTplFor(r); setTplName(r.description.slice(0, 40)); setTplErr(undefined); }}><Star className="h-3.5 w-3.5" aria-hidden />Jadikan template</Button>}
                     <Button size="sm" variant="ghost" aria-label={`Hapus baris ${idx + 1}`} onClick={() => setRows((rs) => (rs ? rs.filter((x) => x.key !== r.key) : rs))}><Trash2 className="h-4 w-4" aria-hidden /></Button>
                   </span>
+                </div>
                 </div>
               </div>
             );

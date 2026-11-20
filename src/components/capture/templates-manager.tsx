@@ -58,7 +58,7 @@ export function TemplatesManager({ templates, accounts, categories }: { template
   return (
     <>
       <div className="mb-3 flex items-center justify-between gap-3">
-        <h2 className="font-display text-xl font-semibold">Template favorit</h2>
+        <h2 className="text-lg font-semibold tracking-tight">Template favorit</h2>
         <Button variant="secondary" onClick={() => setOpen(true)}><Plus className="h-4 w-4" aria-hidden />Tambah template</Button>
       </div>
       <div className="rounded-card border border-line bg-surface">

@@ -72,7 +72,7 @@ export default function ReportsPage({ searchParams: sp }: { searchParams: Record
 
           <section aria-labelledby="h-cat" className="mt-8 grid gap-6 lg:grid-cols-2">
             <div>
-              <h2 id="h-cat" className="mb-2 font-display text-xl font-semibold">Pengeluaran per kategori</h2>
+              <h2 id="h-cat" className="mb-2 text-lg font-semibold tracking-tight">Pengeluaran per kategori</h2>
               <div className="rounded-card border border-line bg-surface">
                 {r.expenseByCategory.length === 0 ? <p className="p-5 text-sm text-muted">Tidak ada pengeluaran.</p> : (
                   <ul className="divide-y divide-line text-sm">
@@ -88,7 +88,7 @@ export default function ReportsPage({ searchParams: sp }: { searchParams: Record
               </div>
             </div>
             <div>
-              <h2 className="mb-2 font-display text-xl font-semibold">Pemasukan per kategori</h2>
+              <h2 className="mb-2 text-lg font-semibold tracking-tight">Pemasukan per kategori</h2>
               <div className="rounded-card border border-line bg-surface">
                 {r.incomeByCategory.length === 0 ? <p className="p-5 text-sm text-muted">Tidak ada pemasukan.</p> : <ul className="divide-y divide-line text-sm">{r.incomeByCategory.map((c) => <li key={c.name} className="flex justify-between px-5 py-3"><span className="font-medium">{c.name}</span><span className="num text-gain">{formatIDR(c.total)}</span></li>)}</ul>}
               </div>
@@ -96,7 +96,7 @@ export default function ReportsPage({ searchParams: sp }: { searchParams: Record
           </section>
 
           <section aria-labelledby="h-debt" className="mt-8">
-            <h2 id="h-debt" className="mb-2 font-display text-xl font-semibold">Pengurangan utang</h2>
+            <h2 id="h-debt" className="mb-2 text-lg font-semibold tracking-tight">Pengurangan utang</h2>
             <div className="mb-3 grid gap-4 sm:grid-cols-3">
               <Card><CardBody><p className="text-sm text-muted">Dibayar pada periode ini</p><p className="num mt-2 text-xl font-semibold">{formatIDR(r.debt.paidInPeriod)}</p></CardBody></Card>
               <Card><CardBody><p className="text-sm text-muted">Biaya & denda</p><p className="num mt-2 text-xl font-semibold">{formatIDR(r.debt.extraInPeriod)}</p></CardBody></Card>
@@ -109,7 +109,7 @@ export default function ReportsPage({ searchParams: sp }: { searchParams: Record
           </section>
 
           <section aria-labelledby="h-budget" className="mt-8">
-            <h2 id="h-budget" className="mb-2 font-display text-xl font-semibold">Anggaran vs aktual</h2>
+            <h2 id="h-budget" className="mb-2 text-lg font-semibold tracking-tight">Anggaran vs aktual</h2>
             {r.budgets.length === 0 ? <p className="rounded-card border border-line bg-surface p-5 text-sm text-muted">Belum ada anggaran pada bulan-bulan ini. Atur di halaman <Link href="/expenses" className="underline">Pengeluaran</Link>.</p> : (
               <div className="overflow-x-auto rounded-card border border-line bg-surface"><table className="w-full text-sm">
                 <thead><tr className="border-b border-line text-left text-muted"><th scope="col" className="px-4 py-2.5 font-medium">Bulan</th><th scope="col" className="px-4 py-2.5 text-right font-medium">Anggaran</th><th scope="col" className="px-4 py-2.5 text-right font-medium">Aktual (kategori beranggaran)</th><th scope="col" className="px-4 py-2.5 text-right font-medium">Selisih</th><th scope="col" className="px-4 py-2.5 text-right font-medium">Kategori terlampaui</th></tr></thead>

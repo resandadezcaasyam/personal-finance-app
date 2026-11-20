@@ -77,7 +77,7 @@ export function ReceiptUploader() {
         onPaste={(e) => { const f = [...e.clipboardData.files]; if (f.length) { e.preventDefault(); add(f); } }}
         onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") document.getElementById("ocr-file")?.click(); }}
         onClick={() => document.getElementById("ocr-file")?.click()}
-        className={`flex cursor-pointer flex-col items-center gap-2 rounded-card border-2 border-dashed p-8 text-center ${drag ? "border-brand bg-brand/10" : "border-line hover:bg-sunken"}`}>
+        className={`flex cursor-pointer flex-col items-center gap-2 rounded-xl border-2 border-dashed p-6 text-center transition-colors ${drag ? "border-brand bg-tint" : "border-line hover:border-brand/50 hover:bg-tint/50"}`}>
         <ImageUp className="h-7 w-7 text-muted" aria-hidden />
         <p className="font-medium">Seret screenshot atau foto struk ke sini</p>
         <p className="text-sm text-muted">atau klik untuk memilih beberapa gambar sekaligus. Dibaca di komputer ini, tanpa internet.</p>
@@ -178,7 +178,7 @@ export function StatementImporter({ accounts, today }: { accounts: AccountWithBa
 
   return (
     <div className="space-y-4">
-      <label className="flex cursor-pointer flex-col items-center gap-2 rounded-card border-2 border-dashed border-line p-8 text-center hover:bg-sunken focus-within:outline focus-within:outline-2 focus-within:outline-brand">
+      <label className="flex cursor-pointer flex-col items-center gap-2 rounded-xl border-2 border-dashed border-line p-6 text-center transition-colors hover:border-brand/50 hover:bg-tint/50 focus-within:outline focus-within:outline-2 focus-within:outline-brand">
         {busy === "parse" ? <Loader2 className="h-7 w-7 animate-spin text-muted" aria-hidden /> : <FileSpreadsheet className="h-7 w-7 text-muted" aria-hidden />}
         <span className="font-medium">{busy === "parse" ? "Membaca file…" : "Pilih file mutasi (CSV, XLSX, atau PDF)"}</span>
         <span className="text-sm text-muted">PDF hasil pindai dibaca dengan OCR dan bisa memakan waktu lebih lama.</span>

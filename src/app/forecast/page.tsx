@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Input, Select } from "@/components/ui/form-field";
+import { KpiCard } from "@/components/dashboard/kpi-card";
 import { ForecastChart, type ChartPoint } from "@/components/forecast/forecast-chart";
 import { ForecastCalendar, calMonthRange } from "@/components/forecast/forecast-calendar";
 import { ScenarioSaver } from "@/components/forecast/scenario-saver";
@@ -66,12 +67,12 @@ export default function ForecastPage({ searchParams: sp }: { searchParams: SP })
       <PageHeader title="Proyeksi Arus Kas" description="Perkiraan saldo kas harian dari saldo sekarang, pemasukan berulang, cicilan yang belum dibayar, tagihan, dan kebiasaan belanja Anda. Semua angka di halaman ini adalah proyeksi, bukan catatan; tidak ada yang mengubah saldo Anda." />
 
       <div className="mb-4 flex flex-wrap items-center gap-x-6 gap-y-3">
-        <nav aria-label="Rentang proyeksi" className="flex gap-1 rounded-md bg-sunken p-1">
-          {MONTHS.map((m) => <Link key={m} href={qs({ months: m, cal: undefined })} aria-current={months === m ? "page" : undefined} className={cn("rounded px-3 py-1.5 text-sm font-medium", months === m ? "bg-surface shadow-sm" : "text-muted hover:text-ink")}>{m} bulan</Link>)}
+        <nav aria-label="Rentang proyeksi" className="flex gap-0.5 rounded-xl bg-sunken p-1">
+          {MONTHS.map((m) => <Link key={m} href={qs({ months: m, cal: undefined })} aria-current={months === m ? "page" : undefined} className={cn("rounded-lg px-3.5 py-1.5 text-[13px] font-medium transition-colors", months === m ? "bg-surface text-brand-text shadow-card" : "text-muted hover:text-ink")}>{m} bulan</Link>)}
         </nav>
-        <nav aria-label="Skenario" className="flex flex-wrap gap-1 rounded-md bg-sunken p-1">
-          {KEYS.map((k) => <Link key={k} href={qs({ scenario: k, ip: undefined, sp: undefined, bp: undefined, dd: undefined, cal: undefined })} aria-current={scenario === k ? "page" : undefined} className={cn("rounded px-3 py-1.5 text-sm font-medium", scenario === k ? "bg-surface shadow-sm" : "text-muted hover:text-ink")}>{PRESETS[k].label}</Link>)}
-          <Link href={qs({ scenario: "custom", ip: params.income_pct, sp: params.spending_pct, bp: params.bills_pct, dd: params.income_delay_days })} aria-current={custom ? "page" : undefined} className={cn("rounded px-3 py-1.5 text-sm font-medium", custom ? "bg-surface shadow-sm" : "text-muted hover:text-ink")}>Kustom</Link>
+        <nav aria-label="Skenario" className="flex flex-wrap gap-0.5 rounded-xl bg-sunken p-1">
+          {KEYS.map((k) => <Link key={k} href={qs({ scenario: k, ip: undefined, sp: undefined, bp: undefined, dd: undefined, cal: undefined })} aria-current={scenario === k ? "page" : undefined} className={cn("rounded-lg px-3.5 py-1.5 text-[13px] font-medium transition-colors", scenario === k ? "bg-surface text-brand-text shadow-card" : "text-muted hover:text-ink")}>{PRESETS[k].label}</Link>)}
+          <Link href={qs({ scenario: "custom", ip: params.income_pct, sp: params.spending_pct, bp: params.bills_pct, dd: params.income_delay_days })} aria-current={custom ? "page" : undefined} className={cn("rounded-lg px-3.5 py-1.5 text-[13px] font-medium transition-colors", custom ? "bg-surface text-brand-text shadow-card" : "text-muted hover:text-ink")}>Kustom</Link>
         </nav>
       </div>
       <p className="mb-6 text-sm text-muted">{custom ? "Asumsi buatan Anda (atur di bagian Asumsi di bawah)." : PRESETS[scenario as PresetKey].description}</p>
@@ -83,22 +84,10 @@ export default function ForecastPage({ searchParams: sp }: { searchParams: SP })
       )}
 
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <Card><CardBody>
-          <div className="flex items-center justify-between text-sm text-muted">Kas sekarang <Wallet className="h-4 w-4" aria-hidden /></div>
-          <p className={cn("num mt-3 whitespace-nowrap text-xl font-semibold", s.openingCash < 0 && "text-loss")}>{formatIDR(s.openingCash)}</p><p className="mt-1 text-xs text-muted">Aktual, semua akun aktif</p>
-        </CardBody></Card>
-        <Card><CardBody>
-          <div className="flex items-center justify-between text-sm text-muted">Proyeksi kas {months} bulan lagi <Badge tone="warn">Proyeksi</Badge></div>
-          <p className={cn("num mt-3 whitespace-nowrap text-xl font-semibold", s.closingCash < 0 && "text-loss")}>{formatIDR(s.closingCash)}</p><p className="mt-1 text-xs text-muted">Per {formatDateID(r.days[r.days.length - 1].date)}</p>
-        </CardBody></Card>
-        <Card><CardBody>
-          <div className="flex items-center justify-between text-sm text-muted">Saldo terendah <TrendingDown className="h-4 w-4" aria-hidden /></div>
-          <p className={cn("num mt-3 whitespace-nowrap text-xl font-semibold", s.lowest.balance < 0 && "text-loss")}>{formatIDR(s.lowest.balance)}</p><p className="mt-1 text-xs text-muted">{s.lowest.date === today ? "Hari ini" : formatDateID(s.lowest.date)}</p>
-        </CardBody></Card>
-        <Card className={s.deficitDays ? "border-loss/50" : ""}><CardBody>
-          <div className="flex items-center justify-between text-sm text-muted">Hari saldo negatif <AlertTriangle className="h-4 w-4" aria-hidden /></div>
-          <p className={cn("num mt-3 text-xl font-semibold", s.deficitDays > 0 && "text-loss")}>{s.deficitDays} hari</p><p className="mt-1 text-xs text-muted">{s.firstDeficitDate ? `Mulai ${formatDateID(s.firstDeficitDate)}` : "Tidak ada defisit dalam rentang ini"}</p>
-        </CardBody></Card>
+        <KpiCard emphasis label="Kas sekarang" icon={Wallet} value={formatIDR(s.openingCash)} negative={s.openingCash < 0} caption="Aktual, semua akun aktif" />
+        <KpiCard label={`Proyeksi kas ${months} bulan lagi`} icon={LineIcon} value={formatIDR(s.closingCash)} negative={s.closingCash < 0} caption={`Proyeksi · per ${formatDateID(r.days[r.days.length - 1].date)}`} />
+        <KpiCard label="Saldo terendah" icon={TrendingDown} value={formatIDR(s.lowest.balance)} negative={s.lowest.balance < 0} caption={s.lowest.date === today ? "Hari ini" : formatDateID(s.lowest.date)} />
+        <KpiCard label="Hari saldo negatif" icon={AlertTriangle} value={`${s.deficitDays} hari`} negative={s.deficitDays > 0} caption={s.firstDeficitDate ? `Mulai ${formatDateID(s.firstDeficitDate)}` : "Tidak ada defisit dalam rentang ini"} />
       </div>
 
       <section aria-labelledby="h-payday" className="mt-6">
@@ -158,7 +147,7 @@ export default function ForecastPage({ searchParams: sp }: { searchParams: SP })
       </Card>
 
       <section aria-labelledby="h-compare" className="mt-8">
-        <h2 id="h-compare" className="mb-2 font-display text-xl font-semibold">Perbandingan skenario</h2>
+        <h2 id="h-compare" className="mb-2 text-lg font-semibold tracking-tight">Perbandingan skenario</h2>
         <div tabIndex={0} role="region" aria-label="Tabel yang dapat digulir ke samping" className="overflow-x-auto rounded-card border border-line bg-surface">
           <table className="w-full text-sm">
             <thead><tr className="border-b border-line text-left text-muted"><th scope="col" className="px-4 py-2.5 font-medium">Skenario</th><th scope="col" className="px-4 py-2.5 text-right font-medium">Kas akhir</th><th scope="col" className="px-4 py-2.5 text-right font-medium">Saldo terendah</th><th scope="col" className="px-4 py-2.5 text-right font-medium">Hari negatif</th><th scope="col" className="px-4 py-2.5 font-medium">Sampai gajian</th></tr></thead>
@@ -183,7 +172,7 @@ export default function ForecastPage({ searchParams: sp }: { searchParams: SP })
       </section>
 
       <section aria-labelledby="h-assume" className="mt-8">
-        <h2 id="h-assume" className="mb-2 font-display text-xl font-semibold">Asumsi yang dipakai</h2>
+        <h2 id="h-assume" className="mb-2 text-lg font-semibold tracking-tight">Asumsi yang dipakai</h2>
         <div className="grid gap-4 lg:grid-cols-2">
           <Card><CardHeader><CardTitle>Skenario {custom ? "Kustom" : PRESETS[scenario as PresetKey].label}</CardTitle></CardHeader>
             <CardBody className="space-y-4 text-sm">
@@ -219,7 +208,7 @@ export default function ForecastPage({ searchParams: sp }: { searchParams: SP })
       </section>
 
       <section aria-labelledby="h-months" className="mt-8">
-        <h2 id="h-months" className="mb-2 font-display text-xl font-semibold">Proyeksi per bulan <Badge tone="warn">Proyeksi</Badge></h2>
+        <h2 id="h-months" className="mb-2 text-lg font-semibold tracking-tight">Proyeksi per bulan <Badge tone="warn">Proyeksi</Badge></h2>
         <div tabIndex={0} role="region" aria-label="Tabel yang dapat digulir ke samping" className="overflow-x-auto rounded-card border border-line bg-surface">
           <table className="w-full text-sm">
             <thead><tr className="border-b border-line text-left text-muted">
@@ -245,7 +234,7 @@ export default function ForecastPage({ searchParams: sp }: { searchParams: SP })
       </section>
 
       <section aria-labelledby="h-cal" className="mt-8">
-        <h2 id="h-cal" className="mb-3 font-display text-xl font-semibold">Kalender keuangan</h2>
+        <h2 id="h-cal" className="mb-3 text-lg font-semibold tracking-tight">Kalender keuangan</h2>
         <ForecastCalendar month={calMonth} days={r.days} today={today} hrefFor={(m) => qs({ cal: m })} prev={ci > 0 ? calMonths[ci - 1] : null} next={ci < calMonths.length - 1 ? calMonths[ci + 1] : null} />
       </section>
 
