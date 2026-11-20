@@ -110,3 +110,10 @@ export function parsePercentToBps(input: string): number | null {
   const v = Math.round(Number(t) * 100);
   return Number.isSafeInteger(v) ? v : null;
 }
+
+/** A valid YYYY-MM-DD string or null (for untrusted URL parameters). */
+export function isoOrNull(v: string | undefined | null): string | null {
+  if (!v || !/^\d{4}-\d{2}-\d{2}$/.test(v)) return null;
+  const d = new Date(`${v}T00:00:00Z`);
+  return !Number.isNaN(d.getTime()) && d.toISOString().slice(0, 10) === v ? v : null;
+}

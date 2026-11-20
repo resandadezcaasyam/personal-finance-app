@@ -2,7 +2,7 @@
 
 Aplikasi keuangan pribadi yang **privat dan berjalan lokal**. Semua data tersimpan di komputer Anda (SQLite). Tidak memerlukan internet setelah instalasi.
 
-**Status:** Fase 4 dari 8 selesai (ledger inti, utang/tagihan, dan pencatatan cerdas: Catat Cepat, OCR, impor mutasi, kotak masuk). Lihat `docs/DEVELOPMENT_PROGRESS.md`.
+**Status:** Fase 5 dari 8 selesai (ledger, utang/tagihan, pencatatan cerdas, dan proyeksi arus kas). Lihat `docs/DEVELOPMENT_PROGRESS.md`.
 
 ## Fitur yang sudah tersedia
 
@@ -17,9 +17,14 @@ Aplikasi keuangan pribadi yang **privat dan berjalan lokal**. Semua data tersimp
 - **Pusat Impor:** screenshot/foto struk (OCR offline, bisa banyak sekaligus) dan mutasi CSV, XLSX, atau PDF (termasuk PDF hasil pindai). Pemetaan kolom bisa disimpan sebagai template.
 - **Kotak Masuk Pintar:** semua hasil impor/OCR berhenti di sini dulu. Tinjau, ubah, setujui massal. Hanya yang disetujui memengaruhi saldo. Duplikat ditandai, dan pembayaran yang cocok dengan cicilan, tagihan, atau transfer antar akun dicatat dengan benar (tanpa pengeluaran ganda).
 - **Aturan merchant:** 90+ aturan bawaan (Fore Coffee → Kopi, PLN → Listrik, Netflix → Langganan) dan aturan buatan Anda dari koreksi kategori.
+- **Proyeksi Arus Kas:** perkiraan saldo harian untuk 1, 3, 6, atau 12 bulan dari saldo sekarang, pemasukan berulang, cicilan yang belum dibayar, tagihan, dan kebiasaan belanja. Ada analisis "cukup sampai gajian?" lengkap dengan batas belanja aman per hari, saldo terendah, periode defisit, skenario baseline/konservatif/optimis/kustom yang bisa disimpan, grafik (garis padat = aktual, putus-putus = proyeksi), tabel bulanan, dan kalender keuangan. Semua angka proyeksi diberi label dan tidak mengubah saldo Anda.
 - **Mode demo** dengan data fiktif terpisah, dan manajemen kategori di Pengaturan.
 
 Catatan: transaksi tidak boleh bertanggal di masa depan. Jadwal cicilan dan tagihan adalah rencana, bukan pembayaran: saldo baru berubah saat Anda mencatat pembayaran. Rumus bunga adalah konvensi umum; jika berbeda dari kontrak penyedia, gunakan jadwal manual.
+
+## Catatan proyeksi
+
+Proyeksi membutuhkan: pemasukan berulang (halaman Pemasukan, mis. gaji tiap tanggal 25), tagihan dan cicilan yang sudah dicatat, dan riwayat pengeluaran (makin panjang makin akurat). Halaman ini menampilkan peringatan bila data kurang. Proyeksi adalah perkiraan, bukan jaminan: pengeluaran besar yang tidak rutin tidak bisa diantisipasi.
 
 ## Catatan OCR dan PDF
 

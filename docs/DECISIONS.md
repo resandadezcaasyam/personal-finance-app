@@ -39,3 +39,11 @@
 37. **Categories are optional for approval.** `needs_review` is advisory; the user decides.
 38. **No root `loading.tsx`** (see Architecture, Phase 4 pitfall).
 39. **Clipboard access is explicit only:** buttons call the clipboard API on click, and the image drop zone accepts Ctrl+V only while focused.
+40. **Forecast is computed on request, never stored as fact.** Nothing about it is persisted except user-saved assumptions, so it can never disagree with the ledger.
+41. **Today's income and spending are not projected.** The opening cash already includes today's actuals; projecting today's salary again would double count. Obligations due today/overdue are still projected because they are unpaid.
+42. **Habitual spending is a single historical daily average**, excluding obligations and non-spending rows. It is simple and explainable; it ignores seasonality and one-off large expenses, which the page states.
+43. **Unknown amounts are visible, not hidden:** variable bills without history count as Rp 0 and are listed as such.
+44. **Scenarios are five transparent knobs**, not a model. Presets are conventions (documented), custom values are clamped (income 0-200%, spending 0-300%, delay 0-30 days).
+45. **Payday survival is conservative about order:** it checks the lowest point on the way to payday, not only the balance on that day. Safe-to-spend uses only income and scheduled obligations so it answers "how much can I spend", not "how much do I usually spend".
+46. **Actual history on the chart is the total of accounts active now**, reconstructed from the ledger; money that moved to an archived account is not part of it.
+47. **Saved scenarios keep assumptions + a snapshot**; re-opening recomputes with today's data (a snapshot is for reference only).

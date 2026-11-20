@@ -1,32 +1,30 @@
-# Handoff: Phase 5: Cash Flow Forecasting Engine
+# Handoff: Phase 6: Early Debt Repayment Simulator
 
-Read `ARCHITECTURE.md` (Phase 2, 3 and 4 rules) and migrations 0001-0004 first. Do not recreate the project.
+Read `ARCHITECTURE.md` (Phase 3 and Phase 5 sections) and migrations 0001-0005 first. Do not recreate the project.
 
-## Build (spec Part 4, Phase 5)
-1. Daily-level forecast for 1/3/6/12 months: `Projected Closing Cash = Opening Cash + Expected Income - Expected Expenses - Scheduled Payments`.
-2. Financial calendar of expected salary, bills, installments and other movements.
-3. Future balance analysis: opening cash, expected income, expected expenses, debt payments, closing cash, **lowest projected balance**, surplus/deficit periods.
-4. Payday survival analysis: is the balance enough until the next expected salary date?
-5. Scenarios (baseline, conservative, optimistic) with user-adjustable, clearly displayed assumptions.
-6. Line charts (Recharts) and monthly projection tables. Forecast values must be visually distinct from actuals.
-7. Activate `/forecast` (`CURRENT_PHASE = 5` in `src/lib/nav.ts`).
+## Build (spec Part 4, Phase 6)
+1. Inputs: debt to settle, proposed repayment date, full or partial, amount, early-repayment fee, penalty, interest rebate / settlement quotation.
+2. **Scenario A** continue regular installments vs **Scenario B** settle earlier. Compare cash balance, remaining debt, monthly obligations, total payments, interest and fees, monthly surplus, **lowest projected cash balance**, liquidity risk, debt-free date.
+3. Strategy comparison: Debt Snowball, Debt Avalanche, Minimum Payments, Custom Priority.
+4. Side-by-side/overlapping 12-month balance charts (Recharts).
+5. Save, compare, duplicate and delete scenarios.
+6. Activate `/early-repayment` (`CURRENT_PHASE = 6` in `src/lib/nav.ts`).
 
-## Existing data to build on
-- **Opening cash:** `listAccounts(db, {archived:false})` balances (derived, actual only).
-- **Expected income:** `recurring_rules` (type income; Phase 2 stored configuration only, nothing auto-posts). Respect `frequency`, `day_of_month`, `start_date`, `end_date`, `is_active`.
-- **Scheduled payments:** real installments from `installment_schedules` (unpaid remainder = `amount_due - amount_paid`, debts with `status='active'`; already-paid and skipped rows are NOT projected) and bill occurrences from `bills` (`nextOccurrence()` in `src/lib/bills/bills.ts`; `listObligations`/`getMonthAgenda` in `src/lib/obligations.ts` already produce them, with variable bills at amount 0, so the forecast needs an assumption, e.g. the average of that bill's past `bill_payments`).
-- **Expected expenses:** derive a baseline from history (average daily discretionary spending over recent months from `transactions` of type expense, excluding rows with `debt_payment_id`/`bill_id`, transfers and adjustments), plus a scenario multiplier.
-- `monthTotals`, `spendingByCategory` in `src/lib/ledger/summary.ts`; dates via `todayWIB`, `shiftDate`, `addMonthsClamped`, `daysBetween` in `src/lib/format.ts`.
+## Reuse (do not rebuild)
+- **The Phase 5 engine is the baseline.** `runForecast(input, params, days)` in `src/lib/forecast/engine.ts` is pure. Build Scenario B by transforming the `ForecastInput` (remove the settled debt's remaining installments from `installments`, subtract the settlement cash from the opening cash on the repayment date as a one-off event, add fee/penalty), then run the same engine so "Baseline matches the standard forecast" holds by construction. You will likely need a small engine extension for one-off dated cash events (add an optional `oneOffs: {date, label, amount}[]` to `ForecastInput`; keep results identical when it is empty and add a test).
+- `loadForecastContext(db, ...)` in `src/lib/forecast/data.ts` loads actual inputs read-only. `loadForecastContext` already excludes paid installments.
+- Saved scenarios: `simulation_scenarios` (kinds `early_repayment`, `strategy` already allowed by the CHECK); `saveScenario`/`listScenarios` in `forecast/data.ts` are forecast-specific, so add generic helpers or new ones keyed by `kind`. Migration `0006_*.sql` only if needed (never edit 0001-0005; checksums enforced).
+- Debt facts: `getDebt`, `listSchedule` in `src/lib/debts/debts.ts` (outstanding, remaining principal, per-row principal/interest/fee split). Remaining principal applies payments to fees, then interest, then principal.
 
 ## Rules to keep
-- **Pending inbox items are not actuals.** Do not include `inbox_items` in opening cash or history; optionally show them as a data-quality warning ("N items waiting for review may change this forecast").
-- Forecast never writes to `transactions`/`transfers`/`debt_payments`. Persist scenario assumptions in `simulation_scenarios` (JSON) if saving is needed (Phase 6 reuses this table).
-- Deterministic and explainable: every projected number should be traceable to a source (rule, installment #n, bill, baseline).
-- Integer rupiah only; add `0005_*.sql` if schema changes are needed (never edit 0001-0004; checksums enforced).
-- Avoid a root `loading.tsx` (see Architecture, Phase 4 pitfall). Do not use client `router.push` after a server action; use `redirect()`.
+- **Simulations never modify real records.** No writes to transactions, transfers, debts, debt_payments, schedules, bills. A test must compare row counts before/after. Recording the actual repayment happens separately through the existing `recordDebtPayment` after an explicit confirmation.
+- **Do not invent interest savings when contractual rules are unknown.** Interest saved should only be claimed from user-entered rebate/settlement quotation, or shown as "not known" with the scheduled-interest-remaining figure labelled as an upper bound at most. Say what is assumed.
+- Penalty/fee inputs are extra cash out, never reducing the obligation (same convention as `debt_payments.penalty/fee`).
+- Integer rupiah only; deterministic; explain every number.
+- Pending inbox items are not actuals. Avoid a root `loading.tsx` and client `router.push` after server actions (see Architecture, Phase 4 pitfall).
 
 ## Tests to write
-Opening/closing reconcile month by month; an already-paid installment is not projected again; a bill paid early moves its next occurrence; month-end clamping; salary on day 31; deficit day detection; lowest balance date; payday survival true/false; scenario multipliers; no writes to actual tables.
+Baseline scenario equals the standard forecast exactly; settling removes the remaining installments and applies cash on the right date; partial settlement shortens/reduces correctly using the real schedule rows; fee and penalty included; lowest balance and liquidity-risk flags (settlement causes a deficit); debt-free date; snowball vs avalanche ordering on a known example; real data unchanged after simulation; saved scenario round trip.
 
 ## Finish
-tests, typecheck, lint, build, browser check; commit `feat: implement cash flow forecasting`; update these docs.
+tests, typecheck, lint, build, browser check; commit `feat: implement early repayment simulator`; update these docs.

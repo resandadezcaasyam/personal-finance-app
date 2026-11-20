@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Inbox as InboxIcon, CalendarClock, Landmark, TrendingUp, TrendingDown, Scale, PieChart, ArrowLeftRight, Database, Wallet, ArrowRight } from "lucide-react";
+import { LineChart as LineIcon, Inbox as InboxIcon, CalendarClock, Landmark, TrendingUp, TrendingDown, Scale, PieChart, ArrowLeftRight, Database, Wallet, ArrowRight } from "lucide-react";
 import { PageHeader } from "@/components/page-header";
 import { Card, CardBody, CardHeader, CardTitle } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -11,6 +11,8 @@ import { getDbStatus } from "@/lib/db/status";
 import { getDashboardSummary } from "@/lib/ledger/summary";
 import { getCommitmentsOverview } from "@/lib/obligations";
 import { inboxCounts } from "@/lib/inbox/inbox";
+import { horizonDays, loadForecastContext } from "@/lib/forecast/data";
+import { PRESETS, runForecast } from "@/lib/forecast/engine";
 import { currentMonthWIB, formatDateID, formatIDR, formatMonthID, formatNumber, todayWIB } from "@/lib/format";
 import type { LedgerEntry } from "@/lib/ledger/types";
 
@@ -29,6 +31,7 @@ export default function DashboardPage() {
   const hasAccounts = d.accounts.length > 0;
   const ob = getCommitmentsOverview(getDb(), todayWIB(), 14);
   const inbox = inboxCounts(getDb());
+  const fc = runForecast(loadForecastContext(getDb(), { today: todayWIB() }).input, PRESETS.baseline, horizonDays(todayWIB(), 1));
   const obItems = [...ob.overdue, ...ob.upcoming].slice(0, 5);
   const metrics = [
     { label: "Total kas", icon: Wallet, value: d.totalCash, tone: d.totalCash < 0 ? "text-loss" : "", note: `${d.accounts.length} akun aktif` },
@@ -142,6 +145,25 @@ export default function DashboardPage() {
                   <div className="flex justify-between"><dt className="text-muted">Siap disetujui</dt><dd className="num">{inbox.new}</dd></div>
                 </dl>
                 <Link href="/inbox"><Button size="sm">Tinjau sekarang</Button></Link>
+              </div>
+            )}
+          </CardBody>
+        </Card>
+
+        <Card>
+          <CardHeader><CardTitle>Proyeksi 30 hari</CardTitle><Badge tone="warn">Proyeksi</Badge></CardHeader>
+          <CardBody>
+            {!hasAccounts ? (
+              <EmptyState icon={LineIcon} title="Belum bisa diproyeksikan" description="Tambahkan akun dan catat transaksi agar perkiraan arus kas bisa dihitung." />
+            ) : (
+              <div className="space-y-3 text-sm">
+                <dl className="space-y-1.5">
+                  <div className="flex justify-between gap-3"><dt className="text-muted">Kas akhir</dt><dd className={`num ${fc.summary.closingCash < 0 ? "text-loss" : ""}`}>{formatIDR(fc.summary.closingCash)}</dd></div>
+                  <div className="flex justify-between gap-3"><dt className="text-muted">Saldo terendah</dt><dd className={`num ${fc.summary.lowest.balance < 0 ? "text-loss" : ""}`}>{formatIDR(fc.summary.lowest.balance)}</dd></div>
+                  {fc.survival && <div className="flex justify-between gap-3"><dt className="text-muted">Sampai gajian</dt><dd><Badge tone={fc.survival.survives ? "brand" : "loss"}>{fc.survival.survives ? "Aman" : "Tidak cukup"}</Badge></dd></div>}
+                </dl>
+                {fc.summary.firstDeficitDate && <p className="text-loss">Saldo diperkirakan negatif mulai {formatDateID(fc.summary.firstDeficitDate)}.</p>}
+                <Link href="/forecast"><Button size="sm" variant="secondary">Lihat proyeksi</Button></Link>
               </div>
             )}
           </CardBody>

@@ -18,8 +18,8 @@ A privacy-first, local-first personal finance OS (Windows laptop, `http://localh
 | 2 | Core ledger & accounts (accounts, income, expenses, transfers, reconciliation, dashboard metrics) | `feat: implement core financial ledger` | Done |
 | 3 | Debt, installments & bills | `feat: implement debt and bills management` | Done |
 | 4 | Smart capture (NL parser, OCR, imports, inbox, dedupe, matching, templates) | `feat: implement smart transaction capture` | Done |
-| 5 | Cash flow forecasting (daily engine, scenarios, payday survival) | `feat: implement cash flow forecasting` | Next |
-| 6 | Early repayment simulator & strategies | `feat: implement early repayment simulator` | |
+| 5 | Cash flow forecasting (daily engine, scenarios, payday survival) | `feat: implement cash flow forecasting` | Done |
+| 6 | Early repayment simulator & strategies | `feat: implement early repayment simulator` | Next |
 | 7 | Automation, budgets, goals, insights, reports/exports, optional Ollama | `feat: implement automation and analytics` | |
 | 8 | Security, backup/restore, E2E tests, offline verification, final docs | `chore: finalize testing and security` | |
 
@@ -59,3 +59,11 @@ Per-phase acceptance criteria are tracked in `DEVELOPMENT_PROGRESS.md` and `NEXT
 - Category corrections can be reused. ✔ (user merchant rules)
 - Imported transactions can be matched to debt payments. ✔ (also bills and transfer pairs)
 - Financial balances remain accurate. ✔ (E2E reconciles to the rupiah)
+
+## Phase 5 acceptance criteria
+- Forecast updates when transactions or obligations change. ✔ (computed on every request from live data; browser-tested: pay an installment, reconcile a balance)
+- Already paid installments are not projected again. ✔ (unit + browser tested)
+- Daily cash shortfalls can be detected. ✔ (first deficit date, deficit periods, lowest balance and date)
+- Monthly opening and closing balances reconcile. ✔ (asserted in unit tests and on the rendered table)
+- Scenario assumptions are clearly displayed. ✔ ("Asumsi yang dipakai" + "Dari mana angkanya")
+- Financial calculations have passing tests. ✔ (53 forecast tests)

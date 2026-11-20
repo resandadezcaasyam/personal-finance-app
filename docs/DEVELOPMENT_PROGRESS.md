@@ -1,36 +1,27 @@
 # Development Progress
 
-**Current phase:** 4 of 8 complete. Next: Phase 5.
+**Current phase:** 5 of 8 complete. Next: Phase 6.
 
-## Phases 1-3: done
-Foundation and demo mode; core ledger (accounts, income, expenses, transfers, reconciliation); debts, installments and bills. See git history.
+## Phases 1-4: done
+Foundation and demo mode; core ledger; debts, installments and bills; smart capture (Catat Cepat, OCR, imports, inbox, rules, matching). See git history.
 
-## Phase 4: done (`feat: implement smart transaction capture`)
-- **Catat Cepat:** offline Indonesian parser (all five spec examples, several transactions per input, dates, cash aliases, transfers), editable preview with warnings (missing account, duplicate, "will be recorded as installment payment"), post now or send to the inbox, explicit clipboard paste, favourite templates (create, reuse, delete, "make template" from a row).
-- **Screenshot & receipt OCR:** drag/drop, file picker, explicit clipboard paste; multiple images per batch, one at a time with per-file status; extracts merchant, total, date, payment method, reference, admin fee; separates the total from balances/subtotals; shows confidence and reasons; account guessed from the payment method.
-- **Statement import:** CSV (any delimiter, quotes), XLSX, text PDF (column-aware), scanned PDF and images (OCR). Column mapping UI with live preview, broken rows reported with row numbers, saved mapping templates, import history with error reports.
-- **Smart Inbox:** tabs and counts per status, search, pagination, bulk approve/reject/categorize, single edit (with "remember this category" -> user rule), restore rejected, duplicate confirmation, per-item results for failures.
-- **Merchant rules:** 92 defaults (Fore Coffee -> Kopi, PLN -> Listrik, Netflix -> Langganan Digital, ...), user rules win, manage in the Inbox ("Aturan merchant"), never overrides a category the user chose.
-- **Duplicates and reconciliation:** duplicate flags against the ledger; installment, bill and transfer-pair suggestions; idempotent re-imports.
-- Dashboard "Kotak masuk" card; demo data includes inbox items and a template; migration `0004_smart_capture.sql`.
+## Phase 5: done (`feat: implement cash flow forecasting`)
+- **Forecast engine** (pure, deterministic): daily projection for 1/3/6/12 months from today's actual cash, recurring income, unpaid installments, bills and habitual spending. Opening and closing reconcile day by day and month by month.
+- **/forecast page:** summary cards (cash now, projected closing, lowest balance, negative days), **"Cukup sampai gajian?"** with safe-to-spend per day, deficit periods with suggestions, chart (solid actual vs dashed projection, today marker, lowest-point marker), scenario comparison, assumptions and sources, monthly projection table with surplus/deficit status, financial calendar (month grid with events and projected end-of-day balance), collapsible daily detail.
+- **Scenarios:** baseline, conservative, optimistic, custom (income %, spending %, bills %, delay days, cash buffer), payday rule or manual date; save, re-open and delete named scenarios (migration `0005_forecast_scenarios.sql`).
+- **Data-quality warnings** shown next to the numbers: no income rules, no/short spending history, pending inbox items not counted, bills with unknown amounts, overdue obligations, income treated as already received.
+- Dashboard "Proyeksi 30 hari" card; demo data now includes a fictional monthly salary.
 
 ## Verification (Linux sandbox, Node 22)
-- `npm run typecheck`, `npm run lint`, `npm run check:offline`, `npm run build`: clean.
-- `npm test`: **227 tests passing** across 12 files, including real OCR, PDF, XLSX and CSV fixtures (`tests/fixtures`, all fictional).
-- **Offline proof:** the OCR/PDF/XLSX tests were re-run inside a network namespace with all outbound traffic cut; all 9 passed.
-- Production server (`next start`) exercised through its API: OCR worker, text PDF, scanned PDF, XLSX, unsupported type rejected, cross-origin POST rejected.
-- Browser E2E (Playwright/Chromium, clean database): setup of accounts/debt/bill; Quick Capture (rule categories, validation gating, edit-then-post, two transactions from one sentence, transfer, template round trip); two screenshots OCR'd in one batch and the same screenshot refused; CSV import with a broken row, same file refused, overlapping file (1 new, 7 skipped); inbox shows installment, bill and transfer-pair suggestions; duplicate flagged and excluded from bulk approval, approved only after confirmation; **installment recorded against the debt, bill occurrence settled, transfer posted once, balances reconcile to the rupiah**; correction saved as rule and applied to the next entry; text PDF (debit/credit apart), XLSX, scanned PDF flagged; import history with error report; persistence after restart; demo mode isolation; dark mode reviewed on the inbox.
-- Real upgrade 3 -> 4 on a populated on-disk database: data intact, legacy inbox/batch rows get the new columns, 92 default rules installed, pre-migration backup created.
-
-## Bugs found and fixed during verification
-1. **State loss after revalidation:** the root `loading.tsx` caused Next.js to remount pages after server actions, wiping the Quick Capture preview/banner (and would have wiped inbox selections and result dialogs). Fixed by scoping skeletons to routes with disposable client state.
-2. **Paired transfers were held in "needs review"** only because they had no category. They are now `new` when otherwise complete (test added).
-(Other E2E failures were wrong expectations in the test script, not application bugs.)
+- `npm run typecheck`, `npm run lint`, `npm run build`: clean.
+- `npm test`: **280 tests passing** across 15 files (53 new: 37 engine, 16 data layer).
+- Browser E2E (Playwright/Chromium, clean database): empty-state warnings; payday analysis matches a hand calculation (lowest Rp 4.025.000, safe Rp 1.037.500/day); every monthly row reconciles and chains; chart shows a solid and a dashed line; conservative < baseline < optimistic; custom assumptions via form/URL; scenario save/re-open/delete; hostile URL parameters handled; manual payday beyond the display horizon; calendar with salary, installment and bill plus month navigation; low cash produces a deficit from the right day, "Tidak cukup", shortfall and a deficit period; paying an installment removes it from the forecast (Rp 672.000 -> Rp 448.000); viewing forecasts writes nothing (row counts unchanged); dashboard card; persistence after restart; demo mode; dark mode and mobile screenshots.
+- Zero non-localhost requests and zero page errors during the E2E run.
+- Real upgrade 4 -> 5 on a populated on-disk database: data intact, new index present, pre-migration backup created, forecast immediately used the existing salary rule.
 
 ## Not yet verified / known limitations
-- **No real bank statements or real phone screenshots were available.** Parsing is verified on fictional CSV/XLSX/PDF files and clean synthetic receipt images. Real-world OCR accuracy on noisy screenshots will be lower; that is why uncertain records go to review. No bank-specific format is claimed.
-- Windows CMD with a real `npm install` has not been run (OCR and PDF use WebAssembly, so only `better-sqlite3` is native).
-- OCR text of receipts is stored in the database (`raw_payload`); treat the DB file as sensitive.
-- The browser logs console errors for the intentional HTTP 409 responses (duplicate file/screenshot refused).
-- Statement rows that mention an installment may be suggested against the next open installment even when imported into another account; the suggestion is visible and dismissible.
-- Optional Ollama-based interpretation is Phase 7.
+- Windows CMD with a real `npm install` has not been run.
+- Accuracy depends on history: with a few weeks of data the habitual-spending average is rough (the page warns below 14 days). It cannot anticipate large one-off expenses, seasonality, or income that has no recurring rule.
+- Income occurrences are matched to money already received with a 5-day / 15% rule; unusual patterns (split salaries, very irregular freelance income) can still be double counted or missed. Phase 7 adds "missing income confirmation".
+- Mobile layout of the forecast page was captured but not reviewed in detail; the monthly table scrolls horizontally on narrow screens.
+- Interest or fees on overdue installments are not projected (only the unpaid remainder).

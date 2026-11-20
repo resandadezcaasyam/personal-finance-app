@@ -8,6 +8,7 @@ import { createBill, payBill } from "../bills/bills";
 import { createInboxItems } from "../inbox/inbox";
 import { loadMatcher } from "../capture/rules";
 import { createTemplate } from "../capture/templates";
+import { createRecurringIncome } from "../ledger/recurring";
 import { shiftDate, todayWIB } from "../format";
 
 /**
@@ -52,6 +53,7 @@ export function seedDemo(db: Database.Database, today: string = todayWIB()) {
       { type: "expense", amount: 38_000, occurred_on: shiftDate(today, -2), description: "WARUNG BU TINI (fiktif)", account_id: wallet, category_id: null, source_kind: "csv", confidence: 0.9 },
       { type: "expense", amount: 25_000, occurred_on: shiftDate(today, -5), description: "KOPI KENANGAN", account_id: cash, category_id: null, source_kind: "csv", confidence: 0.9 },
     ], { matcher: loadMatcher(db), today });
+    createRecurringIncome(db, { name: "Gaji bulanan (fiktif)", amount: 9_500_000, account_id: bank, category_id: findCategoryId(db, "Gaji", "income"), frequency: "monthly", day_of_month: 25, start_date: shiftDate(today, -200) });
     createTemplate(db, { name: "Kopi pagi", type: "expense", amount: 25_000, account_id: cash, category_id: exp("Kopi"), description: "Kopi pagi" });
     db.prepare("INSERT INTO settings (key, value) VALUES ('demo_seeded','1')").run();
   })();
