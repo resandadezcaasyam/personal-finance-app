@@ -1,4 +1,5 @@
 "use client";
+import { bannerMessage } from "@/lib/form-state";
 import * as React from "react";
 import { useFormState } from "react-dom";
 import { Trash2 } from "lucide-react";
@@ -53,7 +54,7 @@ export function RulesManager({ rules, categories }: { rules: RuleRow[]; categori
         <FormField id="r-cat" label="Kategori" error={e.category_id}><Select id="r-cat" name="category_id" key={kind} defaultValue=""><option value="">Pilih kategori</option>{cats.map((c) => <option key={c.id} value={c.id}>{c.parent_id ? "— " : ""}{c.name}</option>)}</Select></FormField>
         <SubmitButton pendingLabel="Menyimpan…">Simpan aturan</SubmitButton>
       </form>
-      <FormError message={!state.errors ? state.message : undefined} />
+      <FormError message={bannerMessage(state)} />
       <label className="block max-w-xs text-sm"><span className="sr-only">Cari aturan</span><Input placeholder="Cari aturan…" value={filter} onChange={(ev) => setFilter(ev.target.value)} /></label>
       <section className="rounded-card border border-line bg-surface"><h3 className="flex items-center gap-2 border-b border-line px-4 py-3 text-sm font-semibold">Aturan saya <Badge tone="brand">{user.length}</Badge></h3>{user.length ? table(user) : <p className="px-4 py-4 text-sm text-muted">Belum ada. Aturan dibuat di sini, atau lewat &ldquo;simpan sebagai aturan&rdquo; saat Anda mengoreksi kategori di kotak masuk.</p>}</section>
       <section className="rounded-card border border-line bg-surface"><h3 className="flex items-center gap-2 border-b border-line px-4 py-3 text-sm font-semibold">Aturan bawaan <Badge>{defaults.length}</Badge></h3>{defaults.length ? table(defaults) : <p className="px-4 py-4 text-sm text-muted">Tidak ada yang cocok.</p>}</section>

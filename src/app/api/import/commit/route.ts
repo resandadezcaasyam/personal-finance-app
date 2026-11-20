@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { getDb } from "@/lib/db/client";
-import { assertSameOrigin, fail } from "@/lib/http";
+import { assertSameOrigin, fail, requireSession } from "@/lib/http";
 import { LedgerError } from "@/lib/ledger/errors";
 import { normalizeRows, type Table } from "@/lib/imports/table";
 import { loadMatcher } from "@/lib/capture/rules";
@@ -28,6 +28,8 @@ const body = z.object({
 
 /** The server re-normalizes the rows from the table + mapping, so the inbox only ever receives rows it validated itself. */
 export async function POST(req: Request) {
+  const locked = requireSession();
+  if (locked) return locked;
   const bad = assertSameOrigin(req);
   if (bad) return bad;
   try {

@@ -2,8 +2,9 @@
 import * as React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Menu, X, Wallet } from "lucide-react";
-import { NAV_ITEMS, isActive, CURRENT_PHASE } from "@/lib/nav";
+import { Menu, X, Wallet, Lock } from "lucide-react";
+import { lockNowAction } from "@/app/auth-actions";
+import { NAV_ITEMS, isActive, APP_VERSION } from "@/lib/nav";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -50,7 +51,7 @@ function Brand() {
   );
 }
 
-export function AppShell({ profile, children }: { profile: "personal" | "demo"; children: React.ReactNode }) {
+export function AppShell({ profile, authEnabled = false, children }: { profile: "personal" | "demo"; authEnabled?: boolean; children: React.ReactNode }) {
   const [open, setOpen] = React.useState(false);
   const pathname = usePathname();
   React.useEffect(() => setOpen(false), [pathname]);
@@ -61,7 +62,7 @@ export function AppShell({ profile, children }: { profile: "personal" | "demo"; 
         <div className="sticky top-0 flex h-screen flex-col gap-5 overflow-y-auto p-4">
           <Brand />
           <NavList />
-          <p className="mt-auto px-3 text-xs text-muted">Fase {CURRENT_PHASE} dari 8 · data tersimpan lokal</p>
+          <p className="mt-auto px-3 text-xs text-muted">Versi {APP_VERSION} · data tersimpan lokal</p>
         </div>
       </aside>
 
@@ -83,6 +84,7 @@ export function AppShell({ profile, children }: { profile: "personal" | "demo"; 
           <Button variant="ghost" size="icon" className="lg:hidden" aria-label="Buka menu" onClick={() => setOpen(true)}><Menu className="h-4 w-4" /></Button>
           <div className="flex-1" />
           {profile === "demo" && <Badge tone="warn">Mode demo · data fiktif</Badge>}
+          {authEnabled && <form action={lockNowAction}><Button type="submit" variant="ghost" size="icon" aria-label="Kunci aplikasi" title="Kunci aplikasi"><Lock className="h-4 w-4" aria-hidden /></Button></form>}
           <ThemeToggle />
         </header>
         {profile === "demo" && (

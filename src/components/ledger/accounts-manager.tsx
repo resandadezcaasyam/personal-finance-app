@@ -1,4 +1,5 @@
 "use client";
+import { bannerMessage } from "@/lib/form-state";
 import * as React from "react";
 import Link from "next/link";
 import { useFormState } from "react-dom";
@@ -38,7 +39,7 @@ function AccountForm({ account, onDone }: { account?: AccountWithBalance; onDone
         hint={account ? "Mengubah saldo awal ikut mengubah saldo saat ini sebesar selisihnya. Untuk menyesuaikan dengan saldo nyata, gunakan Rekonsiliasi." : "Saldo saat akun mulai dicatat di sini. Contoh: 1.500.000 atau 2jt"}>
         <Input id="acc-init" name="initial_balance" inputMode="numeric" defaultValue={account ? String(account.initial_balance) : "0"} aria-invalid={!!e.initial_balance} />
       </FormField>
-      <FormError message={!state.errors ? state.message : undefined} />
+      <FormError message={bannerMessage(state)} />
       <div className="flex justify-end gap-2"><Button variant="secondary" onClick={onDone}>Batal</Button><SubmitButton>Simpan</SubmitButton></div>
     </form>
   );
@@ -67,7 +68,7 @@ function ReconcileForm({ account, today, onDone }: { account: AccountWithBalance
       )}
       <FormField id="rc-date" label="Tanggal" error={e.occurred_on}><Input id="rc-date" name="occurred_on" type="date" defaultValue={today} max={today} required /></FormField>
       <FormField id="rc-note" label="Catatan (opsional)" error={e.note}><Input id="rc-note" name="note" maxLength={150} placeholder="Contoh: cek m-banking" /></FormField>
-      <FormError message={!state.errors ? state.message : undefined} />
+      <FormError message={bannerMessage(state)} />
       <div className="flex justify-end gap-2"><Button variant="secondary" onClick={onDone}>Batal</Button><SubmitButton disabled={diff === null}>Rekonsiliasi</SubmitButton></div>
     </form>
   );

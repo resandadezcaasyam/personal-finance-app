@@ -8,6 +8,7 @@ import { getBudgetView } from "../budgets/budgets";
 import { listPlanned, wibDate } from "../automation/recurring";
 import { inboxCounts } from "../inbox/inbox";
 import { getSetting, setSetting } from "../settings";
+import { lastBackupAt } from "../backup/backup";
 import { buildActions, type Action, type ActionFacts } from "./engine";
 
 /** Last day an account was reconciled (from the audit trail), and how many transactions it has had since. */
@@ -20,7 +21,8 @@ function accountFacts(db: Database.Database, today: string): ActionFacts["accoun
   });
 }
 
-export function loadActionFacts(db: Database.Database, today: string = todayWIB()): ActionFacts {
+/** `backupDir` is only passed for personal data in the running app; leaving it out skips the backup reminder. */
+export function loadActionFacts(db: Database.Database, today: string = todayWIB(), opts: { backupDir?: string | null } = {}): ActionFacts {
   const overview = getCommitmentsOverview(db, today, 7);
   const ctx = loadForecastContext(db, { today });
   const fc = runForecast(ctx.input, PRESETS.baseline, horizonDays(today, 1));
@@ -40,11 +42,15 @@ export function loadActionFacts(db: Database.Database, today: string = todayWIB(
     planned: planned.map((p) => ({ rule_id: p.rule_id, name: p.name, type: p.type, amount: p.amount, due_date: p.due_date, state: p.state, days: p.days, matched: !!p.match })),
     accounts: accountFacts(db, today),
     inbox: { newItems: counts.new, needsReview: counts.needs_review, duplicates: counts.potential_duplicate },
+    backup: opts.backupDir ? (() => {
+      const last = lastBackupAt(opts.backupDir);
+      return { daysSince: last ? daysBetween(wibDate(last), today) : null, transactions: (db.prepare("SELECT COUNT(*) AS n FROM transactions WHERE status = 'posted'").get() as { n: number }).n };
+    })() : null,
   };
 }
 
-export function loadActions(db: Database.Database, today: string = todayWIB()): Action[] {
-  return buildActions(loadActionFacts(db, today));
+export function loadActions(db: Database.Database, today: string = todayWIB(), opts: { backupDir?: string | null } = {}): Action[] {
+  return buildActions(loadActionFacts(db, today, opts));
 }
 
 /* ---------------- daily review ---------------- */

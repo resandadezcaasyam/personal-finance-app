@@ -1,4 +1,5 @@
 "use client";
+import { bannerMessage } from "@/lib/form-state";
 import * as React from "react";
 import { useFormState } from "react-dom";
 import { Check, Link2, Pencil, Plus, SkipForward, Trash2, Wand2, X, Repeat } from "lucide-react";
@@ -43,7 +44,7 @@ function ConfirmForm({ item, accounts, onDone }: { item: PlannedItem; accounts: 
           </div>
         </>
       )}
-      <FormError message={!state.errors ? state.message : undefined} />
+      <FormError message={bannerMessage(state)} />
       <div className="flex justify-end gap-2"><Button variant="secondary" onClick={onDone}>Batal</Button><SubmitButton pendingLabel="Memproses…">{item.match ? "Tautkan" : "Catat transaksi"}</SubmitButton></div>
     </form>
   );
@@ -71,7 +72,7 @@ function RuleForm({ rule, accounts, categories, today, onDone }: { rule?: RuleRo
         <FormField id="rl-end" label="Berakhir (opsional)" error={e.end_date}><Input id="rl-end" name="end_date" type="date" defaultValue={rule?.end_date ?? ""} /></FormField>
       </div>
       <p className="text-xs text-muted">Aturan hanya menyiapkan jadwal. Tidak ada transaksi yang dibuat sebelum Anda mengonfirmasinya. Perubahan berlaku untuk jadwal yang belum diputuskan.</p>
-      <FormError message={!state.errors ? state.message : undefined} />
+      <FormError message={bannerMessage(state)} />
       <div className="flex justify-end gap-2"><Button variant="secondary" onClick={onDone}>Batal</Button><SubmitButton>Simpan</SubmitButton></div>
     </form>
   );

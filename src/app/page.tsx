@@ -6,7 +6,8 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { SpendingChart } from "@/components/ledger/spending-chart";
-import { getDb } from "@/lib/db/client";
+import { getActiveProfile, getDb, getStartupHealth } from "@/lib/db/client";
+import { backupDir } from "@/lib/db/paths";
 import { getDbStatus } from "@/lib/db/status";
 import { getDashboardSummary } from "@/lib/ledger/summary";
 import { getCommitmentsOverview } from "@/lib/obligations";
@@ -32,7 +33,7 @@ export default function DashboardPage() {
   const hasAccounts = d.accounts.length > 0;
   const ob = getCommitmentsOverview(getDb(), todayWIB(), 14);
   const inbox = inboxCounts(getDb());
-  const todo = loadActions(getDb(), todayWIB());
+  const todo = loadActions(getDb(), todayWIB(), { backupDir: getActiveProfile() === "personal" ? backupDir() : null });
   const fc = runForecast(loadForecastContext(getDb(), { today: todayWIB() }).input, PRESETS.baseline, horizonDays(todayWIB(), 1));
   const obItems = [...ob.overdue, ...ob.upcoming].slice(0, 5);
   const metrics = [
@@ -44,6 +45,8 @@ export default function DashboardPage() {
   return (
     <>
       <PageHeader title="Dasbor" description={`Hari ini, ${formatDateID(todayWIB())} (WIB). Transfer antar akun tidak dihitung sebagai pemasukan atau pengeluaran.`} />
+
+      {getStartupHealth() && <p role="alert" className="mb-4 rounded-md border border-loss/40 bg-loss/10 px-4 py-3 text-sm text-loss"><strong>Pemeriksaan awal basis data menemukan masalah.</strong> Buka <Link href="/backup" className="underline">Cadangan &amp; Kesehatan Data</Link> untuk pemeriksaan lengkap dan opsi pemulihan.</p>}
 
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {metrics.map(({ label, icon: Icon, value, tone, note }) => (

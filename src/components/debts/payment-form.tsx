@@ -1,4 +1,5 @@
 "use client";
+import { bannerMessage } from "@/lib/form-state";
 import * as React from "react";
 import { useFormState } from "react-dom";
 import { Button } from "@/components/ui/button";
@@ -73,7 +74,7 @@ export function PaymentForm({ debt, openRows, accounts, today, onDone }: {
       <FormField id="p-note" label="Catatan (opsional)" error={e.note}><Input id="p-note" name="note" maxLength={150} /></FormField>
 
       <p className="text-sm">Uang keluar dari akun: <strong className="num">{formatIDR(cashOut)}</strong> <span className="text-muted">(dicatat sebagai satu pengeluaran)</span></p>
-      <FormError message={!state.errors ? state.message : undefined} />
+      <FormError message={bannerMessage(state)} />
       <div className="flex justify-end gap-2"><Button variant="secondary" onClick={onDone}>Batal</Button><SubmitButton disabled={usable.length === 0}>Catat pembayaran</SubmitButton></div>
     </form>
   );

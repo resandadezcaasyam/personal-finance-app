@@ -1,4 +1,5 @@
 import {
+  DatabaseBackup,
   LayoutDashboard, ArrowLeftRight, Landmark, TrendingUp, Receipt, CreditCard, CalendarClock, Zap, Inbox,
   FileUp, LineChart, Calculator, PiggyBank, ListChecks, BarChart3, Workflow, Settings, type LucideIcon,
 } from "lucide-react";
@@ -11,7 +12,8 @@ export interface NavItem {
   phase: number;
 }
 
-export const CURRENT_PHASE = 7;
+export const CURRENT_PHASE = 8;
+export const APP_VERSION = "1.0.0";
 
 export const NAV_ITEMS: NavItem[] = [
   { href: "/", label: "Dasbor", icon: LayoutDashboard, phase: 1 },
@@ -30,6 +32,7 @@ export const NAV_ITEMS: NavItem[] = [
   { href: "/next-actions", label: "Langkah Keuangan Berikutnya", icon: ListChecks, phase: 7 },
   { href: "/reports", label: "Laporan & Analitik", icon: BarChart3, phase: 7 },
   { href: "/automation", label: "Aturan Otomasi", icon: Workflow, phase: 7 },
+  { href: "/backup", label: "Cadangan & Kesehatan Data", icon: DatabaseBackup, phase: 8 },
   { href: "/settings", label: "Pengaturan", icon: Settings, phase: 1 },
 ];
 

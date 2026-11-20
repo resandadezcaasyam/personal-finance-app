@@ -2,7 +2,24 @@
 
 Aplikasi keuangan pribadi yang **privat dan berjalan lokal**. Semua data tersimpan di komputer Anda (SQLite). Tidak memerlukan internet setelah instalasi.
 
-**Status:** Fase 7 dari 8 selesai (ledger, utang/tagihan, pencatatan cerdas, proyeksi, simulasi pelunasan, otomasi, anggaran, target tabungan, laporan). Lihat `docs/DEVELOPMENT_PROGRESS.md`.
+**Versi 1.0.0 (semua 8 fase selesai).** Status verifikasi yang jujur ada di `docs/DEVELOPMENT_PROGRESS.md` dan `docs/TESTING.md`.
+
+## Mulai cepat (Windows CMD)
+
+```bat
+:: 1) Pasang Node.js LTS dari https://nodejs.org lalu cek:
+node -v
+:: 2) Di folder proyek (butuh internet HANYA untuk langkah ini):
+npm install
+:: 3) Bangun dan jalankan:
+npm run build
+npm start
+:: 4) Buka http://localhost:3000
+```
+
+Panduan lengkap, pembaruan, memindahkan data, dan pemecahan masalah: [`docs/INSTALLATION.md`](docs/INSTALLATION.md), [`docs/TROUBLESHOOTING.md`](docs/TROUBLESHOOTING.md). Pemakaian sehari-hari: [`docs/USER_GUIDE.md`](docs/USER_GUIDE.md).
+
+**Data Anda ada di folder `data\`** (`finance.db`, `backups\`, `auth.json`). Folder itu tidak ikut git. Buat cadangan lewat menu **Cadangan & Kesehatan Data** secara berkala dan simpan salinannya di tempat lain.
 
 ## Fitur yang sudah tersedia
 
@@ -24,6 +41,8 @@ Aplikasi keuangan pribadi yang **privat dan berjalan lokal**. Semua data tersimp
 - **Anggaran bulanan** per kategori (di halaman Pengeluaran) dan **Target Tabungan** (dana darurat, liburan, pembelian) dengan progres dan perkiraan tercapai.
 - **Laporan & Analitik:** tren pemasukan vs pengeluaran, kategori, pengurangan utang, anggaran vs aktual, dan kondisi keuangan; ekspor **PDF, JSON, dan CSV** yang dibuat offline di komputer ini.
 - **AI lokal (opsional):** jika Ollama terpasang di komputer ini, Catat Cepat bisa memakainya. Nonaktif secara default, hanya ke alamat di komputer ini, dan aplikasi tetap penuh tanpa AI.
+- **Keamanan PIN (opsional):** mengunci seluruh aplikasi (halaman, aksi, unduhan, mode demo). PIN disimpan sebagai hash scrypt; ada pembatasan percobaan. **PIN bukan enkripsi basis data**, lihat [`docs/SECURITY.md`](docs/SECURITY.md).
+- **Cadangan & Kesehatan Data:** buat, periksa, unduh, hapus, dan pulihkan cadangan (pemulihan selalu menyimpan kondisi sekarang lebih dulu dan bisa dibatalkan otomatis jika gagal); pemeriksaan integritas struktur dan angka keuangan; ekspor semua data ke JSON. Lihat [`docs/BACKUP_RESTORE.md`](docs/BACKUP_RESTORE.md).
 - **Mode demo** dengan data fiktif terpisah, dan manajemen kategori di Pengaturan.
 
 Catatan: transaksi tidak boleh bertanggal di masa depan. Jadwal cicilan dan tagihan adalah rencana, bukan pembayaran: saldo baru berubah saat Anda mencatat pembayaran. Rumus bunga adalah konvensi umum; jika berbeda dari kontrak penyedia, gunakan jadwal manual.
@@ -95,3 +114,30 @@ npm start
 ## Keamanan Git
 
 `.gitignore` mengecualikan database, cadangan, unggahan, ekspor, dan berkas `.env`. Jangan pernah meng-commit data keuangan asli.
+
+
+## Pengujian
+
+```bat
+npm run typecheck      :: tipe TypeScript
+npm run lint           :: ESLint
+npm test               :: 471 tes unit/integrasi (Vitest)
+npm run check:offline  :: pindai kode: tidak ada URL eksternal
+npm run test:e2e       :: 60 skenario end-to-end di browser (Playwright), membangun aplikasi dulu
+npm run test:all       :: semuanya berurutan
+npm run verify:offline :: (Linux) seluruh E2E tanpa jaringan sama sekali
+```
+
+Rincian ada di [`docs/TESTING.md`](docs/TESTING.md). Setiap tes E2E otomatis gagal jika ada permintaan jaringan keluar dari komputer atau error halaman.
+
+## Keterbatasan yang diketahui
+
+- **Belum dijalankan di Windows sungguhan.** Pengembangan dan seluruh pengujian dilakukan di Linux (Node 22). Perintah Windows di atas adalah yang diharapkan berfungsi.
+- Aplikasi belum diuji dengan **mutasi bank asli, screenshot ponsel asli, atau foto struk berderau**; hanya berkas fiktif di `tests/fixtures`. Akurasi OCR pada foto nyata belum terukur.
+- **Ollama asli belum diuji**; jalur AI diuji dengan server tiruan, dan aplikasi berfungsi penuh tanpa AI.
+- Aplikasi tidak mengetahui kontrak penyedia: biaya pelunasan dini, rebat bunga, dan kuotasi harus Anda isi sendiri. Hasil simulasi dan proyeksi adalah perkiraan, **bukan saran keuangan**.
+- PIN mengunci aplikasi tetapi tidak mengenkripsi berkas. Gunakan enkripsi disk (mis. BitLocker) bila komputer dipakai bersama.
+- Satu pengguna, satu komputer; tidak ada sinkronisasi antar perangkat.
+- Repositori GitHub privat belum pernah dibuat/di-push dari lingkungan pengembangan; lakukan manual (lihat laporan akhir).
+
+Lisensi dan rincian arsitektur: `docs/ARCHITECTURE.md`, keputusan desain: `docs/DECISIONS.md`.

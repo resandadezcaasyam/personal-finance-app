@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { revalidatePath } from "next/cache";
 import { getDb } from "@/lib/db/client";
-import { assertSameOrigin, fail } from "@/lib/http";
+import { assertSameOrigin, fail, requireSession } from "@/lib/http";
 import { LedgerError } from "@/lib/ledger/errors";
 import { detectKind } from "@/lib/imports/files";
 import { ocrImage } from "@/lib/imports/ocr";
@@ -19,6 +19,8 @@ const MAX_IMAGE_BYTES = 10 * 1024 * 1024;
 
 /** One image per request (the page sends a batch one by one, so progress and failures are per file). */
 export async function POST(req: Request) {
+  const locked = requireSession();
+  if (locked) return locked;
   const bad = assertSameOrigin(req);
   if (bad) return bad;
   try {

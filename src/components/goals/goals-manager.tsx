@@ -1,4 +1,5 @@
 "use client";
+import { bannerMessage } from "@/lib/form-state";
 import * as React from "react";
 import { useFormState } from "react-dom";
 import { Archive, ArchiveRestore, PiggyBank, Plus, Trash2, Pencil, HandCoins, History } from "lucide-react";
@@ -35,7 +36,7 @@ function GoalForm({ goal, hint, onDone }: { goal?: GoalView; hint: { months3: nu
         <FormField id="g-date" label="Tanggal target (opsional)" error={e.target_date}><Input id="g-date" name="target_date" type="date" defaultValue={goal?.target_date ?? ""} /></FormField>
       </div>
       {kind === "emergency" && hint.months3 > 0 && <p className="rounded-md bg-sunken px-3 py-2 text-sm">Patokan umum dana darurat adalah 3–6 bulan pengeluaran. Dari kebiasaan belanja Anda: <strong className="num">{formatIDR(hint.months3)}</strong> (3 bulan) sampai <strong className="num">{formatIDR(hint.months6)}</strong> (6 bulan). Ini hanya petunjuk, bukan keharusan.</p>}
-      <FormError message={!state.errors ? state.message : undefined} />
+      <FormError message={bannerMessage(state)} />
       <div className="flex justify-end gap-2"><Button variant="secondary" onClick={onDone}>Batal</Button><SubmitButton>Simpan</SubmitButton></div>
     </form>
   );
@@ -57,7 +58,7 @@ function ContributeForm({ goal, accounts, today, onDone }: { goal: GoalView; acc
         <FormField id="c-acc" label="Disimpan di akun (opsional)" error={e.account_id}><Select id="c-acc" name="account_id" defaultValue=""><option value="">—</option>{accounts.filter((a) => !a.is_archived).map((a) => <option key={a.id} value={a.id}>{a.name}</option>)}</Select></FormField>
       </div>
       <FormField id="c-note" label="Catatan (opsional)" error={e.note}><Input id="c-note" name="note" maxLength={120} /></FormField>
-      <FormError message={!state.errors ? state.message : undefined} />
+      <FormError message={bannerMessage(state)} />
       <div className="flex justify-end gap-2"><Button variant="secondary" onClick={onDone}>Batal</Button><SubmitButton>Catat</SubmitButton></div>
     </form>
   );

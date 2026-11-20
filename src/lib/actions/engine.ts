@@ -6,7 +6,7 @@ import { formatIDR, formatDateID } from "../format";
  * there, no action is produced.
  */
 export type Severity = "critical" | "high" | "medium" | "low";
-export type ActionKind = "overdue" | "upcoming" | "cash" | "budget" | "income" | "planned" | "reconcile" | "inbox";
+export type ActionKind = "overdue" | "upcoming" | "cash" | "budget" | "income" | "planned" | "reconcile" | "inbox" | "backup";
 
 export interface Action { id: string; kind: ActionKind; severity: Severity; score: number; title: string; why: string; href: string; cta: string; amount: number | null; date: string | null }
 
@@ -29,6 +29,8 @@ export interface ActionFacts {
   planned: PlannedFact[];
   accounts: AccountFact[];
   inbox: { newItems: number; needsReview: number; duplicates: number };
+  /** Personal data only: days since the last backup (null = never) and how much data there is to lose. */
+  backup?: { daysSince: number | null; transactions: number } | null;
 }
 
 const BASE: Record<Severity, number> = { critical: 100, high: 80, medium: 50, low: 20 };
@@ -122,6 +124,13 @@ export function buildActions(f: ActionFacts): Action[] {
   const waiting = f.inbox.newItems + f.inbox.needsReview;
   if (waiting > 0) add({ id: "inbox:waiting", kind: "inbox", severity: waiting >= 20 ? "medium" : "low", title: `${waiting} item menunggu persetujuan`, amount: null, date: null, href: "/inbox", cta: "Tinjau",
     why: `${waiting} transaksi hasil impor atau OCR belum Anda setujui, jadi belum memengaruhi saldo dan proyeksi.` });
+
+  // 8. Backup
+  if (f.backup && f.backup.transactions >= 10 && (f.backup.daysSince === null || f.backup.daysSince >= 30)) {
+    add({ id: "backup:stale", kind: "backup", severity: "low", title: "Buat cadangan data", amount: null, date: null, href: "/backup", cta: "Buat cadangan",
+      why: f.backup.daysSince === null ? `Anda sudah punya ${f.backup.transactions} transaksi tetapi belum pernah membuat cadangan. Jika berkas data rusak atau komputer bermasalah, semuanya bisa hilang.`
+        : `Cadangan terakhir ${f.backup.daysSince} hari lalu, sementara data Anda sudah ${f.backup.transactions} transaksi. Buat cadangan baru dan simpan salinannya di tempat lain.` });
+  }
 
   return out.sort((a, b) => b.score - a.score || (a.date ?? "9999").localeCompare(b.date ?? "9999") || a.id.localeCompare(b.id));
 }

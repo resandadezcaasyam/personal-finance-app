@@ -17,7 +17,7 @@ export function SpendingChart({ data }: { data: CategorySpend[] }) {
       <div className="mx-auto h-44 w-44" aria-hidden>
         <ResponsiveContainer width="100%" height="100%">
           <PieChart>
-            <Pie data={items} dataKey="total" nameKey="name" innerRadius={48} outerRadius={80} paddingAngle={1} stroke="none" isAnimationActive={false}>
+            <Pie rootTabIndex={-1} data={items} dataKey="total" nameKey="name" innerRadius={48} outerRadius={80} paddingAngle={1} stroke="none" isAnimationActive={false}>
               {items.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
             </Pie>
             <Tooltip formatter={(v: number) => formatIDR(v)} contentStyle={{ background: "hsl(var(--surface))", border: "1px solid hsl(var(--line))", borderRadius: 8, color: "hsl(var(--ink))" }} />

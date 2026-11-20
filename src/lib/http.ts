@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { hasValidSession } from "./auth/guard";
 
 /**
  * The app only listens on localhost, but a web page open in the same browser could still try to POST to it.
@@ -18,3 +19,8 @@ export function assertSameOrigin(req: Request): NextResponse | null {
 }
 
 export const fail = (message: string, status = 400) => NextResponse.json({ ok: false, error: message }, { status });
+
+/** API routes return 401 while the app is locked (a PIN is set and the request has no valid session). */
+export function requireSession(): NextResponse | null {
+  return hasValidSession() ? null : NextResponse.json({ ok: false, error: "Aplikasi terkunci. Buka dengan PIN terlebih dahulu." }, { status: 401 });
+}

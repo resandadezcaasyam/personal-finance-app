@@ -23,14 +23,14 @@ export function ForecastCalendar({ month, days, today, hrefFor, prev, next }: { 
         <h3 className="min-w-40 text-center font-display text-lg font-semibold">{formatMonthID(month)}</h3>
         {next ? <Link href={hrefFor(next)} className={btn} aria-label="Bulan berikutnya"><ChevronRight className="h-4 w-4" aria-hidden /></Link> : <span className={cn(btn, "opacity-30")} aria-hidden><ChevronRight className="h-4 w-4" /></span>}
       </div>
-      <div className="overflow-x-auto rounded-card border border-line bg-surface">
-        <div className="min-w-[46rem]" role="grid" aria-label={`Kalender proyeksi ${month}`}>
-          <div className="grid grid-cols-7 border-b border-line text-center text-xs text-muted" role="row">{DAYS.map((d) => <div key={d} className="py-2" role="columnheader">{d}</div>)}</div>
+      <div tabIndex={0} role="region" aria-label="Tabel yang dapat digulir ke samping" className="overflow-x-auto rounded-card border border-line bg-surface">
+        <div className="min-w-[46rem]" role="group" aria-label={`Kalender proyeksi ${month}`}>
+          <div className="grid grid-cols-7 border-b border-line text-center text-xs text-muted">{DAYS.map((d) => <div key={d} className="py-2">{d}</div>)}</div>
           <div className="grid grid-cols-7">
             {cells.map((d, i) => {
               const row = d ? byDate.get(d) : undefined;
               return (
-                <div key={i} role="gridcell" className={cn("min-h-28 border-b border-r border-line p-1.5 text-xs [&:nth-child(7n)]:border-r-0", !d && "bg-sunken/50", row && row.closing < 0 && "bg-loss/5")}>
+                <div key={i} className={cn("min-h-28 border-b border-r border-line p-1.5 text-xs [&:nth-child(7n)]:border-r-0", !d && "bg-sunken/50", row && row.closing < 0 && "bg-loss/5")}>
                   {d && (
                     <>
                       <div className="flex items-center justify-between">

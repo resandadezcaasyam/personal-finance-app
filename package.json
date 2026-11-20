@@ -1,6 +1,6 @@
 {
   "name": "personal-finance-os",
-  "version": "0.7.0",
+  "version": "1.0.0",
   "private": true,
   "description": "Privacy-first, local-first personal finance application",
   "scripts": {
@@ -11,7 +11,10 @@
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
-    "check:offline": "node scripts/check-offline.mjs"
+    "check:offline": "node scripts/check-offline.mjs",
+    "test:e2e": "playwright test",
+    "test:all": "npm run typecheck && npm run lint && npm test && npm run check:offline && npm run build && npm run test:e2e",
+    "verify:offline": "bash scripts/verify-offline.sh"
   },
   "dependencies": {
     "@hyzyla/pdfium": "^3.0.0",
@@ -34,6 +37,8 @@
     "zod": "^3.23.8"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.14.0",
+    "@playwright/test": "^1.63.0",
     "@types/better-sqlite3": "^7.6.11",
     "@types/node": "^20.17.0",
     "@types/pngjs": "^6.0.5",

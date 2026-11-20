@@ -5,7 +5,8 @@ import { Card, CardBody, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { EmptyState } from "@/components/ui/empty-state";
 import { MarkReviewed } from "@/components/actions/mark-reviewed";
-import { getDb } from "@/lib/db/client";
+import { getActiveProfile, getDb } from "@/lib/db/client";
+import { backupDir } from "@/lib/db/paths";
 import { loadActions, loadDailyReview } from "@/lib/actions/data";
 import type { Severity } from "@/lib/actions/engine";
 import { formatDateID, formatIDR, todayWIB } from "@/lib/format";
@@ -22,7 +23,7 @@ export default function NextActionsPage({ searchParams }: { searchParams: Record
   const db = getDb();
   const today = todayWIB();
   const view = searchParams.view === "review" ? "review" : "next";
-  const actions = loadActions(db, today);
+  const actions = loadActions(db, today, { backupDir: getActiveProfile() === "personal" ? backupDir() : null });
   const review = loadDailyReview(db, today);
   const tab = (v: string, label: string) => <Link key={v} href={`/next-actions?view=${v}`} aria-current={view === v ? "page" : undefined} className={cn("-mb-px border-b-2 px-4 py-2 text-sm font-medium", view === v ? "border-brand text-brand" : "border-transparent text-muted hover:text-ink")}>{label}</Link>;
 

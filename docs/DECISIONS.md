@@ -66,3 +66,13 @@
 64. **Exports are GET downloads of the same numbers**, generated locally; PDF via pdf-lib (no browser/headless dependency).
 65. **Optional AI is a convenience, never a dependency:** off by default, local only, names-only context, validated output, automatic fallback. A tampered non-local URL in the database disables it.
 66. **Reconciling to an already-correct balance is recorded** (audit entry, no transaction), so "verified today" clears the reconciliation reminder.
+67. **The PIN guard sits in `getDb()`, not in middleware or the UI.** Pages, server actions and routes all reach data through it, so no new code path can forget the check; middleware cannot read the auth file (Edge runtime) and a UI-only gate would be bypassable.
+68. **Auth state is a file outside the database.** Restoring an old backup must never disable or change the PIN, and the demo/personal switch must not bypass it.
+69. **The PIN is honestly not encryption.** Documented in the UI, README and SECURITY.md; the realistic advice is disk encryption.
+70. **Lockout persists on disk with exponential backoff (30 s up to 15 min)**; a locked app refuses even the right PIN, so guessing cannot continue by waiting for the right moment.
+71. **Backups use `VACUUM INTO`**, never a raw copy of a WAL database; backup names from the browser are plain file names inside one folder.
+72. **Restore is validate -> pre-restore backup -> swap -> reopen, with automatic rollback.** A refused restore changes nothing.
+73. **Integrity checks include financial invariants, not only SQLite's**, because a database can be structurally fine and financially inconsistent.
+74. **E2E runs against the production build with a throw-away data folder and always rebuilds** (a stale build once hid missing pages). Every test fails on a non-localhost request.
+75. **Accessibility is tested in the suite (axe, both themes) and fixed in the product** (contrast of the warning color, chart focus, drop zone, calendar semantics, scroll regions, ids without spaces) instead of being waived.
+76. **Verify the effect, not only its absence.** A Phase 7 manual test passed while "link a transaction" never worked, because it only checked that balances did not change. E2E tests now assert the intended outcome (and include positive controls).

@@ -1,4 +1,5 @@
 "use client";
+import { bannerMessage } from "@/lib/form-state";
 import * as React from "react";
 import { useFormState } from "react-dom";
 import { Plus, Pencil, SkipForward, Banknote, Power, CalendarClock, Ban } from "lucide-react";
@@ -57,7 +58,7 @@ function BillForm({ bill, accounts, categories, today, onDone }: { bill?: BillVi
       </div>
       <FormField id="b-notes" label="Catatan (opsional)" error={e.notes}><Input id="b-notes" name="notes" defaultValue={bill?.notes ?? ""} maxLength={300} /></FormField>
       {bill && <p className="text-xs text-muted">Frekuensi dan tanggal jatuh tempo mengikuti pembayaran. Untuk mengubahnya, nonaktifkan tagihan ini lalu buat yang baru.</p>}
-      <FormError message={!state.errors ? state.message : undefined} />
+      <FormError message={bannerMessage(state)} />
       <div className="flex justify-end gap-2"><Button variant="secondary" onClick={onDone}>Batal</Button><SubmitButton>Simpan</SubmitButton></div>
     </form>
   );
@@ -80,7 +81,7 @@ function PayForm({ bill, accounts, today, onDone }: { bill: BillView; accounts: 
         <FormField id="bp-acc" label="Dibayar dari akun" error={e.account_id}><Select id="bp-acc" name="account_id" defaultValue={bill.account_id ?? usable[0]?.id}>{usable.map((a) => <option key={a.id} value={a.id}>{a.name} · {formatIDR(a.balance)}</option>)}</Select></FormField>
         <FormField id="bp-date" label="Tanggal bayar" error={e.paid_on}><Input id="bp-date" name="paid_on" type="date" defaultValue={today} max={today} required /></FormField>
       </div>
-      <FormError message={!state.errors ? state.message : undefined} />
+      <FormError message={bannerMessage(state)} />
       <div className="flex justify-end gap-2"><Button variant="secondary" onClick={onDone}>Batal</Button><SubmitButton disabled={usable.length === 0}>Catat pembayaran</SubmitButton></div>
     </form>
   );

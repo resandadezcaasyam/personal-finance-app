@@ -163,7 +163,7 @@ export default function EarlyRepaymentPage({ searchParams: sp }: { searchParams:
 
                 <section aria-labelledby="h-cmp" className="mt-8">
                   <h2 id="h-cmp" className="mb-2 font-display text-xl font-semibold">3. Perbandingan <Badge tone="warn">Proyeksi</Badge></h2>
-                  <div className="overflow-x-auto rounded-card border border-line bg-surface">
+                  <div tabIndex={0} role="region" aria-label="Tabel yang dapat digulir ke samping" className="overflow-x-auto rounded-card border border-line bg-surface">
                     <table className="w-full text-sm">
                       <thead><tr className="border-b border-line text-left text-muted"><th scope="col" className="px-4 py-2.5 font-medium">Ukuran</th><th scope="col" className="px-4 py-2.5 font-medium">A: lanjut mencicil</th><th scope="col" className="px-4 py-2.5 font-medium">B: {s.mode === "full" ? "lunasi" : "bayar sebagian"} {formatDateID(s.date)}</th><th scope="col" className="px-4 py-2.5 text-right font-medium">Selisih (B − A)</th></tr></thead>
                       <tbody>
@@ -183,7 +183,7 @@ export default function EarlyRepaymentPage({ searchParams: sp }: { searchParams:
                 <section aria-labelledby="h-break" className="mt-8">
                   <h2 id="h-break" className="mb-2 font-display text-xl font-semibold">4. Rincian pembayaran pada {formatDateID(s.date)}</h2>
                   <div className="grid gap-4 lg:grid-cols-2">
-                    <Card><CardBody className="p-0"><div className="overflow-x-auto"><table className="w-full text-sm">
+                    <Card><CardBody className="p-0"><div tabIndex={0} role="region" aria-label="Tabel yang dapat digulir ke samping" className="overflow-x-auto"><table className="w-full text-sm">
                       <thead><tr className="border-b border-line text-left text-muted"><th scope="col" className="px-4 py-2 font-medium">Cicilan</th><th scope="col" className="px-4 py-2 font-medium">Jatuh tempo</th><th scope="col" className="px-4 py-2 text-right font-medium">Sisa jadwal</th><th scope="col" className="px-4 py-2 text-right font-medium">Dibayar</th><th scope="col" className="px-4 py-2 text-right font-medium">Sisa setelahnya</th></tr></thead>
                       <tbody>{s.covered.map((c) => <tr key={c.sequence_no} className="border-b border-line last:border-0"><td className="px-4 py-2">#{c.sequence_no}</td><td className="whitespace-nowrap px-4 py-2">{formatDateID(c.due_date)}</td><td className="num whitespace-nowrap px-4 py-2 text-right">{formatIDR(c.before)}</td><td className="num whitespace-nowrap px-4 py-2 text-right">{formatIDR(c.paid)}</td><td className="num whitespace-nowrap px-4 py-2 text-right">{formatIDR(c.after)}</td></tr>)}</tbody>
                     </table></div></CardBody></Card>
@@ -205,7 +205,7 @@ export default function EarlyRepaymentPage({ searchParams: sp }: { searchParams:
                   <Card><CardHeader><CardTitle><span id="h-chart">Saldo kas 12 bulan: A vs B</span></CardTitle><Badge tone="warn">Proyeksi</Badge></CardHeader><CardBody><ScenarioChart points={points} repayDate={s.date} /></CardBody></Card>
                   <details className="mt-3 rounded-card border border-line bg-surface">
                     <summary className="cursor-pointer px-5 py-3 text-sm font-medium">Tabel perbandingan bulanan</summary>
-                    <div className="overflow-x-auto"><table className="w-full text-sm">
+                    <div tabIndex={0} role="region" aria-label="Tabel yang dapat digulir ke samping" className="overflow-x-auto"><table className="w-full text-sm">
                       <thead><tr className="border-b border-line text-left text-muted"><th scope="col" className="px-4 py-2 font-medium">Bulan</th><th scope="col" className="px-4 py-2 text-right font-medium">Kas akhir A</th><th scope="col" className="px-4 py-2 text-right font-medium">Kas akhir B</th><th scope="col" className="px-4 py-2 text-right font-medium">Selisih</th><th scope="col" className="px-4 py-2 text-right font-medium">Terendah A</th><th scope="col" className="px-4 py-2 text-right font-medium">Terendah B</th></tr></thead>
                       <tbody>{sim.a.months.map((m, i) => { const mbm = sim!.b.months[i]; return (
                         <tr key={m.month} className="border-b border-line last:border-0"><td className="whitespace-nowrap px-4 py-2">{formatMonthID(m.month)}</td><td className="num px-4 py-2 text-right">{formatIDR(m.closing)}</td><td className={cn("num px-4 py-2 text-right", mbm.closing < 0 && "text-loss")}>{formatIDR(mbm.closing)}</td><td className="num px-4 py-2 text-right">{signed(mbm.closing - m.closing)}</td><td className="num px-4 py-2 text-right">{formatIDR(m.lowest)}</td><td className={cn("num px-4 py-2 text-right", mbm.lowest < 0 && "text-loss")}>{formatIDR(mbm.lowest)}</td></tr>); })}</tbody>
@@ -263,7 +263,7 @@ export default function EarlyRepaymentPage({ searchParams: sp }: { searchParams:
               {strategyError && <p role="alert" className="rounded-md border border-loss/40 bg-loss/10 px-3 py-2 text-sm text-loss">{strategyError}</p>}
               {strategies.length > 0 && (
                 <>
-                  <div className="overflow-x-auto rounded-md border border-line"><table className="w-full text-sm">
+                  <div tabIndex={0} role="region" aria-label="Tabel yang dapat digulir ke samping" className="overflow-x-auto rounded-md border border-line"><table className="w-full text-sm">
                     <thead><tr className="border-b border-line text-left text-muted"><th scope="col" className="px-3 py-2 font-medium">Strategi</th><th scope="col" className="px-3 py-2 text-right font-medium">Bebas utang</th><th scope="col" className="px-3 py-2 text-right font-medium">Bulan</th><th scope="col" className="px-3 py-2 text-right font-medium">Total dibayar</th><th scope="col" className="px-3 py-2 text-right font-medium">Bunga &amp; biaya dibayar</th><th scope="col" className="px-3 py-2 text-right font-medium">Hemat vs minimum</th><th scope="col" className="px-3 py-2 font-medium">Lunas per utang</th></tr></thead>
                     <tbody>{strategies.map((s) => { const min = strategies[0]; const saved = min.interestFeePaid - s.interestFeePaid; return (
                       <tr key={s.key} className="border-b border-line align-top last:border-0">
@@ -276,7 +276,7 @@ export default function EarlyRepaymentPage({ searchParams: sp }: { searchParams:
                   </table></div>
                   {q.strategy.extra === 0 && <p className="flex items-start gap-2 text-sm text-muted"><Info className="mt-0.5 h-4 w-4 shrink-0" aria-hidden />Anggaran tambahan masih Rp 0, jadi semua strategi sama dengan cicilan minimum. Isi anggaran tambahan untuk melihat perbedaannya.</p>}
                   <StrategyChart rows={stratRows} />
-                  <div className="overflow-x-auto rounded-md border border-line"><table className="w-full text-sm">
+                  <div tabIndex={0} role="region" aria-label="Tabel yang dapat digulir ke samping" className="overflow-x-auto rounded-md border border-line"><table className="w-full text-sm">
                     <caption className="px-3 pt-3 text-left text-sm font-medium">Dasar peringkat avalanche (angka dari jadwal Anda)</caption>
                     <thead><tr className="border-b border-line text-left text-muted"><th scope="col" className="px-3 py-2 font-medium">Utang</th><th scope="col" className="px-3 py-2 text-right font-medium">Sisa saldo</th><th scope="col" className="px-3 py-2 text-right font-medium">Bunga+biaya terjadwal / Rp pokok</th><th scope="col" className="px-3 py-2 text-right font-medium">Bunga tercatat</th></tr></thead>
                     <tbody>{ctx.debts.map((d) => <tr key={d.debt_id} className="border-b border-line last:border-0"><td className="px-3 py-2">{debtName(d.debt_id)}</td><td className="num px-3 py-2 text-right">{formatIDR(d.rows.reduce((s, r) => s + r.remaining, 0))}</td><td className="num px-3 py-2 text-right">{(impliedCostRatio(d) * 100).toFixed(1)}%</td><td className="px-3 py-2 text-right">{d.rate_bps ? `${(d.rate_bps / 100).toLocaleString("id-ID")}% / bulan` : "—"}</td></tr>)}</tbody>

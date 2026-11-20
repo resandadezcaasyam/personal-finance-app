@@ -21,7 +21,7 @@ A privacy-first, local-first personal finance OS (Windows laptop, `http://localh
 | 5 | Cash flow forecasting (daily engine, scenarios, payday survival) | `feat: implement cash flow forecasting` | Done |
 | 6 | Early repayment simulator & strategies | `feat: implement early repayment simulator` | Done |
 | 7 | Automation, budgets, goals, insights, reports/exports, optional Ollama | `feat: implement automation and analytics` | Done |
-| 8 | Security, backup/restore, E2E tests, offline verification, final docs | `chore: finalize testing and security` | Next |
+| 8 | Security, backup/restore, E2E tests, offline verification, final docs | `chore: finalize testing and security` | Done |
 
 Per-phase acceptance criteria are tracked in `DEVELOPMENT_PROGRESS.md` and `NEXT_PHASE.md`. Process rules: one phase at a time, read existing code first, never reset data, real logic only, tests/typecheck/lint/build every phase, stop after each phase.
 
@@ -85,3 +85,27 @@ Per-phase acceptance criteria are tracked in `DEVELOPMENT_PROGRESS.md` and `NEXT
 - Reports reconcile with financial records. ✔ (monthly rows = ledger month totals; categories sum to total expense; exports equal the report)
 - All exports work without internet. ✔ (CSV, JSON and PDF are generated locally; PDF verified offline)
 - Optional local AI. ✔ off by default, localhost-only, never required, never used for calculations; verified against a fake local Ollama and with it unreachable. **Not verified against a real Ollama install.**
+
+## Phase 8 acceptance criteria
+- Optional local PIN with secure hashing and sensible sessions. ✔ (scrypt, signed HttpOnly SameSite=Strict cookie, 12 h, persisted backoff lockout, enforced in `getDb()` and API routes; replay test)
+- Backup and restore. ✔ (UI, validation, pre-restore backup, rollback, download, full JSON export)
+- Database reliability. ✔ (migration safety with backups, startup self-check, integrity checks incl. financial invariants, indexes verified by query plans)
+- Automated tests. ✔ (471 unit/integration + 60 end-to-end)
+- Offline verification. ✔ (static scan, per-test request log, whole E2E suite inside a loopback-only namespace)
+- UI/UX polish. ✔ (axe WCAG 2 A/AA in both themes, keyboard and focus checks, phone-width overflow check, query-plan performance)
+- Final documentation. ✔
+
+## Final definition of done: honest status
+| Item | Status |
+|---|---|
+| Runs locally, data in SQLite, Indonesian UI, IDR, WIB | ✔ verified on Linux |
+| No network needed at runtime | ✔ verified (per-test request log + loopback-only run) |
+| Financial figures reconcile (balances, reports, exports) | ✔ tested |
+| Imports/OCR never touch the ledger before approval | ✔ tested |
+| Simulations/forecasts never change real data | ✔ tested |
+| Backup/restore and integrity | ✔ tested |
+| PIN protection | ✔ tested (but it is not encryption) |
+| Works on Windows | ✖ **not verified** (no Windows available) |
+| Real bank statements / phone screenshots / noisy photos | ✖ **not verified** (fictional fixtures only) |
+| Real Ollama | ✖ **not verified** (fake server only) |
+| Private GitHub repository created and pushed | ✖ **not done** (no access from the build environment) |

@@ -117,3 +117,9 @@ export function isoOrNull(v: string | undefined | null): string | null {
   const d = new Date(`${v}T00:00:00Z`);
   return !Number.isNaN(d.getTime()) && d.toISOString().slice(0, 10) === v ? v : null;
 }
+
+/** A stored UTC timestamp as WIB date and time, e.g. "20 November 2026 14.05". */
+export function formatDateTimeID(iso: string): string {
+  const t = new Date(Date.parse(iso) + 7 * 3_600_000).toISOString();
+  return `${formatDateID(t.slice(0, 10))} ${t.slice(11, 13)}.${t.slice(14, 16)}`;
+}

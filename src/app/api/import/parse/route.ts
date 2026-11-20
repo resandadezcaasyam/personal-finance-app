@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { getDb } from "@/lib/db/client";
-import { assertSameOrigin, fail } from "@/lib/http";
+import { assertSameOrigin, fail, requireSession } from "@/lib/http";
 import { detectKind, MAX_FILE_BYTES, MAX_ROWS, readPdf, readSpreadsheet } from "@/lib/imports/files";
 import { ocrImage } from "@/lib/imports/ocr";
 import { guessMapping, headerSignature, parseCsv, type Mapping, type Table } from "@/lib/imports/table";
@@ -18,6 +18,8 @@ function decode(bytes: Buffer): string {
 }
 
 export async function POST(req: Request) {
+  const locked = requireSession();
+  if (locked) return locked;
   const bad = assertSameOrigin(req);
   if (bad) return bad;
   try {

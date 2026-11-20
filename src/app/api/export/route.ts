@@ -5,19 +5,28 @@ import { buildReport, exportRows, resolvePeriod } from "@/lib/reports/reports";
 import { toCsv } from "@/lib/reports/csv";
 import { buildReportPdf } from "@/lib/reports/pdf";
 import { todayWIB } from "@/lib/format";
+import { requireSession } from "@/lib/http";
+import { exportAllData } from "@/lib/backup/backup";
+import { APP_VERSION } from "@/lib/nav";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-const KINDS = ["transactions", "monthly", "categories", "json", "pdf"] as const;
+const KINDS = ["transactions", "monthly", "categories", "json", "pdf", "all"] as const;
 
 /** Read-only downloads of the same figures the Reports page shows. Everything is generated locally. */
 export async function GET(req: Request) {
+  const locked = requireSession();
+  if (locked) return locked;
   try {
     const u = new URL(req.url);
     const kind = KINDS.find((k) => k === u.searchParams.get("kind"));
     if (!kind) return NextResponse.json({ ok: false, error: "Jenis ekspor tidak dikenal." }, { status: 400 });
     const today = todayWIB();
+    if (kind === "all") {
+      const body = JSON.stringify(exportAllData(getDb(), { appVersion: APP_VERSION, exportedOn: today }), null, 2);
+      return new NextResponse(body, { headers: { "Content-Type": "application/json; charset=utf-8", "Content-Disposition": `attachment; filename="data-lengkap-${today}.json"`, "Cache-Control": "no-store" } });
+    }
     const period = resolvePeriod({ preset: u.searchParams.get("preset") ?? undefined, from: u.searchParams.get("from") ?? undefined, to: u.searchParams.get("to") ?? undefined }, today);
     const db = getDb();
     const name = `laporan-${period.from}_${period.to}`;

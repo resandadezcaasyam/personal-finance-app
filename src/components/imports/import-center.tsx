@@ -71,7 +71,7 @@ export function ReceiptUploader() {
   return (
     <div>
       <div
-        tabIndex={0} role="button" aria-label="Unggah gambar struk atau screenshot. Seret file ke sini, klik, atau tekan Ctrl+V setelah fokus."
+        tabIndex={0} role="button" aria-describedby="ocr-hint"
         onDragOver={(e) => { e.preventDefault(); setDrag(true); }} onDragLeave={() => setDrag(false)}
         onDrop={(e) => { e.preventDefault(); setDrag(false); add([...e.dataTransfer.files]); }}
         onPaste={(e) => { const f = [...e.clipboardData.files]; if (f.length) { e.preventDefault(); add(f); } }}
@@ -81,8 +81,9 @@ export function ReceiptUploader() {
         <ImageUp className="h-7 w-7 text-muted" aria-hidden />
         <p className="font-medium">Seret screenshot atau foto struk ke sini</p>
         <p className="text-sm text-muted">atau klik untuk memilih beberapa gambar sekaligus. Dibaca di komputer ini, tanpa internet.</p>
-        <input id="ocr-file" type="file" accept="image/*" multiple className="sr-only" onClick={(e) => e.stopPropagation()} onChange={(e) => { add([...(e.target.files ?? [])]); e.target.value = ""; }} />
       </div>
+      <p id="ocr-hint" className="sr-only">Seret file ke sini, klik, atau tekan Ctrl+V setelah tombol ini fokus untuk menempel gambar.</p>
+      <input id="ocr-file" type="file" accept="image/*" multiple tabIndex={-1} aria-label="Pilih gambar struk atau screenshot" className="sr-only" onChange={(e) => { add([...(e.target.files ?? [])]); e.target.value = ""; }} />
       <div className="mt-3"><Button variant="secondary" size="sm" onClick={pasteImage}><ClipboardPaste className="h-4 w-4" aria-hidden />Tempel gambar dari clipboard</Button></div>
 
       {jobs.length > 0 && (

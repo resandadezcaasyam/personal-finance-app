@@ -1,4 +1,5 @@
 "use client";
+import { bannerMessage } from "@/lib/form-state";
 import * as React from "react";
 import { useFormState } from "react-dom";
 import { Check, X, Pencil, Undo2, Link2, AlertTriangle, Inbox as InboxIcon, Tags } from "lucide-react";
@@ -57,7 +58,7 @@ function EditForm({ item, accounts, categories, today, onDone }: { item: InboxVi
         <label className="flex items-center gap-2 text-sm font-medium"><input type="checkbox" name="save_rule" checked={saveRule} onChange={(ev) => setSaveRule(ev.target.checked)} className="h-4 w-4" />Ingat pilihan kategori ini untuk transaksi serupa</label>
         {saveRule && <FormField id="e-pattern" label="Kata kunci yang dicocokkan" error={e.rule_pattern} hint="Transaksi berikutnya yang memuat kata ini akan otomatis memakai kategori di atas."><Input id="e-pattern" name="rule_pattern" value={pattern} onChange={(ev) => setPattern(ev.target.value)} maxLength={60} /></FormField>}
       </div>
-      <FormError message={!state.errors ? state.message : undefined} />
+      <FormError message={bannerMessage(state)} />
       <div className="flex justify-end gap-2"><Button variant="secondary" onClick={onDone}>Batal</Button><SubmitButton>Simpan</SubmitButton></div>
     </form>
   );

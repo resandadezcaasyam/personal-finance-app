@@ -1,4 +1,5 @@
 "use client";
+import { bannerMessage } from "@/lib/form-state";
 import * as React from "react";
 import { useFormState } from "react-dom";
 import { Button } from "@/components/ui/button";
@@ -49,7 +50,7 @@ export function CategoryManager({ categories }: { categories: CategoryRow[] }) {
         </FormField>
         <SubmitButton pendingLabel="Menambah…">Tambah</SubmitButton>
       </form>
-      <FormError message={!state.errors ? state.message : undefined} />
+      <FormError message={bannerMessage(state)} />
       <div className="grid gap-6 sm:grid-cols-2">{group("expense", "Pengeluaran")}{group("income", "Pemasukan")}</div>
     </div>
   );

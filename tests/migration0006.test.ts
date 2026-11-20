@@ -19,7 +19,7 @@ describe("migration 0006 on a Phase 5 database", () => {
     db.prepare("INSERT INTO goals (name,kind,target_amount,saved_amount,created_at) VALUES ('Target lama','travel',5000000,750000,'2026-03-01T00:00:00.000Z')").run();
     db.prepare("INSERT INTO goals (name,kind,target_amount,saved_amount) VALUES ('Kosong','custom',1000000,0)").run();
     let backups = 0;
-    expect(migrate(db, all, { backup: () => backups++ })).toEqual([6]);
+    expect(migrate(db, all, { backup: () => backups++ })).toEqual([6, 7]);
     expect(backups).toBe(1);
     expect(listRules(db)[0]).toMatchObject({ name: "Gaji", amount: 8_000_000 });
     expect(getBudgetView(db, "2026-11").month).toBe("2026-11");

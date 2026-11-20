@@ -1,4 +1,5 @@
 "use client";
+import { bannerMessage } from "@/lib/form-state";
 import * as React from "react";
 import Link from "next/link";
 import { useFormState } from "react-dom";
@@ -38,7 +39,7 @@ export function ScenarioManager({ fields, saved, canSave }: { fields: Record<str
             <li key={s.id} className="flex flex-wrap items-center justify-between gap-2 px-3 py-2">
               <div className="min-w-0"><Link href={s.openHref} className="font-medium text-brand underline">{s.name}</Link><p className="text-xs text-muted">{s.summary}</p></div>
               <div className="flex items-center gap-1">
-                <Link href={s.toggleHref} className="inline-flex h-8 items-center rounded-md border border-line px-2 text-xs hover:bg-sunken" aria-pressed={s.compared}>{s.compared ? "✓ Dibandingkan" : "Bandingkan"}</Link>
+                <Link href={s.toggleHref} className="inline-flex h-8 items-center rounded-md border border-line px-2 text-xs hover:bg-sunken">{s.compared ? "✓ Dibandingkan" : "Bandingkan"}</Link>
                 <Button size="sm" variant="ghost" aria-label={`Duplikat ${s.name}`} disabled={pending} onClick={() => act(() => duplicateRepayScenarioAction(s.id), "Skenario diduplikat")}><Copy className="h-4 w-4" aria-hidden /></Button>
                 <Button size="sm" variant="ghost" aria-label={`Hapus ${s.name}`} disabled={pending} onClick={() => act(() => deleteRepayScenarioAction(s.id), "Skenario dihapus")}><Trash2 className="h-4 w-4" aria-hidden /></Button>
               </div>
@@ -70,7 +71,7 @@ export function ConfirmSettlement({ debtId, debtName, outstanding, fee, penalty,
               <FormField id="cs-acc" label="Dibayar dari akun" error={e.account_id}><Select id="cs-acc" name="account_id" defaultValue={defaultAccountId ?? accounts[0]?.id}>{accounts.map((a) => <option key={a.id} value={a.id}>{a.name} · {formatIDR(a.balance)}</option>)}</Select></FormField>
               <FormField id="cs-date" label="Tanggal bayar" error={e.paid_on}><Input id="cs-date" name="paid_on" type="date" defaultValue={today} max={today} required /></FormField>
             </div>
-            <FormError message={!state.errors ? state.message : undefined} />
+            <FormError message={bannerMessage(state)} />
             <div className="flex justify-end gap-2"><Button variant="secondary" onClick={() => setOpen(false)}>Batal</Button><SubmitButton pendingLabel="Mencatat…" disabled={accounts.length === 0}>Ya, catat pelunasan</SubmitButton></div>
           </form>
         )}

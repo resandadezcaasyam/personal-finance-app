@@ -1,4 +1,5 @@
 "use client";
+import { bannerMessage } from "@/lib/form-state";
 import * as React from "react";
 import { useRouter } from "next/navigation";
 import { useFormState } from "react-dom";
@@ -36,7 +37,7 @@ function DetailsForm({ debt, accounts, onDone }: { debt: DebtSummary; accounts: 
       </FormField>
       <FormField id="u-notes" label="Catatan" error={e.notes}><Input id="u-notes" name="notes" defaultValue={debt.notes ?? ""} maxLength={300} /></FormField>
       <p className="text-xs text-muted">Pokok, bunga, dan jadwal tidak dapat diubah setelah utang dibuat agar riwayat tetap konsisten. Jika salah input dan belum ada pembayaran, batalkan utang lalu buat ulang.</p>
-      <FormError message={!state.errors ? state.message : undefined} />
+      <FormError message={bannerMessage(state)} />
       <div className="flex justify-end gap-2"><Button variant="secondary" onClick={onDone}>Batal</Button><SubmitButton>Simpan</SubmitButton></div>
     </form>
   );

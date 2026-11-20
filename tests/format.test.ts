@@ -44,3 +44,11 @@ describe("dates", () => {
     expect(formatCompactIDR(9500000)).toBe("Rp 9,5 jt");
   });
 });
+
+describe("formatDateTimeID", () => {
+  it("shows stored UTC timestamps in WIB", async () => {
+    const { formatDateTimeID } = await import("@/lib/format");
+    expect(formatDateTimeID("2026-11-20T07:05:00.000Z")).toBe("20 November 2026 14.05");
+    expect(formatDateTimeID("2026-11-20T18:30:00.000Z")).toBe("21 November 2026 01.30");
+  });
+});

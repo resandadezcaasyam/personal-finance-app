@@ -1,4 +1,5 @@
 "use client";
+import { bannerMessage } from "@/lib/form-state";
 import * as React from "react";
 import { useFormState } from "react-dom";
 import { Plus, Star, Trash2 } from "lucide-react";
@@ -35,7 +36,7 @@ function Form({ accounts, categories, onDone }: { accounts: AccountWithBalance[]
         <FormField id="t-desc" label="Deskripsi" error={e.description}><Input id="t-desc" name="description" maxLength={200} placeholder="Kopi pagi" /></FormField>
       </div>
       <FormField id="t-merchant" label="Merchant (opsional)" error={e.merchant}><Input id="t-merchant" name="merchant" maxLength={100} /></FormField>
-      <FormError message={!state.errors ? state.message : undefined} />
+      <FormError message={bannerMessage(state)} />
       <div className="flex justify-end gap-2"><Button variant="secondary" onClick={onDone}>Batal</Button><SubmitButton>Simpan</SubmitButton></div>
     </form>
   );

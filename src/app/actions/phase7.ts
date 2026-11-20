@@ -45,7 +45,9 @@ export async function deleteRuleAction(ruleId: number): Promise<ActionState> {
   try { deleteRule(getDb(), ruleId); return done(); } catch (e) { return fail(e); }
 }
 
-const confirmSchema = z.object({ rule_id: id, due_date: date, account_id: optId, amount: moneyOrNull, link_transaction_id: optId });
+// Linking an existing transaction sends no amount: a missing amount means "use the rule's".
+const optAmount = z.preprocess((v) => (v === undefined ? "" : v), moneyOrNull);
+const confirmSchema = z.object({ rule_id: id, due_date: date, account_id: optId, amount: optAmount, link_transaction_id: optId });
 export async function confirmOccurrenceAction(_: ActionState, form: FormData): Promise<ActionState> {
   try {
     const v = confirmSchema.parse(fd(form));

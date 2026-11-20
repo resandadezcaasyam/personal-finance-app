@@ -9,6 +9,8 @@ import { listCategories } from "@/lib/ledger/categories";
 import { CategoryManager } from "@/components/ledger/category-manager";
 import { ResetDemoButton } from "@/components/reset-demo-button";
 import { AiSettings } from "@/components/ai-settings";
+import { SecuritySettings } from "@/components/security-settings";
+import { isAuthEnabled } from "@/lib/auth/store";
 import { loadAiSettings } from "@/lib/capture/ollama";
 import { DEFAULT_SETTINGS } from "@/lib/db/defaults";
 import { switchProfile } from "./actions";
@@ -67,6 +69,11 @@ export default function SettingsPage() {
             <p><span className="text-muted">Versi skema: </span>{s.schemaVersion}</p>
             <p className="text-muted">Semua data tersimpan di komputer ini. Cadangan otomatis dibuat di <code>data/backups</code> sebelum migrasi skema.</p>
           </CardBody>
+        </Card>
+
+        <Card className="lg:col-span-2">
+          <CardHeader><CardTitle>Keamanan (PIN)</CardTitle><Badge tone={isAuthEnabled() ? "brand" : "neutral"}>{isAuthEnabled() ? "PIN aktif" : "PIN nonaktif"}</Badge></CardHeader>
+          <CardBody><SecuritySettings enabled={isAuthEnabled()} /></CardBody>
         </Card>
 
         <Card className="lg:col-span-2">

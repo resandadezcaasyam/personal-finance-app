@@ -159,7 +159,7 @@ export default function ForecastPage({ searchParams: sp }: { searchParams: SP })
 
       <section aria-labelledby="h-compare" className="mt-8">
         <h2 id="h-compare" className="mb-2 font-display text-xl font-semibold">Perbandingan skenario</h2>
-        <div className="overflow-x-auto rounded-card border border-line bg-surface">
+        <div tabIndex={0} role="region" aria-label="Tabel yang dapat digulir ke samping" className="overflow-x-auto rounded-card border border-line bg-surface">
           <table className="w-full text-sm">
             <thead><tr className="border-b border-line text-left text-muted"><th scope="col" className="px-4 py-2.5 font-medium">Skenario</th><th scope="col" className="px-4 py-2.5 text-right font-medium">Kas akhir</th><th scope="col" className="px-4 py-2.5 text-right font-medium">Saldo terendah</th><th scope="col" className="px-4 py-2.5 text-right font-medium">Hari negatif</th><th scope="col" className="px-4 py-2.5 font-medium">Sampai gajian</th></tr></thead>
             <tbody>
@@ -220,7 +220,7 @@ export default function ForecastPage({ searchParams: sp }: { searchParams: SP })
 
       <section aria-labelledby="h-months" className="mt-8">
         <h2 id="h-months" className="mb-2 font-display text-xl font-semibold">Proyeksi per bulan <Badge tone="warn">Proyeksi</Badge></h2>
-        <div className="overflow-x-auto rounded-card border border-line bg-surface">
+        <div tabIndex={0} role="region" aria-label="Tabel yang dapat digulir ke samping" className="overflow-x-auto rounded-card border border-line bg-surface">
           <table className="w-full text-sm">
             <thead><tr className="border-b border-line text-left text-muted">
               <th scope="col" className="px-3 py-2.5 font-medium">Bulan</th><th scope="col" className="px-3 py-2.5 text-right font-medium">Kas awal</th><th scope="col" className="px-3 py-2.5 text-right font-medium">Pemasukan</th><th scope="col" className="px-3 py-2.5 text-right font-medium">Belanja</th>
@@ -252,7 +252,7 @@ export default function ForecastPage({ searchParams: sp }: { searchParams: SP })
       <section aria-labelledby="h-daily" className="mt-8">
         <details className="rounded-card border border-line bg-surface">
           <summary id="h-daily" className="cursor-pointer px-5 py-3 text-sm font-medium">Rincian harian: hari dengan pemasukan, cicilan, atau tagihan ({eventDays.length})</summary>
-          <div className="overflow-x-auto">
+          <div tabIndex={0} role="region" aria-label="Tabel yang dapat digulir ke samping" className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead><tr className="border-b border-line text-left text-muted"><th scope="col" className="px-4 py-2 font-medium">Tanggal</th><th scope="col" className="px-4 py-2 font-medium">Peristiwa</th><th scope="col" className="px-4 py-2 text-right font-medium">Masuk</th><th scope="col" className="px-4 py-2 text-right font-medium">Keluar terjadwal</th><th scope="col" className="px-4 py-2 text-right font-medium">Belanja rata-rata</th><th scope="col" className="px-4 py-2 text-right font-medium">Saldo akhir</th></tr></thead>
               <tbody>

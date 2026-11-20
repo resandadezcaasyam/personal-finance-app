@@ -1,6 +1,7 @@
 "use server";
 import { z } from "zod";
 import { getDb, resetDemoDatabase } from "@/lib/db/client";
+import { assertSession } from "@/lib/auth/guard";
 import { createAccount, updateAccount, archiveAccount, restoreAccount } from "@/lib/ledger/accounts";
 import { createTransaction, updateTransaction, voidTransaction } from "@/lib/ledger/transactions";
 import { createTransfer, voidTransfer } from "@/lib/ledger/transfers";
@@ -111,5 +112,5 @@ export async function setRecurringActiveAction(ruleId: number, active: boolean):
 }
 
 export async function resetDemoAction(): Promise<ActionState> {
-  try { resetDemoDatabase(); return done(); } catch (e) { return fail(e); }
+  try { assertSession(); resetDemoDatabase(); return done(); } catch (e) { return fail(e); }
 }

@@ -1,4 +1,5 @@
 "use client";
+import { bannerMessage } from "@/lib/form-state";
 import * as React from "react";
 import { useFormState } from "react-dom";
 import { Plus, CalendarClock } from "lucide-react";
@@ -41,7 +42,7 @@ function RuleForm({ accounts, categories, today, onDone }: { accounts: AccountWi
         <FormField id="rr-end" label="Berakhir (opsional)" error={e.end_date}><Input id="rr-end" name="end_date" type="date" /></FormField>
       </div>
       <FormField id="rr-cat" label="Kategori" error={e.category_id}><Select id="rr-cat" name="category_id"><CategoryOptions categories={categories} kind="income" /></Select></FormField>
-      <FormError message={!state.errors ? state.message : undefined} />
+      <FormError message={bannerMessage(state)} />
       <div className="flex justify-end gap-2"><Button variant="secondary" onClick={onDone}>Batal</Button><SubmitButton>Simpan</SubmitButton></div>
     </form>
   );

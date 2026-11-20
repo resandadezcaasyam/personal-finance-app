@@ -109,6 +109,33 @@ describe("every action explains why, with the numbers", () => {
   });
 });
 
+describe("backup reminder", () => {
+  it("appears only with enough data and no recent backup, as a low-priority action with a reason", () => {
+    expect(buildActions(facts({ backup: { daysSince: null, transactions: 9 } }))).toEqual([]);
+    const never = buildActions(facts({ backup: { daysSince: null, transactions: 40 } }))[0];
+    expect(never).toMatchObject({ kind: "backup", severity: "low", href: "/backup" });
+    expect(never.why).toContain("belum pernah");
+    const old = buildActions(facts({ backup: { daysSince: 45, transactions: 40 } }))[0];
+    expect(old.why).toContain("45 hari");
+    expect(buildActions(facts({ backup: { daysSince: 29, transactions: 400 } }))).toEqual([]);
+    expect(buildActions(facts({ backup: null }))).toEqual([]);
+    expect(buildActions(facts({ backup: { daysSince: 90, transactions: 40 }, overdue: [ob()] })).map((a) => a.kind)).toEqual(["overdue", "backup"]);
+  });
+  it("is derived from the backup folder on disk and is skipped when no folder is given (demo data, tests)", async () => {
+    const fs = await import("node:fs"); const os = await import("node:os"); const path = await import("node:path");
+    const { createBackup } = await import("@/lib/backup/backup");
+    const db = memDb(); const { bca } = twoAccounts(db, 1_000_000, 0);
+    for (let i = 0; i < 12; i++) createTransaction(db, { type: "expense", account_id: bca, category_id: null, amount: 1_000, occurred_on: TODAY, description: "x" }, T);
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), "pfos-act-"));
+    try {
+      expect(loadActions(db, TODAY).some((a) => a.kind === "backup")).toBe(false);
+      expect(loadActions(db, TODAY, { backupDir: dir }).find((a) => a.kind === "backup")?.why).toContain("belum pernah");
+      createBackup(db, dir);
+      expect(loadActions(db, TODAY, { backupDir: dir }).some((a) => a.kind === "backup")).toBe(false);
+    } finally { fs.rmSync(dir, { recursive: true, force: true }); }
+  });
+});
+
 describe("from real data", () => {
   function world() {
     const db = memDb();
