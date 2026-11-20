@@ -2,7 +2,7 @@
 
 | Gejala | Penyebab umum | Solusi |
 |---|---|---|
-| `npm install` gagal di `better-sqlite3` | tidak ada biner siap pakai untuk versi Node Anda | pakai Node LTS (20/22) x64; atau pasang Visual Studio Build Tools ("Desktop development with C++") lalu ulangi |
+| `npm install` gagal di `better-sqlite3` (`No prebuilt binaries found`, `gyp ERR! find VS`) | versi Node tidak didukung (Node 20 atau lebih lama, atau 25+) atau instalasi ke folder yang dikunci OneDrive/antivirus | pakai Node **22 LTS atau 24** x64 (`node -v`); pasang di jalur pendek seperti `C:\personal-finance-os`; hapus `node_modules` lalu ulangi; terakhir: Visual Studio Build Tools |
 | `EADDRINUSE` / port 3000 dipakai | ada aplikasi lain atau instans lama | tutup yang lama, atau `node node_modules\next\dist\bin\next start -H localhost -p 3001` |
 | Halaman "Aplikasi terkunci" | PIN aktif dan sesi habis (12 jam) / dikeluarkan | masukkan PIN. Lupa PIN: tutup aplikasi, hapus `data\auth.json` (data tetap aman) |
 | "Terlalu banyak percobaan" | 5+ PIN salah | tunggu waktu yang ditampilkan (30 dtk sampai 15 mnt), atau hapus `data\auth.json` jika Anda yakin pemiliknya |

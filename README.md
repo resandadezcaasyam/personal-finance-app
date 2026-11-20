@@ -7,7 +7,7 @@ Aplikasi keuangan pribadi yang **privat dan berjalan lokal**. Semua data tersimp
 ## Mulai cepat (Windows CMD)
 
 ```bat
-:: 1) Pasang Node.js LTS dari https://nodejs.org lalu cek:
+:: 1) Pasang Node.js 22 LTS atau 24 (x64) dari https://nodejs.org lalu cek:
 node -v
 :: 2) Di folder proyek (butuh internet HANYA untuk langkah ini):
 npm install

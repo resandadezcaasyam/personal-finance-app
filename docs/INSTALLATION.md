@@ -1,10 +1,10 @@
 # Instalasi (Windows CMD)
 
-> **Catatan jujur:** seluruh pengembangan dan pengujian dilakukan di Linux (Node 22). Langkah Windows di bawah adalah yang diharapkan berfungsi, tetapi **belum dijalankan di Windows sungguhan**. Jika ada kendala, lihat `TROUBLESHOOTING.md`.
+> **Catatan jujur:** pengembangan dan pengujian otomatis dilakukan di Linux (Node 22). Di Windows (Node 24) pemasangan sempat gagal karena versi `better-sqlite3` lama tanpa biner Node 24; itu sudah diperbaiki (versi 12.11.1, biner Windows untuk Node 22 dan 24 diperiksa ada), tetapi **pemasangan penuh di Windows belum dikonfirmasi**. Jika ada kendala, lihat `TROUBLESHOOTING.md`.
 
 ## Prasyarat
 - Windows 10/11 64-bit.
-- **Node.js LTS** (versi 20 atau 22) dari <https://nodejs.org>. Cek di Command Prompt: `node -v` dan `npm -v`.
+- **Node.js 22 LTS atau 24** (x64) dari <https://nodejs.org>. Cek di Command Prompt: `node -v` dan `npm -v`. **Node 20 atau lebih lama tidak didukung** (database `better-sqlite3` 12.11.1 menyediakan biner siap pakai Windows hanya untuk Node 22 dan 24).
 - Koneksi internet **hanya** saat `npm install`. Setelah itu aplikasi berjalan sepenuhnya offline (termasuk OCR; data bahasa Indonesia/Inggris ikut terpasang lewat npm).
 
 ## Pasang dan jalankan
@@ -18,7 +18,9 @@ Buka **http://localhost:3000**. Aplikasi hanya mendengarkan di `localhost`, jadi
 
 Mode pengembangan (lebih lambat, memantau perubahan kode): `npm run dev`.
 
-`better-sqlite3` biasanya terpasang dari berkas biner siap pakai. Jika `npm install` gagal membangunnya, pasang *Visual Studio Build Tools* (beban kerja "Desktop development with C++") lalu ulangi.
+`better-sqlite3` terpasang dari berkas biner siap pakai (Node 22/24 x64). Jika `npm install` malah mencoba mengompilasi (pesan `No prebuilt binaries found` dan `gyp ERR! find VS`), versi Node Anda kemungkinan tidak didukung: cek `node -v`. Jalan keluar terakhir: pasang *Visual Studio Build Tools* (beban kerja "Desktop development with C++").
+
+**Tips:** gunakan jalur pendek di luar OneDrive/Videos/Documents (mis. `C:\personal-finance-os`) supaya antivirus/sinkronisasi tidak mengunci `node_modules` (pesan `EPERM ... cleanup`). Jika instalasi gagal setengah jalan, hapus dulu `node_modules` (`rmdir /s /q node_modules`) sebelum mengulang.
 
 ## Lokasi data
 Semua data ada di folder `data\` di dalam proyek:

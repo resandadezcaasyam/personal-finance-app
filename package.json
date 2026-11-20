@@ -20,7 +20,7 @@
     "@hyzyla/pdfium": "^3.0.0",
     "@tesseract.js-data/eng": "^1.0.0",
     "@tesseract.js-data/ind": "^1.0.0",
-    "better-sqlite3": "^11.5.0",
+    "better-sqlite3": "12.11.1",
     "clsx": "^2.1.1",
     "date-fns": "^3.6.0",
     "lucide-react": "^0.454.0",
@@ -53,6 +53,6 @@
     "vitest": "^2.1.4"
   },
   "engines": {
-    "node": ">=20"
+    "node": ">=22"
   }
 }
