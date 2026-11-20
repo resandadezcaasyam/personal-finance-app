@@ -1,6 +1,9 @@
 import Link from "next/link";
-import { AlertTriangle, CheckCircle2, ClipboardCheck, ListChecks, Inbox as InboxIcon, CalendarClock, Scale } from "lucide-react";
+import { AlertTriangle, CheckCircle2, ClipboardCheck, ListChecks, Inbox as InboxIcon, CalendarClock, Scale, Flame, Clock } from "lucide-react";
 import { PageHeader } from "@/components/page-header";
+import { buttonClass } from "@/components/ui/button";
+import { TabNav } from "@/components/ui/tab-nav";
+import { KpiCard } from "@/components/dashboard/kpi-card";
 import { Card, CardBody, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -25,12 +28,20 @@ export default function NextActionsPage({ searchParams }: { searchParams: Record
   const view = searchParams.view === "review" ? "review" : "next";
   const actions = loadActions(db, today, { backupDir: getActiveProfile() === "personal" ? backupDir() : null });
   const review = loadDailyReview(db, today);
-  const tab = (v: string, label: string) => <Link key={v} href={`/next-actions?view=${v}`} aria-current={view === v ? "page" : undefined} className={cn("-mb-px border-b-2 px-4 py-2 text-sm font-medium", view === v ? "border-brand text-brand-text" : "border-transparent text-muted hover:text-ink")}>{label}</Link>;
+  const counts = { urgent: actions.filter((a) => a.severity === "critical" || a.severity === "high").length, attention: actions.filter((a) => a.severity === "medium").length, later: actions.filter((a) => a.severity === "low").length };
 
   return (
     <>
       <PageHeader title="Langkah Keuangan Berikutnya" description="Daftar yang diurutkan dari data Anda sendiri, lengkap dengan alasan tiap langkah. Aplikasi hanya menyarankan; tidak ada yang diubah otomatis." />
-      <nav aria-label="Tampilan" className="mb-5 flex gap-1 border-b border-line">{tab("next", `Langkah berikutnya${actions.length ? ` (${actions.length})` : ""}`)}{tab("review", "Tinjauan harian")}</nav>
+      <TabNav label="Tampilan" items={[{ href: "/next-actions?view=next", label: `Langkah berikutnya${actions.length ? ` (${actions.length})` : ""}`, active: view === "next" }, { href: "/next-actions?view=review", label: "Tinjauan harian", active: view === "review" }]} />
+      {view === "next" && actions.length > 0 && (
+        <div className="mb-5 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+          <KpiCard emphasis label="Total langkah" icon={ListChecks} value={String(actions.length)} caption="Diurutkan dari yang paling mendesak" />
+          <KpiCard label="Mendesak" icon={Flame} value={String(counts.urgent)} negative={counts.urgent > 0} caption="Segera atau penting" />
+          <KpiCard label="Perlu perhatian" icon={AlertTriangle} value={String(counts.attention)} caption="Sebaiknya ditangani minggu ini" />
+          <KpiCard label="Bisa menunggu" icon={Clock} value={String(counts.later)} caption="Rapikan saat sempat" />
+        </div>
+      )}
 
       {view === "next" && (
         actions.length === 0 ? (
@@ -38,13 +49,18 @@ export default function NextActionsPage({ searchParams }: { searchParams: Record
         ) : (
           <ol className="space-y-3" aria-label="Langkah berikutnya, urut prioritas">
             {actions.map((a, i) => (
-              <li key={a.id} className={cn("rounded-card border border-l-4 border-line bg-surface p-4", SEV[a.severity].bar)}>
-                <div className="flex flex-wrap items-start justify-between gap-2">
-                  <div className="min-w-0">
-                    <p className="flex flex-wrap items-center gap-2 font-medium"><span className="text-xs text-muted">{i + 1}.</span>{a.title}<Badge tone={SEV[a.severity].tone}>{SEV[a.severity].label}</Badge></p>
-                    <p className="mt-1.5 max-w-prose text-sm"><span className="font-medium text-muted">Mengapa: </span>{a.why}</p>
+              <li key={a.id} className={cn("rounded-card border border-l-4 border-line bg-surface p-4 shadow-card", SEV[a.severity].bar)}>
+                <div className="flex flex-wrap items-start justify-between gap-3">
+                  <div className="flex min-w-0 flex-1 basis-80 gap-3">
+                    <span className={cn("flex h-9 w-9 shrink-0 items-center justify-center rounded-xl", a.severity === "critical" || a.severity === "high" ? "bg-loss/10 text-loss" : a.severity === "medium" ? "bg-warn-fill/15 text-warn" : "bg-sunken text-muted")}>
+                      {a.severity === "critical" || a.severity === "high" ? <Flame className="h-[18px] w-[18px]" aria-hidden /> : a.severity === "medium" ? <AlertTriangle className="h-[18px] w-[18px]" aria-hidden /> : <Clock className="h-[18px] w-[18px]" aria-hidden />}
+                    </span>
+                    <div className="min-w-0">
+                      <p className="flex flex-wrap items-center gap-2 text-sm font-semibold"><span className="text-xs font-normal text-muted">{i + 1}.</span>{a.title}<Badge tone={SEV[a.severity].tone}>{SEV[a.severity].label}</Badge></p>
+                      <p className="mt-1.5 max-w-prose text-[13px] leading-5"><span className="font-medium text-muted">Mengapa: </span>{a.why}</p>
+                    </div>
                   </div>
-                  <Link href={a.href} className="inline-flex h-9 shrink-0 items-center rounded-md border border-line px-3 text-sm font-medium hover:bg-sunken">{a.cta}</Link>
+                  <Link href={a.href} className={buttonClass("secondary", "sm", "shrink-0")}>{a.cta}</Link>
                 </div>
               </li>
             ))}

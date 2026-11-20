@@ -2,7 +2,7 @@
 import { bannerMessage } from "@/lib/form-state";
 import * as React from "react";
 import { useFormState } from "react-dom";
-import { Archive, ArchiveRestore, PiggyBank, Plus, Trash2, Pencil, HandCoins, History } from "lucide-react";
+import { Archive, ArchiveRestore, PiggyBank, Plus, Trash2, Pencil, HandCoins, History, ShieldCheck, Plane, ShoppingBag, Target } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, ConfirmDialog } from "@/components/ui/dialog";
 import { FormField, Input, Select } from "@/components/ui/form-field";
@@ -75,9 +75,12 @@ export function GoalsManager({ goals, histories, accounts, today, hint }: { goal
   const archived = goals.filter((g) => g.status === "archived");
 
   const card = (g: GoalView) => (
-    <li key={g.id} className="rounded-card border border-line bg-surface p-5">
+    <li key={g.id} className="rounded-card border border-line bg-surface p-5 shadow-card">
       <div className="flex flex-wrap items-start justify-between gap-2">
-        <div><h3 className="font-display text-lg font-semibold">{g.name}</h3><p className="text-xs text-muted">{GOAL_KIND_LABEL[g.kind]}{g.target_date ? ` · target ${formatDateID(g.target_date)}` : ""}</p></div>
+        <div className="flex min-w-0 items-center gap-3">
+          <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-tint text-brand-text">{(() => { const KindIcon = { emergency: ShieldCheck, travel: Plane, purchase: ShoppingBag, custom: Target }[g.kind] ?? Target; return <KindIcon className="h-5 w-5" aria-hidden />; })()}</span>
+          <div className="min-w-0"><h3 className="truncate text-base font-semibold tracking-tight">{g.name}</h3><p className="text-xs text-muted">{GOAL_KIND_LABEL[g.kind]}{g.target_date ? ` · target ${formatDateID(g.target_date)}` : ""}</p></div>
+        </div>
         <Badge tone={g.status === "achieved" ? "brand" : g.status === "archived" ? "neutral" : g.onTrack === false ? "warn" : "neutral"}>{g.status === "achieved" ? "Tercapai" : g.status === "archived" ? "Diarsipkan" : g.onTrack === false ? "Tertinggal" : g.onTrack ? "Sesuai jalur" : "Berjalan"}</Badge>
       </div>
       <p className="num mt-3 text-2xl font-semibold">{formatIDR(g.saved_amount)}<span className="text-sm font-normal text-muted"> / {formatIDR(g.target_amount)}</span></p>

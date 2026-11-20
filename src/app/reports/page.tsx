@@ -1,6 +1,8 @@
 import Link from "next/link";
-import { Download, FileText } from "lucide-react";
+import { Download, FileText, ArrowDownLeft, ArrowUpRight, Scale, PiggyBank } from "lucide-react";
 import { PageHeader } from "@/components/page-header";
+import { KpiCard } from "@/components/dashboard/kpi-card";
+import { buttonClass } from "@/components/ui/button";
 import { Card, CardBody, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -25,7 +27,7 @@ export default function ReportsPage({ searchParams: sp }: { searchParams: Record
   try { period = resolvePeriod(sp, today); } catch (e) { error = e instanceof LedgerError ? e.message : "Periode tidak valid."; period = resolvePeriod({ preset: "6m" }, today); }
   const r = buildReport(getDb(), period, today);
   const qs = (extra: Record<string, string>) => new URLSearchParams({ preset: period.preset, ...(period.preset === "custom" ? { from: period.from, to: period.to } : {}), ...extra }).toString();
-  const exp = (kind: string, label: string) => <a key={kind} href={`/api/export?${qs({ kind })}`} download className="inline-flex h-9 items-center gap-2 rounded-md border border-line px-3 text-sm font-medium hover:bg-sunken"><Download className="h-4 w-4" aria-hidden />{label}</a>;
+  const exp = (kind: string, label: string) => <a key={kind} href={`/api/export?${qs({ kind })}`} download className={buttonClass("secondary", "sm")}><Download className="h-4 w-4" aria-hidden />{label}</a>;
   const empty = r.totals.transactions === 0;
 
   return (
@@ -33,8 +35,8 @@ export default function ReportsPage({ searchParams: sp }: { searchParams: Record
       <PageHeader title="Laporan & Analitik" description="Pemasukan dan pengeluaran, kategori, pengurangan utang, anggaran, dan kondisi keuangan dari waktu ke waktu. Semua angka berasal dari catatan Anda dan cocok dengan buku besar." />
 
       <div className="mb-4 flex flex-wrap items-center gap-3">
-        <nav aria-label="Periode" className="flex flex-wrap gap-1 rounded-md bg-sunken p-1">
-          {PRESETS.map((p) => <Link key={p} href={`/reports?preset=${p}`} aria-current={period.preset === p ? "page" : undefined} className={cn("rounded px-3 py-1.5 text-sm font-medium", period.preset === p ? "bg-surface shadow-sm" : "text-muted hover:text-ink")}>{PRESET_LABEL[p]}</Link>)}
+        <nav aria-label="Periode" className="flex flex-wrap gap-0.5 rounded-xl bg-sunken p-1">
+          {PRESETS.map((p) => <Link key={p} href={`/reports?preset=${p}`} aria-current={period.preset === p ? "page" : undefined} className={cn("rounded-lg px-3 py-1.5 text-[13px] font-medium transition-colors", period.preset === p ? "bg-surface text-brand-text shadow-card" : "text-muted hover:text-ink")}>{PRESET_LABEL[p]}</Link>)}
         </nav>
         <form method="get" action="/reports" className="flex flex-wrap items-end gap-2 text-sm">
           <input type="hidden" name="preset" value="custom" />
@@ -53,9 +55,10 @@ export default function ReportsPage({ searchParams: sp }: { searchParams: Record
       ) : (
         <>
           <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-            {[["Pemasukan", formatIDR(r.totals.income), "text-gain"], ["Pengeluaran", formatIDR(r.totals.expense), ""], ["Selisih", formatIDR(r.totals.net), r.totals.net < 0 ? "text-loss" : "text-gain"], ["Tingkat tabungan", pctText(r.totals.savingsRate), ""]].map(([l, v, c]) => (
-              <Card key={l}><CardBody><p className="text-sm text-muted">{l}</p><p className={cn("num mt-2 whitespace-nowrap text-xl font-semibold", c)}>{v}</p></CardBody></Card>
-            ))}
+            <KpiCard emphasis label="Pemasukan" icon={ArrowDownLeft} value={formatIDR(r.totals.income)} caption={`${period.months.length} bulan · ${r.totals.transactions} transaksi`} />
+            <KpiCard label="Pengeluaran" icon={ArrowUpRight} value={formatIDR(r.totals.expense)} caption="Termasuk cicilan, tagihan, dan biaya transfer" />
+            <KpiCard label="Selisih" icon={Scale} value={formatIDR(r.totals.net)} negative={r.totals.net < 0} caption="Pemasukan − pengeluaran" status={{ label: r.totals.net > 0 ? "Surplus" : r.totals.net < 0 ? "Defisit" : "Impas", good: r.totals.net > 0 ? true : r.totals.net < 0 ? false : null }} />
+            <KpiCard label="Tingkat tabungan" icon={PiggyBank} value={pctText(r.totals.savingsRate)} empty={r.totals.savingsRate === null} caption="Selisih ÷ pemasukan" />
           </div>
 
           <section aria-labelledby="h-trend" className="mt-8">
