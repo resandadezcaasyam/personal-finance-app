@@ -129,6 +129,8 @@ export function TransactionsManager({ rows, accounts, categories, today, allowed
             {r.status === "voided" && <Badge tone="loss">Dibatalkan</Badge>}
             {r.kind === "adjustment" && <Badge tone="warn">Penyesuaian</Badge>}
             {r.source === "transfer_fee" && <Badge>Otomatis dari transfer</Badge>}
+            {r.source === "debt_payment" && <Badge tone="brand">Cicilan · kelola di Utang</Badge>}
+            {r.source === "bill_payment" && <Badge tone="brand">Tagihan · kelola di Tagihan</Badge>}
           </div>
           {r.kind === "transfer" && <p className="mt-0.5 flex items-center gap-1 text-xs text-muted">{r.account_name}<ArrowRight className="h-3 w-3" aria-hidden />{r.to_account_name}{r.description ? ` · ${r.description}` : ""}</p>}
           {r.kind !== "transfer" && (r.merchant || r.tags) && <p className="mt-0.5 text-xs text-muted">{[r.merchant && r.description ? r.merchant : null, r.tags ? r.tags.split(",").map((t) => `#${t}`).join(" ") : null].filter(Boolean).join(" · ")}</p>}
@@ -141,8 +143,9 @@ export function TransactionsManager({ rows, accounts, categories, today, allowed
       key: "act", header: "Aksi", align: "right",
       render: (r) => {
         if (r.status === "voided") return null;
-        const editable = r.src === "tx" && (r.kind === "income" || r.kind === "expense") && r.source !== "transfer_fee";
-        const voidable = r.source !== "transfer_fee";
+        const system = r.source === "transfer_fee" || r.source === "debt_payment" || r.source === "bill_payment";
+        const editable = r.src === "tx" && (r.kind === "income" || r.kind === "expense") && !system;
+        const voidable = !system;
         return (
           <div className="flex justify-end gap-1">
             {editable && <Button size="sm" variant="ghost" aria-label="Ubah transaksi" onClick={() => setDlg({ kind: "edit", entry: r })}><Pencil className="h-4 w-4" aria-hidden /></Button>}

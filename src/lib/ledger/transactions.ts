@@ -21,6 +21,7 @@ export interface TxInput {
 }
 
 interface TxRow {
+  debt_payment_id: number | null; bill_id: number | null;
   id: number; account_id: number; category_id: number | null; type: "income" | "expense" | "adjustment";
   amount: number; occurred_on: string; description: string; merchant: string | null; tags: string | null;
   status: "posted" | "voided"; source: string; source_ref: string | null; adj_direction: "in" | "out" | null;
@@ -76,6 +77,8 @@ export function updateTransaction(db: Database.Database, id: number, patch: Omit
   if (before.status === "voided") throw new LedgerError("Transaksi yang sudah dibatalkan tidak dapat diubah.");
   if (before.type === "adjustment") throw new LedgerError("Penyesuaian rekonsiliasi tidak dapat diedit. Batalkan lalu lakukan rekonsiliasi ulang.");
   if (before.source === "transfer_fee") throw new LedgerError("Biaya transfer diubah lewat transfer terkait.");
+  if (before.debt_payment_id) throw new LedgerError("Transaksi ini adalah pembayaran cicilan. Ubah lewat halaman utang terkait.");
+  if (before.bill_id) throw new LedgerError("Transaksi ini adalah pembayaran tagihan. Ubah lewat halaman tagihan terkait.");
   const next: TxInput = { ...patch, type: before.type };
   validate(db, next, opts.today);
   const tags = normalizeTags(patch.tags);
@@ -97,6 +100,8 @@ export function voidTransaction(db: Database.Database, id: number) {
   if (!before) throw new LedgerError("Transaksi tidak ditemukan.");
   if (before.status === "voided") return;
   if (before.source === "transfer_fee") throw new LedgerError("Biaya transfer dibatalkan bersama transfer terkait.");
+  if (before.debt_payment_id) throw new LedgerError("Pembayaran cicilan dibatalkan lewat halaman utang terkait agar sisa kewajiban ikut dikembalikan.");
+  if (before.bill_id) throw new LedgerError("Pembayaran tagihan dibatalkan lewat halaman tagihan terkait agar jatuh tempo ikut dikembalikan.");
   db.transaction(() => {
     db.prepare("UPDATE transactions SET status='voided', updated_at=strftime('%Y-%m-%dT%H:%M:%fZ','now') WHERE id=?").run(id);
     writeAudit(db, "transaction", id, "void", { status: "posted" }, { status: "voided" });

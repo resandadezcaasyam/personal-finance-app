@@ -2,7 +2,7 @@
 
 Aplikasi keuangan pribadi yang **privat dan berjalan lokal**. Semua data tersimpan di komputer Anda (SQLite). Tidak memerlukan internet setelah instalasi.
 
-**Status:** Fase 2 dari 8 selesai (ledger inti: akun, pemasukan, pengeluaran, transfer, rekonsiliasi, dasbor). Lihat `docs/DEVELOPMENT_PROGRESS.md`.
+**Status:** Fase 3 dari 8 selesai (ledger inti + utang, cicilan, tagihan, dan langganan). Lihat `docs/DEVELOPMENT_PROGRESS.md`.
 
 ## Fitur yang sudah tersedia
 
@@ -11,9 +11,11 @@ Aplikasi keuangan pribadi yang **privat dan berjalan lokal**. Semua data tersimp
 - **Transfer** antar akun (tidak dihitung sebagai pemasukan/pengeluaran), biaya admin opsional.
 - **Pemasukan** (termasuk konfigurasi pemasukan berulang) dan **Pengeluaran** (grafik per kategori).
 - **Dasbor** dengan total kas, pemasukan/pengeluaran bulan ini, saldo akun, dan transaksi terbaru.
+- **Utang & Cicilan:** jadwal otomatis (tanpa bunga, flat, menurun/anuitas, atau manual), pembayaran penuh/sebagian/terlambat (denda)/dipercepat/pelunasan, ringkasan kewajiban, jadwal bulanan, dan kalender.
+- **Tagihan & Langganan:** listrik, internet, sewa, langganan, dll. Bayar (tercatat sebagai satu pengeluaran), lewati, batalkan, dan lihat riwayat. Nominal boleh berubah tiap periode.
 - **Mode demo** dengan data fiktif terpisah, dan manajemen kategori di Pengaturan.
 
-Catatan: transaksi tidak boleh bertanggal di masa depan. Tagihan dan cicilan terjadwal hadir di Fase 3.
+Catatan: transaksi tidak boleh bertanggal di masa depan. Jadwal cicilan dan tagihan adalah rencana, bukan pembayaran: saldo baru berubah saat Anda mencatat pembayaran. Rumus bunga adalah konvensi umum; jika berbeda dari kontrak penyedia, gunakan jadwal manual.
 
 ## Instalasi (Windows CMD)
 

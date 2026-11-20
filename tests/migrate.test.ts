@@ -13,12 +13,12 @@ const fresh = () => {
 describe("migrations", () => {
   it("applies the initial schema and creates all planned tables", () => {
     const db = fresh();
-    expect(migrate(db, loadMigrations(dir))).toEqual([1, 2]);
+    expect(migrate(db, loadMigrations(dir))).toEqual([1, 2, 3]);
     const names = (db.prepare("SELECT name FROM sqlite_master WHERE type='table'").all() as { name: string }[]).map((r) => r.name);
     for (const t of [
       "accounts", "categories", "transactions", "transfers", "debts", "installment_schedules", "debt_payments",
       "bills", "recurring_rules", "budgets", "goals", "import_batches", "inbox_items", "simulation_scenarios",
-      "settings", "audit_logs",
+      "settings", "audit_logs", "debt_payment_allocations", "bill_payments",
     ]) expect(names).toContain(t);
   });
 
@@ -37,7 +37,7 @@ describe("migrations", () => {
     const ms = loadMigrations(dir);
     migrate(db, ms, { backup: () => backups++ });
     expect(backups).toBe(0);
-    const extra = { version: 3, name: "0003_test", sql: "CREATE TABLE t2 (id INTEGER)", checksum: "x" };
+    const extra = { version: 4, name: "0004_test", sql: "CREATE TABLE t2 (id INTEGER)", checksum: "x" };
     migrate(db, [...ms, extra], { backup: () => backups++ });
     expect(backups).toBe(1);
   });

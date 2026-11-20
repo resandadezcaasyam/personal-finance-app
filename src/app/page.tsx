@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Landmark, TrendingUp, TrendingDown, Scale, PieChart, ArrowLeftRight, Database, Wallet, ArrowRight } from "lucide-react";
+import { CalendarClock, Landmark, TrendingUp, TrendingDown, Scale, PieChart, ArrowLeftRight, Database, Wallet, ArrowRight } from "lucide-react";
 import { PageHeader } from "@/components/page-header";
 import { Card, CardBody, CardHeader, CardTitle } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -9,6 +9,7 @@ import { SpendingChart } from "@/components/ledger/spending-chart";
 import { getDb } from "@/lib/db/client";
 import { getDbStatus } from "@/lib/db/status";
 import { getDashboardSummary } from "@/lib/ledger/summary";
+import { getCommitmentsOverview } from "@/lib/obligations";
 import { currentMonthWIB, formatDateID, formatIDR, formatMonthID, formatNumber, todayWIB } from "@/lib/format";
 import type { LedgerEntry } from "@/lib/ledger/types";
 
@@ -25,6 +26,8 @@ export default function DashboardPage() {
   const month = currentMonthWIB();
   const d = getDashboardSummary(getDb(), month);
   const hasAccounts = d.accounts.length > 0;
+  const ob = getCommitmentsOverview(getDb(), todayWIB(), 14);
+  const obItems = [...ob.overdue, ...ob.upcoming].slice(0, 5);
   const metrics = [
     { label: "Total kas", icon: Wallet, value: d.totalCash, tone: d.totalCash < 0 ? "text-loss" : "", note: `${d.accounts.length} akun aktif` },
     { label: "Pemasukan bulan ini", icon: TrendingUp, value: d.income, tone: "", note: formatMonthID(month) },
@@ -103,6 +106,25 @@ export default function DashboardPage() {
           <CardBody>
             {d.spendingByCategory.length > 0 ? <SpendingChart data={d.spendingByCategory} /> : <EmptyState icon={PieChart} title="Belum ada pengeluaran bulan ini" description="Grafik kategori muncul setelah ada pengeluaran yang dicatat." />}
           </CardBody>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Kewajiban mendatang</CardTitle>
+            {ob.overdue.length > 0 ? <Badge tone="loss">{ob.overdue.length} terlambat</Badge> : <Link href="/debts" className="text-sm font-medium text-brand">Lihat semua</Link>}
+          </CardHeader>
+          {obItems.length === 0 ? (
+            <CardBody><EmptyState icon={CalendarClock} title="Tidak ada jatuh tempo 14 hari ke depan" description="Cicilan dan tagihan yang akan jatuh tempo tampil di sini." action={<Link href="/debts"><Button size="sm" variant="secondary">Kelola utang & tagihan</Button></Link>} /></CardBody>
+          ) : (
+            <ul className="divide-y divide-line">
+              {obItems.map((i, k) => (
+                <li key={k}><Link href={i.href} className="flex items-center justify-between gap-3 px-5 py-3 text-sm hover:bg-sunken">
+                  <div className="min-w-0"><p className="truncate font-medium">{i.title}</p><p className={`text-xs ${i.overdue ? "text-loss" : "text-muted"}`}>{i.overdue ? "Terlambat · " : ""}{formatDateID(i.date)}</p></div>
+                  <span className="num shrink-0">{i.amount > 0 ? formatIDR(i.amount) : "—"}</span>
+                </Link></li>
+              ))}
+            </ul>
+          )}
         </Card>
 
         <Card>

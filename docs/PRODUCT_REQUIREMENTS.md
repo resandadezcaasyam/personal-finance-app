@@ -16,8 +16,8 @@ A privacy-first, local-first personal finance OS (Windows laptop, `http://localh
 |---|------|----------------|--------|
 | 1 | Foundation, database & UI shell | `feat: initialize personal finance os` | Done |
 | 2 | Core ledger & accounts (accounts, income, expenses, transfers, reconciliation, dashboard metrics) | `feat: implement core financial ledger` | Done |
-| 3 | Debt, installments & bills | `feat: implement debt and bills management` | Next |
-| 4 | Smart capture (NL parser, OCR, imports, inbox, dedupe, matching, templates) | `feat: implement smart transaction capture` | |
+| 3 | Debt, installments & bills | `feat: implement debt and bills management` | Done |
+| 4 | Smart capture (NL parser, OCR, imports, inbox, dedupe, matching, templates) | `feat: implement smart transaction capture` | Next |
 | 5 | Cash flow forecasting (daily engine, scenarios, payday survival) | `feat: implement cash flow forecasting` | |
 | 6 | Early repayment simulator & strategies | `feat: implement early repayment simulator` | |
 | 7 | Automation, budgets, goals, insights, reports/exports, optional Ollama | `feat: implement automation and analytics` | |
@@ -40,3 +40,12 @@ Per-phase acceptance criteria are tracked in `DEVELOPMENT_PROGRESS.md` and `NEXT
 - Reconciliation adjustments are traceable. ✔ (adjustment row + audit log)
 - All records persist after restart. ✔
 - Unit tests cover core ledger calculations. ✔ (24 ledger tests)
+
+## Phase 3 acceptance criteria
+- Debt schedules match configured terms. ✔ (none/flat/reducing/manual; unit-tested to the rupiah)
+- Payments reduce the corresponding balance correctly. ✔
+- Installments are never double-counted. ✔ (one expense per payment; schedule/ledger linked)
+- Partial payments are handled correctly. ✔
+- Upcoming and overdue obligations are accurate. ✔
+- Bills marked as paid generate the appropriate ledger entry. ✔ (once per occurrence)
+- Tests cover zero-interest, partial, late, and irregular payments. ✔

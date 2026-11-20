@@ -1,39 +1,43 @@
 # Development Progress
 
-**Current phase:** 2 of 8 complete. Next: Phase 3.
+**Current phase:** 3 of 8 complete. Next: Phase 4.
 
 ## Phase 1: done
-Foundation, SQLite + versioned migrations, UI shell, demo mode. See git history (`feat: initialize personal finance os`).
+Foundation, SQLite + versioned migrations, UI shell, demo mode (`feat: initialize personal finance os`).
 
-## Phase 2: done (`feat: implement core financial ledger`)
-- **Accounts & Saldo:** create, edit, archive (zero balance only), restore, reconcile; types cash/bank/e-wallet/other; derived balances; link to per-account history.
-- **Transactions:** create/edit/void for income and expense (category + subcategory, account, date, description, merchant, tags); search, filters (type, account, category incl. subcategories, date range, show voided), sort, pagination, "Bulan ini/lalu" presets.
-- **Transfers** between accounts with optional fee; never counted as income/expense.
-- **Reconciliation** with live difference preview; posts a traceable adjustment.
-- **Income page** with recurring-income configuration (no auto-posting); **Expenses page** with monthly category chart.
-- **Dashboard:** real total cash, month income/expense/net, account balances, spending donut, recent transactions; empty states when no data.
-- **Settings:** category manager (add, archive), demo reset.
-- Default Indonesian categories (migration 0002). Toasts, confirm dialogs, loading/error/empty states.
-- Demo database now seeds fictional accounts, categories use, transactions and a transfer, relative to today.
+## Phase 2: done
+Accounts, income/expense/transfers, reconciliation, dashboard, categories (`feat: implement core financial ledger`).
+
+## Phase 3: done (`feat: implement debt and bills management`)
+- **Debt manager:** provider, label, principal, interest model (none/flat/reducing/manual), monthly rate, admin fee, installment count, first due date, payment account, notes. Live schedule preview before saving; optional "already paid" installments for loans that are already running.
+- **Installment schedules:** generated deterministically (integer rupiah, exact totals); month-end clamping; irregular schedules via manual entry.
+- **Payments:** regular, partial, overdue (penalty), early/lump-sum, settlement, admin fee. Preview of how a payment is allocated; one expense posted per payment; void restores schedule, status and balance exactly.
+- **Bills & subscriptions:** fixed or variable amount, weekly/monthly/quarterly/yearly/once, reminders, statuses (overdue / due soon / upcoming / inactive), pay (one ledger entry), skip, undo latest, history.
+- **Commitments overview:** total outstanding and principal, this month's installments (paid/remaining), 30-day upcoming, overdue list, completion %, per-debt progress.
+- **Views:** Utang (table), Jadwal bulanan (agenda with totals), Kalender (month grid with paid/partial/overdue/projected states), debt detail page.
+- **Dashboard:** "Kewajiban mendatang" card. **Ledger:** debt/bill payment rows are badged and cannot be edited/voided from the transaction list.
+- Demo data now includes two fictional loans (one partly paid) and four bills (one overdue).
+- Migration `0003_debts_and_bills.sql`.
 
 ## Verification (Linux sandbox, Node 22)
-- `npm run typecheck`, `npm run lint`, `npm run build`: clean.
-- `npm test`: **49 tests passing** (17 format + 6 migration from Phase 1; 24 ledger; 2 for the 0002 upgrade and demo seed).
-- Browser E2E (Playwright/Chromium, clean database): empty states; create accounts; duplicate-name rejection; income; invalid-amount message; expense with merchant/tag; transfer with fee; balances (BCA Rp 10.072.500, GoPay Rp 400.000); dashboard totals exclude the transfer and count the fee once; edit recalculates; void recalculates; voided rows visible with filter; reconciliation preview + adjustment excluded from income/expense; search; empty filter result; archive blocked at non-zero balance; persistence after server restart; demo mode isolation, demo reset, custom subcategory, return to personal data.
+- `npm run typecheck`, `npm run lint`, `npm run check:offline`, `npm run build`: clean.
+- `npm test`: **93 tests passing** (14 schedule engine; 19 debts/payments/commitments/agenda; 11 bills; 49 from earlier phases: 24 ledger, 17 format, 6 migration, 2 upgrade+demo).
+- Browser E2E (Playwright/Chromium, clean database): empty states; debt creation with live preview (Rp 1.344.000); regular, partial, late (penalty+fee, cash-out Rp 130.000), overpayment rejection; ledger rows protected; void restores balance and outstanding; settlement closes the debt; bills added/paid once/undone/variable/skipped; calendar, monthly agenda and projection labels; dashboard card; persistence after server restart; demo mode shows fictional obligations and leaves personal data untouched.
 - Zero non-localhost requests and zero page errors during the E2E run.
 
-## Real upgrade test (Phase 1 -> 2)
-A genuine on-disk Phase 1 database (migration 0001 only, one account) was upgraded by starting the Phase 2 server: schema reached version 2, the account and its balance were intact, 31 default categories were added, and `data/backups/finance.db.pre-migration-<timestamp>.bak` was created containing the pre-migration state (version 1, 0 categories, the account).
+## Real upgrade test (Phase 2 -> 3)
+A genuine on-disk Phase 2 database (migrations 1-2; one account, one transaction, one legacy bill row) was upgraded by starting the Phase 3 server: schema reached version 3, all data was intact, the legacy bill received the new `kind`/`notes` columns, and `data/backups/finance.db.pre-migration-<timestamp>.bak` held the pre-migration state (versions 1-2, no `bill_payments` table).
 
 ## Bug found and fixed during verification
-After "Reset data demo", pages kept a handle to the deleted demo.db because Next.js loaded `client.ts` twice (pages vs server actions) with separate connection caches. Fixed with a `globalThis`-shared cache. Covered by the browser flow, not by a unit test.
+After creating a debt, the dialog closed but the app did not navigate to the new debt: a client `router.push` after a server action was overwritten by the revalidation refresh. Fixed by redirecting from the server action.
 
 ## Not yet verified
-- Running on Windows CMD with a real `npm install` there (better-sqlite3 prebuilt binary).
-- Dark mode was reviewed on the dashboard, chart and transaction dialog only, not on every page.
-- GitHub push (no access from the build environment).
+- Windows CMD run with a real `npm install` (better-sqlite3 prebuilt binary).
+- Dark mode on the new Phase 3 pages was not reviewed visually.
+- Floating-point is used inside the reducing-balance formula (rounded to whole rupiah per row, deterministic, verified against a known annuity); results can differ from a provider's own rounding by a few rupiah.
 
 ## Known issues / limitations
-- Transfers cannot be edited, only voided and re-created.
-- Filter bar is plain GET (full page reload), by design for simplicity.
-- Recurring income is configuration only until Phase 7.
+- Debt terms cannot be edited after creation (cancel if unpaid, or void payments).
+- A debt payment needs an amount > 0 (penalty-only payments are not supported).
+- Bills do not catch up automatically: each missed period is paid or skipped one at a time.
+- Early settlement uses the schedule's remaining amount; contractual rebates or settlement quotes are for the Phase 6 simulator.

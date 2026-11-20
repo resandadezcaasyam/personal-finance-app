@@ -80,3 +80,31 @@ export function previousMonth(month: string): string {
   const [y, m] = month.split("-").map(Number);
   return new Date(Date.UTC(y, m - 2, 1)).toISOString().slice(0, 7);
 }
+
+/**
+ * Add whole months to an ISO date, keeping the intended day of month and clamping to month end
+ * (Jan 31 + 1 month = Feb 28/29). `anchorDay` lets a series stay on day 31 after a short month.
+ */
+export function addMonthsClamped(isoDate: string, months: number, anchorDay?: number): string {
+  const [y, m, d] = isoDate.split("-").map(Number);
+  const day = anchorDay ?? d;
+  const total = y * 12 + (m - 1) + months;
+  const ny = Math.floor(total / 12);
+  const nm = total % 12;
+  const last = new Date(Date.UTC(ny, nm + 1, 0)).getUTCDate();
+  return `${ny}-${String(nm + 1).padStart(2, "0")}-${String(Math.min(day, last)).padStart(2, "0")}`;
+}
+
+/** Whole days from a to b (b - a). */
+export function daysBetween(a: string, b: string): number {
+  const t = (s: string) => { const [y, m, d] = s.split("-").map(Number); return Date.UTC(y, m - 1, d); };
+  return Math.round((t(b) - t(a)) / 86_400_000);
+}
+
+/** "2,5" or "2.5" (percent) -> 250 basis points. Returns null when it is not a plain number. */
+export function parsePercentToBps(input: string): number | null {
+  const t = input.trim().replace("%", "").replace(",", ".");
+  if (!/^\d+(\.\d+)?$/.test(t)) return null;
+  const v = Math.round(Number(t) * 100);
+  return Number.isSafeInteger(v) ? v : null;
+}
