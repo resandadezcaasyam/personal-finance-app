@@ -21,10 +21,10 @@ export function FilterBar({ basePath, filters, fixedType, accounts, categories }
     return `${basePath}${p.size ? `?${p}` : ""}`;
   };
   return (
-    <form method="get" action={basePath} className="mb-4 rounded-card border border-line bg-surface p-4" role="search" aria-label="Filter transaksi">
+    <form method="get" action={basePath} className="mb-4 rounded-card border border-line bg-surface p-4 shadow-card" role="search" aria-label="Filter transaksi">
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
         <div className="relative col-span-2">
-          <Search className="pointer-events-none absolute left-3 top-3 h-4 w-4 text-muted" aria-hidden />
+          <Search className="pointer-events-none absolute left-3 top-[11px] h-4 w-4 text-muted" aria-hidden />
           <Input name="q" defaultValue={filters.q} placeholder="Cari deskripsi, merchant, tag, kategori" aria-label="Cari" className="pl-9" />
         </div>
         {!fixedType && (
@@ -48,8 +48,8 @@ export function FilterBar({ basePath, filters, fixedType, accounts, categories }
             </>
           )}
         </Select>
-        <label className="space-y-1 text-xs text-muted">Dari<Input type="date" name="from" defaultValue={filters.from} className="text-ink" /></label>
-        <label className="space-y-1 text-xs text-muted">Sampai<Input type="date" name="to" defaultValue={filters.to} className="text-ink" /></label>
+        <label className="space-y-1 text-xs font-medium text-muted">Dari<Input type="date" name="from" defaultValue={filters.from} className="text-ink" /></label>
+        <label className="space-y-1 text-xs font-medium text-muted">Sampai<Input type="date" name="to" defaultValue={filters.to} className="text-ink" /></label>
         <Select name="sort" defaultValue={filters.sort} aria-label="Urutkan">
           <option value="date_desc">Terbaru</option><option value="date_asc">Terlama</option><option value="amount_desc">Nominal terbesar</option><option value="amount_asc">Nominal terkecil</option>
         </Select>
@@ -57,10 +57,10 @@ export function FilterBar({ basePath, filters, fixedType, accounts, categories }
       </div>
       <div className="mt-3 flex flex-wrap items-center gap-2">
         <Button type="submit" size="sm">Terapkan</Button>
-        <Link href={fixedType ? basePath : preset()} className="inline-flex h-8 items-center rounded-md px-3 text-sm hover:bg-sunken">Atur ulang</Link>
+        <Link href={fixedType ? basePath : preset()} className="inline-flex h-8 items-center rounded-lg px-3 text-[13px] font-medium text-muted hover:bg-sunken hover:text-ink">Atur ulang</Link>
         <span className="mx-1 hidden h-4 w-px bg-line sm:block" aria-hidden />
-        <Link href={preset(cur.from, cur.to)} className="inline-flex h-8 items-center rounded-md border border-line px-3 text-sm hover:bg-sunken">Bulan ini</Link>
-        <Link href={preset(prev.from, prev.to)} className="inline-flex h-8 items-center rounded-md border border-line px-3 text-sm hover:bg-sunken">Bulan lalu</Link>
+        <Link href={preset(cur.from, cur.to)} className="inline-flex h-8 items-center rounded-lg border border-line bg-surface px-3 text-[13px] font-medium shadow-card transition-colors hover:bg-sunken">Bulan ini</Link>
+        <Link href={preset(prev.from, prev.to)} className="inline-flex h-8 items-center rounded-lg border border-line bg-surface px-3 text-[13px] font-medium shadow-card transition-colors hover:bg-sunken">Bulan lalu</Link>
       </div>
     </form>
   );

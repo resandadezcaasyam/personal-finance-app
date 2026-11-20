@@ -1,6 +1,6 @@
 import { AlertTriangle, CalendarClock, CheckCircle2 } from "lucide-react";
 import { PageHeader } from "@/components/page-header";
-import { Card, CardBody } from "@/components/ui/card";
+import { KpiCard } from "@/components/dashboard/kpi-card";
 import { BillsManager } from "@/components/bills/bills-manager";
 import { getDb } from "@/lib/db/client";
 import { listAccounts } from "@/lib/ledger/accounts";
@@ -28,12 +28,7 @@ export default function BillsPage() {
     <>
       <PageHeader title="Tagihan & Langganan" description="Listrik, internet, sewa, asuransi, dan langganan. Menandai lunas mencatat satu pengeluaran dan menggeser jatuh tempo ke periode berikutnya." />
       <div className="mb-6 grid gap-4 sm:grid-cols-3">
-        {stats.map(({ label, icon: Icon, value, note, tone }) => (
-          <Card key={label}><CardBody>
-            <div className="flex items-center justify-between text-sm text-muted">{label}<Icon className="h-4 w-4" aria-hidden /></div>
-            <p className={`num mt-3 text-xl font-semibold ${tone ?? ""}`}>{value}</p><p className="mt-1 text-xs text-muted">{note}</p>
-          </CardBody></Card>
-        ))}
+        {stats.map(({ label, icon, value, note, tone }, i) => <KpiCard key={label} emphasis={i === 0} label={label} icon={icon} value={value} caption={note} negative={!!tone} />)}
       </div>
       <BillsManager bills={bills} payments={listBillPayments(db)} accounts={listAccounts(db)} categories={listCategories(db, { includeArchived: true })} today={today} />
     </>

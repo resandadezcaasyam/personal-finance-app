@@ -26,6 +26,7 @@ import { PRESETS, runForecast } from "@/lib/forecast/engine";
 import { addMonthsClamped, currentMonthWIB, daysBetween, formatDateShortID, formatDateID, formatIDR, formatMonthID, formatNumber, todayWIB } from "@/lib/format";
 import { ACCOUNT_TYPE_LABEL } from "@/lib/ledger/types";
 import type { LedgerEntry } from "@/lib/ledger/types";
+import { EntryAvatar, CategoryPill, entrySign } from "@/components/ledger/entry-visuals";
 import { cn } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
@@ -37,11 +38,6 @@ const SEVERITY = {
   critical: { label: "Segera", tone: "loss" }, high: { label: "Penting", tone: "loss" }, medium: { label: "Perlu perhatian", tone: "warn" }, low: { label: "Bisa menunggu", tone: "neutral" },
 } as const;
 
-function entrySign(r: LedgerEntry) {
-  if (r.kind === "income" || (r.kind === "adjustment" && r.adj_direction === "in")) return { text: "text-gain", sign: "+" };
-  if (r.kind === "transfer") return { text: "", sign: "" };
-  return { text: "text-loss", sign: "−" };
-}
 const pctChange = (cur: number, prev: number) => ((cur - prev) / prev) * 100;
 
 export default function DashboardPage({ searchParams }: { searchParams: SP }) {
@@ -175,18 +171,16 @@ export default function DashboardPage({ searchParams }: { searchParams: SP }) {
                   {d.recent.map((r) => {
                     const { text, sign } = entrySign(r);
                     const title = r.kind === "transfer" ? `Transfer ${r.account_name} → ${r.to_account_name}` : r.description || r.merchant || r.category_name || "(tanpa keterangan)";
-                    const Avatar = r.kind === "transfer" ? ArrowLeftRight : r.kind === "adjustment" ? Scale : sign === "+" ? ArrowDownLeft : ArrowUpRight;
-                    const avatarTone = r.kind === "transfer" ? "text-brand-text" : r.kind === "adjustment" ? "text-muted" : sign === "+" ? "text-gain" : "text-loss";
                     const pill = r.kind === "transfer" ? "Transfer" : r.kind === "adjustment" ? "Penyesuaian" : r.category_name;
                     return (
                       <tr key={`${r.src}-${r.id}`} className="border-b border-line/70 last:border-0">
                         <td className="px-3 py-3">
                           <div className="flex items-center gap-3">
-                            <span className="hidden h-9 w-9 shrink-0 items-center justify-center rounded-full bg-tint sm:flex"><Avatar className={cn("h-4 w-4", avatarTone)} aria-hidden /></span>
+                            <EntryAvatar r={r} className="hidden sm:flex" />
                             <div className="min-w-0 max-w-[9.5rem] sm:max-w-[17rem]"><p className="truncate font-medium">{title}</p><p className="truncate text-xs text-muted">{r.kind === "transfer" ? "Antar akun" : r.account_name}<span className="sm:hidden"> · {formatDateShortID(r.occurred_on)}</span></p></div>
                           </div>
                         </td>
-                        <td className="hidden px-3 py-3 md:table-cell">{pill ? <span className="inline-flex max-w-[11rem] truncate rounded-full bg-tint px-2.5 py-0.5 text-[11px] font-medium text-brand-text ring-1 ring-inset ring-brand/15">{pill}</span> : <span className="text-muted">—</span>}</td>
+                        <td className="hidden px-3 py-3 md:table-cell">{pill ? <CategoryPill>{pill}</CategoryPill> : <span className="text-muted">—</span>}</td>
                         <td className="hidden whitespace-nowrap px-3 py-3 text-muted sm:table-cell">{formatDateShortID(r.occurred_on)}</td>
                         <td className={cn("num whitespace-nowrap px-3 py-3 text-right font-semibold", text)}>{sign}{formatIDR(r.amount)}</td>
                       </tr>

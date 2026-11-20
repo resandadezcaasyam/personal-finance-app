@@ -2,7 +2,7 @@
 import { bannerMessage } from "@/lib/form-state";
 import * as React from "react";
 import { useFormState } from "react-dom";
-import { Plus, Pencil, SkipForward, Banknote, Power, CalendarClock, Ban } from "lucide-react";
+import { Plus, Pencil, SkipForward, Banknote, Power, CalendarClock, Ban, Repeat, Receipt } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, ConfirmDialog } from "@/components/ui/dialog";
 import { DataTable, type Column } from "@/components/ui/data-table";
@@ -95,25 +95,6 @@ export function BillsManager({ bills, payments, accounts, categories, today }: {
   const toast = useToast();
   const close = () => { setDlg(null); setVoiding(null); setErr(undefined); };
 
-  const cols: Column<BillView>[] = [
-    { key: "n", header: "Nama", render: (b) => <div className={b.is_active ? "" : "opacity-60"}><span className="font-medium">{b.name}</span> <Badge>{b.kind === "subscription" ? "Langganan" : "Tagihan"}</Badge><p className="text-xs text-muted">{FREQ[b.frequency]}{b.account_name ? ` · ${b.account_name}` : ""}</p></div> },
-    { key: "d", header: "Jatuh tempo", render: (b) => <div className="whitespace-nowrap">{b.next_due_date ? formatDateID(b.next_due_date) : "—"}<div className="mt-0.5">{statusBadge(b)}</div></div> },
-    { key: "a", header: "Nominal", align: "right", render: (b) => (b.amount !== null ? formatIDR(b.amount) : <span className="text-muted">Berubah tiap periode</span>) },
-    { key: "l", header: "Terakhir dibayar", render: (b) => (b.last_paid_on ? formatDateID(b.last_paid_on) : <span className="text-muted">Belum pernah</span>) },
-    {
-      key: "x", header: "Aksi", align: "right",
-      render: (b) => (
-        <div className="flex justify-end gap-1">
-          {b.is_active && <Button size="sm" onClick={() => setDlg({ k: "pay", bill: b })}><Banknote className="h-4 w-4" aria-hidden />Bayar</Button>}
-          {b.is_active && <Button size="sm" variant="ghost" aria-label={`Lewati ${b.name}`} onClick={() => setDlg({ k: "skip", bill: b })}><SkipForward className="h-4 w-4" aria-hidden /></Button>}
-          <Button size="sm" variant="ghost" aria-label={`Ubah ${b.name}`} onClick={() => setDlg({ k: "edit", bill: b })}><Pencil className="h-4 w-4" aria-hidden /></Button>
-          <Button size="sm" variant="ghost" aria-label={b.is_active ? `Nonaktifkan ${b.name}` : `Aktifkan ${b.name}`} disabled={pending || (!b.is_active && !b.next_due_date)}
-            onClick={() => startTransition(async () => { const r = await setBillActiveAction(b.id, !b.is_active); toast(r.ok ? (b.is_active ? "Tagihan dinonaktifkan" : "Tagihan diaktifkan") : r.message ?? "Gagal", r.ok ? "ok" : "error"); })}><Power className="h-4 w-4" aria-hidden /></Button>
-        </div>
-      ),
-    },
-  ];
-
   const pcols: Column<BillPaymentRow>[] = [
     { key: "n", header: "Tagihan", render: (p) => <span className={p.status === "voided" ? "line-through opacity-60" : ""}>{p.bill_name}</span> },
     { key: "d", header: "Jatuh tempo", render: (p) => formatDateID(p.due_date) },
@@ -126,13 +107,38 @@ export function BillsManager({ bills, payments, accounts, categories, today }: {
   return (
     <>
       <div className="mb-4 flex justify-end"><Button onClick={() => setDlg({ k: "create" })}><Plus className="h-4 w-4" aria-hidden />Tambah tagihan</Button></div>
-      <div className="rounded-card border border-line bg-surface">
-        <DataTable columns={cols} rows={bills} rowKey={(b) => b.id}
-          empty={<EmptyState icon={CalendarClock} title="Belum ada tagihan atau langganan" description="Tambahkan listrik, internet, sewa, asuransi, atau langganan seperti Netflix. Tanggal jatuh tempo akan dipantau dan pembayaran dicatat sebagai pengeluaran." />} />
-      </div>
+      {bills.length === 0 ? (
+        <div className="rounded-card border border-dashed border-line bg-surface"><EmptyState icon={CalendarClock} title="Belum ada tagihan atau langganan" description="Tambahkan listrik, internet, sewa, asuransi, atau langganan seperti Netflix. Tanggal jatuh tempo akan dipantau dan pembayaran dicatat sebagai pengeluaran." /></div>
+      ) : (
+        <ul className="divide-y divide-line overflow-hidden rounded-card border border-line bg-surface shadow-card" aria-label="Daftar tagihan dan langganan">
+          {bills.map((b) => (
+            <li key={b.id} className={`flex flex-wrap items-center gap-x-4 gap-y-3 px-5 py-4 ${b.status === "overdue" ? "bg-loss/[0.04]" : ""}`}>
+              <div className={`flex min-w-0 flex-1 basis-60 items-center gap-3 ${b.is_active ? "" : "opacity-60"}`}>
+                <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${b.status === "overdue" ? "bg-loss/10 text-loss" : "bg-tint text-brand-text"}`}>{b.kind === "subscription" ? <Repeat className="h-[18px] w-[18px]" aria-hidden /> : <Receipt className="h-[18px] w-[18px]" aria-hidden />}</span>
+                <div className="min-w-0">
+                  <p className="flex flex-wrap items-center gap-2 text-sm font-semibold"><span className="truncate">{b.name}</span><Badge>{b.kind === "subscription" ? "Langganan" : "Tagihan"}</Badge></p>
+                  <p className="mt-0.5 truncate text-xs text-muted">{FREQ[b.frequency]}{b.account_name ? ` · ${b.account_name}` : ""} · {b.last_paid_on ? `terakhir dibayar ${formatDateID(b.last_paid_on)}` : "belum pernah dibayar"}</p>
+                </div>
+              </div>
+              <div className="basis-40 text-sm">
+                <p className="whitespace-nowrap font-medium">{b.next_due_date ? formatDateID(b.next_due_date) : "—"}</p>
+                <div className="mt-1">{statusBadge(b)}</div>
+              </div>
+              <p className="num basis-32 text-right text-[15px] font-semibold">{b.amount !== null ? formatIDR(b.amount) : <span className="text-[13px] font-normal text-muted">Berubah tiap periode</span>}</p>
+              <div className="flex items-center justify-end gap-1">
+                {b.is_active && <Button size="sm" onClick={() => setDlg({ k: "pay", bill: b })}><Banknote className="h-4 w-4" aria-hidden />Bayar</Button>}
+                {b.is_active && <Button size="icon" variant="ghost" className="h-8 w-8" aria-label={`Lewati ${b.name}`} onClick={() => setDlg({ k: "skip", bill: b })}><SkipForward className="h-4 w-4" aria-hidden /></Button>}
+                <Button size="icon" variant="ghost" className="h-8 w-8" aria-label={`Ubah ${b.name}`} onClick={() => setDlg({ k: "edit", bill: b })}><Pencil className="h-4 w-4" aria-hidden /></Button>
+                <Button size="icon" variant="ghost" className="h-8 w-8" aria-label={b.is_active ? `Nonaktifkan ${b.name}` : `Aktifkan ${b.name}`} disabled={pending || (!b.is_active && !b.next_due_date)}
+                  onClick={() => startTransition(async () => { const r = await setBillActiveAction(b.id, !b.is_active); toast(r.ok ? (b.is_active ? "Tagihan dinonaktifkan" : "Tagihan diaktifkan") : r.message ?? "Gagal", r.ok ? "ok" : "error"); })}><Power className="h-4 w-4" aria-hidden /></Button>
+              </div>
+            </li>
+          ))}
+        </ul>
+      )}
 
-      <h2 className="mb-2 mt-10 font-display text-xl font-semibold">Riwayat pembayaran</h2>
-      <div className="rounded-card border border-line bg-surface">
+      <h2 className="mb-3 mt-10 text-lg font-semibold tracking-tight">Riwayat pembayaran</h2>
+      <div className="rounded-card border border-line bg-surface shadow-card">
         <DataTable columns={pcols} rows={payments} rowKey={(p) => p.id} empty={<EmptyState icon={Banknote} title="Belum ada riwayat" description="Pembayaran dan periode yang dilewati akan tercatat di sini." />} />
       </div>
 

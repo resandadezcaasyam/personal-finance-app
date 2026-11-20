@@ -2,17 +2,18 @@
 import { bannerMessage } from "@/lib/form-state";
 import * as React from "react";
 import { useFormState } from "react-dom";
-import { Pencil, Ban, Plus, ArrowLeftRight, ArrowRight } from "lucide-react";
+import { Pencil, Ban, Plus, ArrowLeftRight, ArrowRight, ArrowUpRight, ArrowDownLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, ConfirmDialog } from "@/components/ui/dialog";
-import { DataTable, type Column } from "@/components/ui/data-table";
+import { EntryAvatar, CategoryPill, entrySign } from "./entry-visuals";
 import { FormField, Input, Select } from "@/components/ui/form-field";
 import { SubmitButton, FormError } from "@/components/ui/submit-button";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/components/toast";
 import { CategoryOptions } from "./category-options";
-import { formatIDR, formatDateID } from "@/lib/format";
+import { formatIDR, formatDateShortID, formatDateID } from "@/lib/format";
+import { cn } from "@/lib/utils";
 import type { AccountWithBalance, CategoryRow, LedgerEntry } from "@/lib/ledger/types";
 import { saveTransactionAction, saveTransferAction, voidTransactionAction, voidTransferAction, type ActionState } from "@/app/actions/ledger";
 
@@ -44,11 +45,17 @@ function TxForm({ entry, accounts, categories, today, allowedTypes, onDone }: {
       {type !== "transfer" && <input type="hidden" name="type" value={type} />}
 
       {!editing && allowedTypes.length > 1 && (
-        <div role="group" aria-label="Jenis transaksi" className="grid grid-cols-3 gap-1 rounded-md bg-sunken p-1">
-          {allowedTypes.map((t) => (
-            <button key={t} type="button" aria-pressed={type === t} onClick={() => setType(t)}
-              className={`h-9 rounded text-sm font-medium ${type === t ? "bg-surface shadow-sm" : "text-muted hover:text-ink"}`}>{TYPE_LABEL[t]}</button>
-          ))}
+        <div role="group" aria-label="Jenis transaksi" className="grid grid-cols-3 gap-1 rounded-xl bg-sunken p-1">
+          {allowedTypes.map((t) => {
+            const Icon = t === "expense" ? ArrowUpRight : t === "income" ? ArrowDownLeft : ArrowLeftRight;
+            const tone = t === "expense" ? "text-loss" : t === "income" ? "text-gain" : "text-brand-text";
+            return (
+              <button key={t} type="button" aria-pressed={type === t} onClick={() => setType(t)}
+                className={cn("flex h-9 items-center justify-center gap-1.5 rounded-lg text-[13px] font-medium transition-colors", type === t ? "bg-surface shadow-card" : "text-muted hover:text-ink")}>
+                <Icon className={cn("h-3.5 w-3.5", type === t && tone)} aria-hidden />{TYPE_LABEL[t]}
+              </button>
+            );
+          })}
         </div>
       )}
 
@@ -69,7 +76,7 @@ function TxForm({ entry, accounts, categories, today, allowedTypes, onDone }: {
 
       <div className="grid gap-4 sm:grid-cols-2">
         <FormField id="tx-amount" label="Nominal" error={e.amount} hint="Contoh: 25rb, 9,5jt, 1.250.000">
-          <Input id="tx-amount" name="amount" inputMode="numeric" defaultValue={entry ? String(entry.amount) : ""} required autoFocus aria-invalid={!!e.amount} />
+          <Input id="tx-amount" name="amount" inputMode="numeric" defaultValue={entry ? String(entry.amount) : ""} required autoFocus aria-invalid={!!e.amount} className="h-11 text-lg font-semibold tracking-tight" />
         </FormField>
         <FormField id="tx-date" label="Tanggal" error={e.occurred_on}>
           <Input id="tx-date" name="occurred_on" type="date" defaultValue={entry?.occurred_on ?? today} max={today} required aria-invalid={!!e.occurred_on} />
@@ -104,9 +111,8 @@ function TxForm({ entry, accounts, categories, today, allowedTypes, onDone }: {
 }
 
 function amountCell(r: LedgerEntry) {
-  const cls = r.kind === "income" || (r.kind === "adjustment" && r.adj_direction === "in") ? "text-gain" : r.kind === "expense" || r.kind === "adjustment" ? "text-loss" : "";
-  const sign = r.kind === "income" || (r.kind === "adjustment" && r.adj_direction === "in") ? "+" : r.kind === "transfer" ? "" : "−";
-  return <span className={`${cls} ${r.status === "voided" ? "line-through opacity-60" : ""}`}>{sign}{formatIDR(r.amount)}</span>;
+  const { text, sign } = entrySign(r);
+  return <span className={cn("font-semibold", text, r.status === "voided" && "line-through opacity-60")}>{sign}{formatIDR(r.amount)}</span>;
 }
 
 export function TransactionsManager({ rows, accounts, categories, today, allowedTypes, emptyTitle, emptyText }: {
@@ -128,51 +134,72 @@ export function TransactionsManager({ rows, accounts, categories, today, allowed
     }
   }, []);
 
-  const cols: Column<LedgerEntry>[] = [
-    { key: "date", header: "Tanggal", render: (r) => <span className="whitespace-nowrap">{formatDateID(r.occurred_on)}</span> },
-    {
-      key: "desc", header: "Keterangan",
-      render: (r) => (
-        <div className={`min-w-[12rem] ${r.status === "voided" ? "opacity-60" : ""}`}>
-          <div className="flex flex-wrap items-center gap-1.5">
-            <span className={`font-medium ${r.status === "voided" ? "line-through" : ""}`}>{r.kind === "transfer" ? "Transfer" : r.description || r.merchant || r.category_name || "(tanpa keterangan)"}</span>
-            {r.status === "voided" && <Badge tone="loss">Dibatalkan</Badge>}
-            {r.kind === "adjustment" && <Badge tone="warn">Penyesuaian</Badge>}
-            {r.source === "transfer_fee" && <Badge>Otomatis dari transfer</Badge>}
-            {r.source === "debt_payment" && <Badge tone="brand">Cicilan · kelola di Utang</Badge>}
-            {r.source === "bill_payment" && <Badge tone="brand">Tagihan · kelola di Tagihan</Badge>}
-          </div>
-          {r.kind === "transfer" && <p className="mt-0.5 flex items-center gap-1 text-xs text-muted">{r.account_name}<ArrowRight className="h-3 w-3" aria-hidden />{r.to_account_name}{r.description ? ` · ${r.description}` : ""}</p>}
-          {r.kind !== "transfer" && (r.merchant || r.tags) && <p className="mt-0.5 text-xs text-muted">{[r.merchant && r.description ? r.merchant : null, r.tags ? r.tags.split(",").map((t) => `#${t}`).join(" ") : null].filter(Boolean).join(" · ")}</p>}
-        </div>
-      ),
-    },
-    { key: "cat", header: "Kategori & akun", render: (r) => <div className="text-sm">{r.kind === "transfer" || r.kind === "adjustment" ? <span className="text-muted">—</span> : <span>{r.parent_category_name ? `${r.parent_category_name} › ` : ""}{r.category_name ?? "Tanpa kategori"}</span>}{r.kind !== "transfer" && <p className="text-xs text-muted">{r.account_name}</p>}</div> },
-    { key: "amt", header: "Nominal", align: "right", render: amountCell },
-    {
-      key: "act", header: "Aksi", align: "right",
-      render: (r) => {
-        if (r.status === "voided") return null;
-        const system = r.source === "transfer_fee" || r.source === "debt_payment" || r.source === "bill_payment";
-        const editable = r.src === "tx" && (r.kind === "income" || r.kind === "expense") && !system;
-        const voidable = !system;
-        return (
-          <div className="flex justify-end gap-1">
-            {editable && <Button size="sm" variant="ghost" aria-label="Ubah transaksi" onClick={() => setDlg({ kind: "edit", entry: r })}><Pencil className="h-4 w-4" aria-hidden /></Button>}
-            {voidable && <Button size="sm" variant="ghost" aria-label="Batalkan transaksi" onClick={() => setVoiding(r)}><Ban className="h-4 w-4" aria-hidden /></Button>}
-          </div>
-        );
-      },
-    },
-  ];
+  const titleOf = (r: LedgerEntry) => (r.kind === "transfer" ? "Transfer" : r.description || r.merchant || r.category_name || "(tanpa keterangan)");
+  const categoryOf = (r: LedgerEntry) => (r.kind === "transfer" || r.kind === "adjustment" ? null : `${r.parent_category_name ? `${r.parent_category_name} › ` : ""}${r.category_name ?? ""}`.trim() || null);
+  const rowActions = (r: LedgerEntry, align: "start" | "end" = "end") => {
+    if (r.status === "voided") return null;
+    const system = r.source === "transfer_fee" || r.source === "debt_payment" || r.source === "bill_payment";
+    const editable = r.src === "tx" && (r.kind === "income" || r.kind === "expense") && !system;
+    const voidable = !system;
+    return (
+      <div className={cn("flex gap-0.5", align === "end" ? "justify-end" : "-ml-2 justify-start")}>
+        {editable && <Button size="icon" variant="ghost" className="h-8 w-8" aria-label="Ubah transaksi" onClick={() => setDlg({ kind: "edit", entry: r })}><Pencil className="h-4 w-4" aria-hidden /></Button>}
+        {voidable && <Button size="icon" variant="ghost" className="h-8 w-8" aria-label="Batalkan transaksi" onClick={() => setVoiding(r)}><Ban className="h-4 w-4" aria-hidden /></Button>}
+      </div>
+    );
+  };
 
   const close = () => setDlg(null);
   return (
     <>
       <div className="mb-4 flex justify-end"><Button onClick={() => setDlg({ kind: "create" })}><Plus className="h-4 w-4" aria-hidden />{allowedTypes.length === 1 ? `Catat ${TYPE_LABEL[allowedTypes[0]].toLowerCase()}` : "Catat transaksi"}</Button></div>
-      <div className="rounded-card border border-line bg-surface">
-        <DataTable columns={cols} rows={rows} rowKey={(r) => `${r.src}-${r.id}`}
-          empty={<EmptyState icon={ArrowLeftRight} title={emptyTitle} description={emptyText} />} />
+      <div className="rounded-card border border-line bg-surface shadow-card">
+        {rows.length === 0 ? <div className="px-5 py-4"><EmptyState icon={ArrowLeftRight} title={emptyTitle} description={emptyText} /></div> : (
+          <div className="overflow-x-auto p-2">
+            <table className="w-full text-[13px]">
+              <caption className="sr-only">Daftar transaksi</caption>
+              <thead><tr className="bg-sunken/70 text-left [&>th:first-child]:rounded-l-lg [&>th:last-child]:rounded-r-lg">
+                <th scope="col" className="px-3 py-2.5">Keterangan</th><th scope="col" className="hidden px-3 py-2.5 md:table-cell">Kategori &amp; akun</th>
+                <th scope="col" className="hidden px-3 py-2.5 sm:table-cell">Tanggal</th><th scope="col" className="px-3 py-2.5 text-right">Nominal</th><th scope="col" className="hidden px-3 py-2.5 text-right sm:table-cell"><span className="sr-only">Aksi</span></th>
+              </tr></thead>
+              <tbody>
+                {rows.map((r) => {
+                  const voided = r.status === "voided";
+                  const cat = categoryOf(r);
+                  return (
+                    <tr key={`${r.src}-${r.id}`} className="border-b border-line/70 last:border-0">
+                      <td className="px-3 py-3">
+                        <div className={cn("flex items-center gap-3", voided && "opacity-60")}>
+                          <EntryAvatar r={r} className="hidden sm:flex" />
+                          <div className="min-w-0 max-w-[9.5rem] sm:max-w-[22rem]">
+                            <div className="flex flex-wrap items-center gap-1.5">
+                              <span className={cn("truncate font-medium", voided && "line-through")}>{titleOf(r)}</span>
+                              {voided && <Badge tone="loss">Dibatalkan</Badge>}
+                              {r.kind === "adjustment" && <Badge tone="warn">Penyesuaian</Badge>}
+                              {r.source === "transfer_fee" && <Badge>Otomatis dari transfer</Badge>}
+                              {r.source === "debt_payment" && <Badge tone="brand">Cicilan · kelola di Utang</Badge>}
+                              {r.source === "bill_payment" && <Badge tone="brand">Tagihan · kelola di Tagihan</Badge>}
+                            </div>
+                            {r.kind === "transfer" && <p className="mt-0.5 flex items-center gap-1 text-xs text-muted">{r.account_name}<ArrowRight className="h-3 w-3" aria-hidden />{r.to_account_name}{r.description ? ` · ${r.description}` : ""}</p>}
+                            {r.kind !== "transfer" && (r.merchant || r.tags) && <p className="mt-0.5 truncate text-xs text-muted">{[r.merchant && r.description ? r.merchant : null, r.tags ? r.tags.split(",").map((t) => `#${t}`).join(" ") : null].filter(Boolean).join(" · ")}</p>}
+                            <p className="mt-0.5 text-xs text-muted sm:hidden">{formatDateShortID(r.occurred_on)}{r.kind !== "transfer" && ` · ${r.account_name}`}</p>
+                            <div className="sm:hidden">{rowActions(r, "start")}</div>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="hidden px-3 py-3 md:table-cell">
+                        {cat ? <div className="space-y-1"><CategoryPill>{cat}</CategoryPill><p className="text-xs text-muted">{r.account_name}</p></div> : <span className="text-muted">{r.kind === "transfer" ? "Antar akun" : r.kind === "adjustment" ? r.account_name : "—"}</span>}
+                      </td>
+                      <td className="hidden whitespace-nowrap px-3 py-3 text-muted sm:table-cell">{formatDateID(r.occurred_on)}</td>
+                      <td className="num whitespace-nowrap px-3 py-3 text-right">{amountCell(r)}</td>
+                      <td className="hidden px-3 py-3 sm:table-cell">{rowActions(r)}</td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
 
       <Dialog wide open={!!dlg} onClose={close} title={dlg?.kind === "edit" ? "Ubah transaksi" : "Catat transaksi"}>

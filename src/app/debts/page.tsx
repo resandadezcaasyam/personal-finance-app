@@ -5,6 +5,9 @@ import { Card, CardBody, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Progress } from "@/components/ui/progress";
+import { TabNav } from "@/components/ui/tab-nav";
+import { KpiCard } from "@/components/dashboard/kpi-card";
+import { DebtCards } from "@/components/debts/debt-cards";
 import { AddDebtButton } from "@/components/debts/debt-form";
 import { MonthCalendar, STATUS_LABEL, STATUS_STYLE } from "@/components/commitments/month-calendar";
 import { MonthNav } from "@/components/commitments/month-nav";
@@ -13,41 +16,10 @@ import { listAccounts } from "@/lib/ledger/accounts";
 import { getCommitmentsOverview, getMonthAgenda } from "@/lib/obligations";
 import { formatDateID, formatIDR, formatMonthID, todayWIB } from "@/lib/format";
 import { cn } from "@/lib/utils";
-import type { DebtSummary } from "@/lib/debts/debts";
 
 export const dynamic = "force-dynamic";
 
 const TABS = [["debts", "Utang"], ["monthly", "Jadwal bulanan"], ["calendar", "Kalender"]] as const;
-const STATUS_BADGE = { active: ["Aktif", "brand"], settled: ["Lunas", "neutral"], cancelled: ["Dibatalkan", "loss"] } as const;
-
-function DebtTable({ debts }: { debts: DebtSummary[] }) {
-  return (
-    <div className="overflow-x-auto">
-      <table className="w-full text-sm">
-        <thead><tr className="border-b border-line text-left text-muted">
-          <th scope="col" className="px-5 py-2.5 font-medium">Utang</th><th scope="col" className="px-5 py-2.5 text-right font-medium">Sisa kewajiban</th>
-          <th scope="col" className="px-5 py-2.5 text-right font-medium">Sisa pokok</th><th scope="col" className="px-5 py-2.5 font-medium">Progres</th>
-          <th scope="col" className="px-5 py-2.5 font-medium">Jatuh tempo berikutnya</th><th scope="col" className="px-5 py-2.5 font-medium">Status</th>
-        </tr></thead>
-        <tbody>
-          {debts.map((d) => {
-            const [label, tone] = STATUS_BADGE[d.status];
-            return (
-              <tr key={d.id} className="border-b border-line last:border-0">
-                <td className="px-5 py-3"><Link href={`/debts/${d.id}`} className="font-medium text-brand-text hover:underline">{d.provider}</Link>{d.label && <p className="text-xs text-muted">{d.label}</p>}</td>
-                <td className="num whitespace-nowrap px-5 py-3 text-right">{formatIDR(d.outstanding)}</td>
-                <td className="num whitespace-nowrap px-5 py-3 text-right">{formatIDR(d.remaining_principal)}</td>
-                <td className="min-w-36 px-5 py-3"><Progress value={d.total_rows ? (d.paid_rows / d.total_rows) * 100 : 0} label={`Progres ${d.provider}`} /><p className="mt-1 text-xs text-muted">{d.paid_rows} dari {d.total_rows} cicilan</p></td>
-                <td className="whitespace-nowrap px-5 py-3">{d.status === "active" && d.next_due_date ? <>{formatDateID(d.next_due_date)}{d.overdue_count > 0 && <div className="mt-0.5"><Badge tone="loss">Terlambat {d.overdue_count} cicilan</Badge></div>}</> : "—"}</td>
-                <td className="px-5 py-3"><Badge tone={tone}>{label}</Badge></td>
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
-    </div>
-  );
-}
 
 export default function DebtsPage({ searchParams }: { searchParams: Record<string, string | undefined> }) {
   const db = getDb();
@@ -72,55 +44,43 @@ export default function DebtsPage({ searchParams }: { searchParams: Record<strin
         actions={<AddDebtButton accounts={accounts} today={today} />} />
 
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        {stats.map(({ label, icon: Icon, value, note, tone }) => (
-          <Card key={label}><CardBody>
-            <div className="flex items-center justify-between text-sm text-muted">{label}<Icon className="h-4 w-4" aria-hidden /></div>
-            <p className={`num mt-3 whitespace-nowrap text-xl font-semibold ${tone ?? ""}`}>{value}</p>
-            <p className="mt-1 text-xs text-muted">{note}</p>
-          </CardBody></Card>
-        ))}
+        {stats.map(({ label, icon, value, note, tone }, i) => <KpiCard key={label} emphasis={i === 0} label={label} icon={icon} value={value} caption={note} negative={tone?.includes("loss")} />)}
       </div>
 
       {o.totalInstallments > 0 && (
-        <div className="mt-4 flex items-center gap-3 text-sm text-muted">
+        <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 rounded-card border border-line bg-surface px-5 py-3.5 text-[13px] shadow-card">
           <CheckCircle2 className="h-4 w-4 shrink-0 text-brand-text" aria-hidden />
-          <span className="shrink-0">Penyelesaian cicilan aktif: {o.paidInstallments} dari {o.totalInstallments} ({o.completionPct}%)</span>
-          <div className="max-w-xs flex-1"><Progress value={o.completionPct} label="Penyelesaian cicilan" /></div>
+          <span className="shrink-0 font-medium">Penyelesaian cicilan aktif</span>
+          <span className="text-muted">{o.paidInstallments} dari {o.totalInstallments} cicilan · {o.completionPct}%</span>
+          <div className="min-w-[8rem] max-w-md flex-1"><Progress value={o.completionPct} label="Penyelesaian cicilan" /></div>
         </div>
       )}
 
       {o.overdue.length > 0 && (
-        <Card className="mt-6 border-loss/50">
-          <CardHeader><CardTitle className="flex items-center gap-2 text-loss"><AlertTriangle className="h-4 w-4" aria-hidden />Perlu segera dibayar</CardTitle></CardHeader>
-          <ul className="divide-y divide-line">
+        <section aria-label="Perlu segera dibayar" className="mt-5 overflow-hidden rounded-card border border-loss/30 bg-loss/[0.04] shadow-card">
+          <h2 className="flex items-center gap-2 px-5 pb-1 pt-4 text-[15px] font-semibold tracking-tight text-loss"><AlertTriangle className="h-4 w-4" aria-hidden />Perlu segera dibayar</h2>
+          <ul className="pb-2">
             {o.overdue.map((i, k) => (
-              <li key={k}><Link href={i.href} className="flex items-center justify-between gap-3 px-5 py-3 text-sm hover:bg-sunken">
-                <span><span className="font-medium">{i.title}</span> <span className="text-muted">· {i.subtitle} · jatuh tempo {formatDateID(i.date)}</span></span>
-                <span className="num shrink-0 text-loss">{i.amount > 0 ? formatIDR(i.amount) : "Nominal belum diketahui"}</span>
+              <li key={k}><Link href={i.href} className="flex items-center justify-between gap-3 px-5 py-2.5 text-[13px] transition-colors hover:bg-loss/5">
+                <span className="min-w-0"><span className="font-medium">{i.title}</span> <span className="text-muted">· {i.subtitle} · jatuh tempo {formatDateID(i.date)}</span></span>
+                <span className="num shrink-0 font-semibold text-loss">{i.amount > 0 ? formatIDR(i.amount) : "Nominal belum diketahui"}</span>
               </Link></li>
             ))}
           </ul>
-        </Card>
+        </section>
       )}
 
-      <nav aria-label="Tampilan" className="mb-4 mt-8 flex gap-1 border-b border-line">
-        {TABS.map(([v, l]) => (
-          <Link key={v} href={`/debts?view=${v}${v !== "debts" ? `&month=${month}` : ""}`} aria-current={view === v ? "page" : undefined}
-            className={cn("-mb-px border-b-2 px-4 py-2 text-sm font-medium", view === v ? "border-brand text-brand-text" : "border-transparent text-muted hover:text-ink")}>{l}</Link>
-        ))}
-      </nav>
+      <div className="mt-8"><TabNav label="Tampilan" items={TABS.map(([v, l]) => ({ href: `/debts?view=${v}${v !== "debts" ? `&month=${month}` : ""}`, label: l, active: view === v }))} /></div>
 
       {view === "debts" && (
         <>
-          <Card>
-            {current.length ? <DebtTable debts={current} /> : (
-              <CardBody><EmptyState icon={CreditCard} title="Belum ada utang aktif" description="Tambahkan pinjaman atau cicilan dari ShopeePay, SeaBank, KrediFazz, GoPay Pinjam, atau penyedia lain. Jadwal cicilan dibuat otomatis." /></CardBody>
-            )}
-          </Card>
+          {current.length ? <DebtCards debts={current} today={today} /> : (
+            <Card><CardBody><EmptyState icon={CreditCard} title="Belum ada utang aktif" description="Tambahkan pinjaman atau cicilan dari ShopeePay, SeaBank, KrediFazz, GoPay Pinjam, atau penyedia lain. Jadwal cicilan dibuat otomatis." /></CardBody></Card>
+          )}
           {closed.length > 0 && (
             <details className="mt-6 rounded-card border border-line bg-surface">
               <summary className="cursor-pointer px-5 py-3 text-sm font-medium">Lunas &amp; dibatalkan ({closed.length})</summary>
-              <DebtTable debts={closed} />
+              <div className="border-t border-line p-4"><DebtCards debts={closed} today={today} /></div>
             </details>
           )}
         </>

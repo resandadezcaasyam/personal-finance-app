@@ -14,9 +14,9 @@ test.describe("redesigned dashboard and app shell", () => {
     await expect(kpi("Arus kas bersih")).toContainText(rp(income - expense));
     const total = Number((await kpi("Total kas").locator("p").first().innerText()).replace(/\u00a0/g, " ").replace("−", "-").replace(/[^\d-]/g, ""));
     await page.goto("/accounts");
-    const rows = page.locator("tbody tr");
+    const cells = page.locator("article [data-balance]");
     let acc = 0;
-    for (let i = 0; i < await rows.count(); i++) acc += Number((await rows.nth(i).locator("td").nth(2).innerText()).replace(/\u00a0/g, " ").replace("−", "-").replace(/[^\d-]/g, ""));
+    for (let i = 0; i < await cells.count(); i++) acc += Number((await cells.nth(i).innerText()).replace(/\u00a0/g, " ").replace("−", "-").replace(/[^\d-]/g, ""));
     expect(total).toBe(acc);
   });
 
@@ -51,7 +51,7 @@ test.describe("redesigned dashboard and app shell", () => {
     expect(expanded).toBeLessThan(260);
     await page.getByRole("button", { name: "Ciutkan sidebar" }).click();
     await expect(page.locator("html")).toHaveAttribute("data-sidebar", "collapsed");
-    expect((await aside.boundingBox())!.width).toBeLessThan(90);
+    await expect.poll(async () => (await aside.boundingBox())!.width, { message: "collapsed sidebar width (after its 200ms transition)" }).toBeLessThan(90);
     await expect(page.getByRole("link", { name: "Utang & Cicilan" })).toBeVisible(); // icon-only, still named and reachable
     await page.reload();
     await expect(page.locator("html")).toHaveAttribute("data-sidebar", "collapsed"); // remembered, applied before first paint

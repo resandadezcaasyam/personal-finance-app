@@ -68,8 +68,8 @@ export function RecurringIncomeManager({ rules, accounts, categories, today }: {
         <p className="max-w-prose text-sm text-muted">Simpan pola pemasukan rutin seperti gaji. Ini hanya konfigurasi: <strong>tidak ada transaksi yang dibuat otomatis</strong>. Pemasukan baru masuk ke saldo setelah Anda mencatatnya. Pembuatan jadwal otomatis hadir di Fase 7.</p>
         <Button variant="secondary" onClick={() => setOpen(true)}><Plus className="h-4 w-4" aria-hidden />Tambah</Button>
       </div>
-      <div className="rounded-card border border-line bg-surface">
-        <DataTable columns={cols} rows={rules} rowKey={(r) => r.id} empty={<EmptyState icon={CalendarClock} title="Belum ada pemasukan berulang" description="Contoh: gaji bulanan tiap tanggal 25. Dipakai untuk proyeksi arus kas di fase berikutnya." />} />
+      <div className="rounded-card border border-line bg-surface shadow-card">
+        <DataTable columns={cols} rows={rules} rowKey={(r) => r.id} empty={<EmptyState icon={CalendarClock} title="Belum ada pemasukan berulang" description="Contoh: gaji bulanan tiap tanggal 25. Dipakai untuk proyeksi arus kas. Jadwal yang perlu dikonfirmasi ada di Aturan Otomasi." />} />
       </div>
       <Dialog wide open={open} onClose={() => setOpen(false)} title="Pemasukan berulang">{open && <RuleForm accounts={accounts} categories={categories} today={today} onDone={() => setOpen(false)} />}</Dialog>
     </>

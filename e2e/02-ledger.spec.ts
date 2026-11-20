@@ -43,7 +43,7 @@ test.describe("ledger: accounts, income, expenses, transfers, reconciliation", (
 
   test("reconciliation adds an adjustment that is not income or expense", async ({ page }) => {
     await page.goto("/accounts");
-    await page.locator("tr", { has: page.getByText("GoPay", { exact: true }) }).first().getByRole("button", { name: "Rekonsiliasi GoPay" }).click();
+    await page.locator('article[data-account-name="GoPay"]').getByRole("button", { name: "Rekonsiliasi GoPay" }).click();
     await page.fill("#rc-actual", "1.250.000");
     await page.getByRole("dialog").getByRole("button", { name: "Rekonsiliasi", exact: true }).click();
     await expect(page.getByRole("dialog")).toBeHidden();

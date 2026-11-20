@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Wallet, Coins, ListChecks, CalendarClock } from "lucide-react";
+import { KpiCard } from "@/components/dashboard/kpi-card";
 import { PageHeader } from "@/components/page-header";
 import { Card, CardBody, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -9,7 +10,7 @@ import { DebtDetailActions, PaymentHistory } from "@/components/debts/debt-detai
 import { getDb } from "@/lib/db/client";
 import { listAccounts } from "@/lib/ledger/accounts";
 import { getDebt, listDebtPayments, listSchedule } from "@/lib/debts/debts";
-import { formatDateID, formatIDR, todayWIB } from "@/lib/format";
+import { formatDateID, formatDateShortID, formatIDR, todayWIB } from "@/lib/format";
 
 export const dynamic = "force-dynamic";
 const MODEL: Record<string, string> = { none: "Tanpa bunga", flat: "Bunga flat", reducing: "Bunga menurun (anuitas)", manual: "Jadwal manual" };
@@ -28,13 +29,6 @@ export default function DebtDetailPage({ params }: { params: { id: string } }) {
   const title = debt.label ? `${debt.provider} · ${debt.label}` : debt.provider;
   const statusTone = debt.status === "active" ? "brand" : debt.status === "settled" ? "neutral" : "loss";
   const statusLabel = debt.status === "active" ? "Aktif" : debt.status === "settled" ? "Lunas" : "Dibatalkan";
-  const stats = [
-    ["Sisa kewajiban", formatIDR(debt.outstanding)],
-    ["Sisa pokok", formatIDR(debt.remaining_principal)],
-    ["Cicilan tersisa", `${debt.remaining_installments} dari ${debt.total_rows}`],
-    ["Jatuh tempo berikutnya", debt.status === "active" && debt.next_due_date ? formatDateID(debt.next_due_date) : "—"],
-  ];
-
   return (
     <>
       <Link href="/debts" className="mb-3 inline-flex items-center gap-1 text-sm text-muted hover:text-ink"><ArrowLeft className="h-4 w-4" aria-hidden />Utang &amp; Cicilan</Link>
@@ -42,9 +36,16 @@ export default function DebtDetailPage({ params }: { params: { id: string } }) {
         actions={<Badge tone={statusTone}>{statusLabel}</Badge>} />
 
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        {stats.map(([l, v]) => <Card key={l}><CardBody><p className="text-sm text-muted">{l}</p><p className="num mt-2 whitespace-nowrap text-lg font-semibold">{v}</p></CardBody></Card>)}
+        <KpiCard emphasis label="Sisa kewajiban" icon={Wallet} value={formatIDR(debt.outstanding)} caption={`Total kewajiban ${formatIDR(debt.total_obligation)}`} />
+        <KpiCard label="Sisa pokok" icon={Coins} value={formatIDR(debt.remaining_principal)} caption={`Pokok awal ${formatIDR(debt.original_principal)}`} />
+        <KpiCard label="Cicilan tersisa" icon={ListChecks} value={`${debt.remaining_installments} dari ${debt.total_rows}`} caption={`${debt.paid_rows} cicilan sudah lunas`} />
+        <KpiCard label="Jatuh tempo berikutnya" icon={CalendarClock} value={debt.status === "active" && debt.next_due_date ? `${formatDateShortID(debt.next_due_date)} ${debt.next_due_date.slice(0, 4)}` : "—"} empty={!(debt.status === "active" && debt.next_due_date)} caption={debt.status === "active" ? "Cicilan atau pembayaran terdekat" : "Tidak ada jadwal aktif"} />
       </div>
-      <div className="mt-4 max-w-md"><Progress value={debt.total_rows ? (debt.paid_rows / debt.total_rows) * 100 : 0} label="Progres pelunasan" /><p className="mt-1 text-xs text-muted">{debt.paid_rows} dari {debt.total_rows} cicilan lunas{debt.opening_paid_count > 0 && ` · ${debt.opening_paid_count} sudah dibayar sebelum dicatat (tidak memengaruhi saldo)`}</p></div>
+      <div className="mt-4 rounded-card border border-line bg-surface px-5 py-4 shadow-card">
+        <div className="mb-2 flex items-center justify-between text-[13px]"><span className="font-medium">Progres pelunasan</span><span className="num text-muted">{debt.total_rows ? Math.round((debt.paid_rows / debt.total_rows) * 100) : 0}%</span></div>
+        <Progress value={debt.total_rows ? (debt.paid_rows / debt.total_rows) * 100 : 0} label="Progres pelunasan" />
+        <p className="mt-1.5 text-xs text-muted">{debt.paid_rows} dari {debt.total_rows} cicilan lunas</p>
+      </div>
       {debt.notes && <p className="mt-3 text-sm text-muted">Catatan: {debt.notes}</p>}
 
       <div className="mt-6 flex flex-wrap items-center gap-3"><DebtDetailActions debt={debt} openRows={openRows} accounts={accounts} today={today} hasPayments={hasPayments} />{debt.status === "active" && <Link href={`/early-repayment?debt=${debt.id}`} className="inline-flex h-10 items-center rounded-md border border-line px-4 text-sm font-medium hover:bg-sunken">Simulasikan pelunasan dini</Link>}</div>
@@ -79,8 +80,8 @@ export default function DebtDetailPage({ params }: { params: { id: string } }) {
         </table></div>
       </Card>
 
-      <h2 className="mb-2 mt-10 font-display text-xl font-semibold">Riwayat pembayaran</h2>
-      <div className="rounded-card border border-line bg-surface"><PaymentHistory payments={payments} /></div>
+      <h2 className="mb-3 mt-10 text-lg font-semibold tracking-tight">Riwayat pembayaran</h2>
+      <div className="rounded-card border border-line bg-surface shadow-card"><PaymentHistory payments={payments} /></div>
     </>
   );
 }

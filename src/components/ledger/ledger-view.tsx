@@ -30,11 +30,11 @@ export function LedgerView({ basePath, sp, fixedType, allowedTypes, emptyTitle, 
   return (
     <>
       <FilterBar basePath={basePath} filters={filters} fixedType={fixedType} accounts={accounts} categories={categories} />
-      <p className="mb-3 text-sm text-muted" role="status">
-        {formatNumber(page.total)} entri
-        {(page.incomeTotal > 0 || page.expenseTotal > 0) && <> · Pemasukan <span className="num text-gain">{formatIDR(page.incomeTotal)}</span> · Pengeluaran <span className="num text-loss">{formatIDR(page.expenseTotal)}</span></>}
-        {hasFilters && " (sesuai filter)"}
-      </p>
+      <div role="status" className="mb-4 grid grid-cols-1 gap-3 sm:grid-cols-3">
+        <div className="rounded-xl border border-line bg-surface px-4 py-3 shadow-card"><p className="text-xs text-muted">Entri{hasFilters ? " (sesuai filter)" : ""}</p><p className="num mt-0.5 text-lg font-semibold tracking-tight">{formatNumber(page.total)}</p></div>
+        <div className="rounded-xl border border-line bg-surface px-4 py-3 shadow-card"><p className="text-xs text-muted">Pemasukan</p><p className="num mt-0.5 text-lg font-semibold tracking-tight text-gain">{formatIDR(page.incomeTotal)}</p></div>
+        <div className="rounded-xl border border-line bg-surface px-4 py-3 shadow-card"><p className="text-xs text-muted">Pengeluaran</p><p className="num mt-0.5 text-lg font-semibold tracking-tight text-loss">{formatIDR(page.expenseTotal)}</p></div>
+      </div>
       <TransactionsManager
         rows={page.rows} accounts={accounts} categories={categories} today={todayWIB()} allowedTypes={allowedTypes}
         emptyTitle={hasFilters ? "Tidak ada hasil" : emptyTitle} emptyText={hasFilters ? "Tidak ada entri yang cocok dengan filter. Ubah atau atur ulang filter." : emptyText}

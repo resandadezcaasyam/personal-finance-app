@@ -59,8 +59,7 @@ export async function createAccount(page: Page, name: string, initial: string) {
 
 export async function balanceOf(page: Page, name: string): Promise<number> {
   await page.goto("/accounts");
-  const row = page.locator("tr", { has: page.getByText(name, { exact: true }) }).first();
-  return num(await row.locator("td").nth(2).innerText());
+  return num(await page.locator(`article[data-account-name="${name}"] [data-balance]`).first().innerText());
 }
 
 /** Choose the option whose text matches (category lists are indented, so exact labels are brittle). */
