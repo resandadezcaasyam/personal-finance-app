@@ -2,7 +2,7 @@
 
 Aplikasi keuangan pribadi yang **privat dan berjalan lokal**. Semua data tersimpan di komputer Anda (SQLite). Tidak memerlukan internet setelah instalasi.
 
-**Status:** Fase 6 dari 8 selesai (ledger, utang/tagihan, pencatatan cerdas, proyeksi arus kas, dan simulasi pelunasan dini). Lihat `docs/DEVELOPMENT_PROGRESS.md`.
+**Status:** Fase 7 dari 8 selesai (ledger, utang/tagihan, pencatatan cerdas, proyeksi, simulasi pelunasan, otomasi, anggaran, target tabungan, laporan). Lihat `docs/DEVELOPMENT_PROGRESS.md`.
 
 ## Fitur yang sudah tersedia
 
@@ -19,9 +19,18 @@ Aplikasi keuangan pribadi yang **privat dan berjalan lokal**. Semua data tersimp
 - **Aturan merchant:** 90+ aturan bawaan (Fore Coffee → Kopi, PLN → Listrik, Netflix → Langganan) dan aturan buatan Anda dari koreksi kategori.
 - **Proyeksi Arus Kas:** perkiraan saldo harian untuk 1, 3, 6, atau 12 bulan dari saldo sekarang, pemasukan berulang, cicilan yang belum dibayar, tagihan, dan kebiasaan belanja. Ada analisis "cukup sampai gajian?" lengkap dengan batas belanja aman per hari, saldo terendah, periode defisit, skenario baseline/konservatif/optimis/kustom yang bisa disimpan, grafik (garis padat = aktual, putus-putus = proyeksi), tabel bulanan, dan kalender keuangan. Semua angka proyeksi diberi label dan tidak mengubah saldo Anda.
 - **Simulasi Pelunasan Dini:** bandingkan terus mencicil dengan melunasi lebih awal (penuh atau sebagian) selama 12 bulan: saldo kas, saldo terendah, risiko kekurangan uang, total pembayaran, dan tanggal bebas utang. Biaya, denda, rebat bunga, dan kuotasi pelunasan bisa diisi. Aplikasi tidak pernah mengarang penghematan bunga. Bisa juga membandingkan strategi snowball, avalanche, cicilan minimum, dan urutan kustom. Simulasi tidak mengubah catatan Anda; pelunasan sungguhan dicatat terpisah setelah konfirmasi.
+- **Aturan Otomasi:** jadwal gaji, sewa, arisan, dan transaksi rutin lain. Tiap jadwal menunggu konfirmasi Anda (catat, tautkan ke transaksi yang sudah ada, atau lewati), jadi tidak ada yang tercatat otomatis atau ganda. Pola berulang di riwayat Anda disarankan, bukan dibuat sendiri.
+- **Langkah Keuangan Berikutnya:** daftar prioritas dari data Anda (cicilan terlambat, kekurangan kas, anggaran terlampaui, pemasukan belum dikonfirmasi, rekonsiliasi) dengan alasan tiap langkah, plus **Tinjauan harian**.
+- **Anggaran bulanan** per kategori (di halaman Pengeluaran) dan **Target Tabungan** (dana darurat, liburan, pembelian) dengan progres dan perkiraan tercapai.
+- **Laporan & Analitik:** tren pemasukan vs pengeluaran, kategori, pengurangan utang, anggaran vs aktual, dan kondisi keuangan; ekspor **PDF, JSON, dan CSV** yang dibuat offline di komputer ini.
+- **AI lokal (opsional):** jika Ollama terpasang di komputer ini, Catat Cepat bisa memakainya. Nonaktif secara default, hanya ke alamat di komputer ini, dan aplikasi tetap penuh tanpa AI.
 - **Mode demo** dengan data fiktif terpisah, dan manajemen kategori di Pengaturan.
 
 Catatan: transaksi tidak boleh bertanggal di masa depan. Jadwal cicilan dan tagihan adalah rencana, bukan pembayaran: saldo baru berubah saat Anda mencatat pembayaran. Rumus bunga adalah konvensi umum; jika berbeda dari kontrak penyedia, gunakan jadwal manual.
+
+## Catatan otomasi dan laporan
+
+Aturan berulang hanya menyiapkan jadwal; Anda yang mengonfirmasi. Target tabungan adalah penanda uang yang disisihkan dan tidak memindahkan uang antar akun. Berkas ekspor (PDF/JSON/CSV) dan database berisi data keuangan Anda apa adanya, jadi simpan dengan aman. Ekspor CSV menetralkan sel yang diawali = + - @ agar tidak dijalankan sebagai rumus oleh spreadsheet.
 
 ## Catatan simulasi pelunasan
 

@@ -6,6 +6,7 @@ import { listAccounts } from "@/lib/ledger/accounts";
 import { listCategories } from "@/lib/ledger/categories";
 import { listTemplates } from "@/lib/capture/templates";
 import { todayWIB } from "@/lib/format";
+import { loadAiSettings } from "@/lib/capture/ollama";
 
 export const dynamic = "force-dynamic";
 
@@ -17,7 +18,7 @@ export default function QuickCapturePage() {
   return (
     <>
       <PageHeader title="Catat Cepat" description="Ketik transaksi seperti mengirim chat. Aplikasi membaca nominal, akun, tanggal, dan kategori di komputer ini (tanpa internet), lalu Anda memeriksa pratinjaunya sebelum apa pun tercatat." />
-      <QuickCapture accounts={accounts} categories={categories} templates={templates} today={todayWIB()} />
+      <QuickCapture accounts={accounts} categories={categories} templates={templates} today={todayWIB()} aiEnabled={loadAiSettings(db).enabled} />
       <div className="mt-12"><TemplatesManager templates={templates} accounts={accounts} categories={categories} /></div>
     </>
   );

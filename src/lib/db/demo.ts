@@ -9,6 +9,9 @@ import { createInboxItems } from "../inbox/inbox";
 import { loadMatcher } from "../capture/rules";
 import { createTemplate } from "../capture/templates";
 import { createRecurringIncome } from "../ledger/recurring";
+import { createRule } from "../automation/recurring";
+import { setBudget } from "../budgets/budgets";
+import { createGoal, addContribution } from "../goals/goals";
 import { shiftDate, todayWIB } from "../format";
 
 /**
@@ -55,6 +58,15 @@ export function seedDemo(db: Database.Database, today: string = todayWIB()) {
     ], { matcher: loadMatcher(db), today });
     createRecurringIncome(db, { name: "Gaji bulanan (fiktif)", amount: 9_500_000, account_id: bank, category_id: findCategoryId(db, "Gaji", "income"), frequency: "monthly", day_of_month: 25, start_date: shiftDate(today, -200) });
     createTemplate(db, { name: "Kopi pagi", type: "expense", amount: 25_000, account_id: cash, category_id: exp("Kopi"), description: "Kopi pagi" });
+    // Phase 7 demo: a recurring expense, monthly budgets and a savings goal (all fictional).
+    createRule(db, { name: "Iuran RT (fiktif)", type: "expense", amount: 100_000, account_id: cash, category_id: exp("Rumah Tangga"), frequency: "monthly", day_of_month: 5, start_date: shiftDate(today, -200) });
+    const month = today.slice(0, 7);
+    setBudget(db, findCategoryId(db, "Makanan & Minuman", "expense")!, month, 1_500_000);
+    setBudget(db, findCategoryId(db, "Transportasi", "expense")!, month, 300_000);
+    setBudget(db, findCategoryId(db, "Hiburan & Langganan", "expense")!, month, 50_000);
+    const goal = createGoal(db, { name: "Dana darurat (fiktif)", kind: "emergency", target_amount: 10_000_000, target_date: shiftDate(today, 300) }, { today });
+    addContribution(db, goal, { amount: 1_500_000, contributed_on: shiftDate(today, -60), note: "awal" }, { today });
+    addContribution(db, goal, { amount: 1_000_000, contributed_on: shiftDate(today, -25) }, { today });
     db.prepare("INSERT INTO settings (key, value) VALUES ('demo_seeded','1')").run();
   })();
 }

@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/components/toast";
 import { CategoryOptions } from "@/components/ledger/category-options";
 import { createTemplateAction, parseCaptureAction, postDraftsAction, type DraftView } from "@/app/actions/capture";
+import { parseCaptureAiAction } from "@/app/actions/phase7";
 import { parseIDR } from "@/lib/format";
 import type { AccountWithBalance, CategoryRow } from "@/lib/ledger/types";
 import type { TemplateRow } from "@/lib/capture/templates";
@@ -25,10 +26,11 @@ const toRow = (d: DraftView): Row => ({
   to_account_id: d.to_account_id, category_id: d.category_id, category_source: d.category_source, confidence: d.confidence, issues: d.issues, duplicate: d.duplicate, match_label: d.match_label,
 });
 
-export function QuickCapture({ accounts, categories, templates, today }: { accounts: AccountWithBalance[]; categories: CategoryRow[]; templates: TemplateRow[]; today: string }) {
+export function QuickCapture({ accounts, categories, templates, today, aiEnabled = false }: { accounts: AccountWithBalance[]; categories: CategoryRow[]; templates: TemplateRow[]; today: string; aiEnabled?: boolean }) {
   const [text, setText] = React.useState("");
   const [rows, setRows] = React.useState<Row[] | null>(null);
   const [msg, setMsg] = React.useState<string>();
+  const [notice, setNotice] = React.useState<string>();
   const [pending, startTransition] = React.useTransition();
   const [tplFor, setTplFor] = React.useState<Row | null>(null);
   const [tplName, setTplName] = React.useState("");
@@ -37,9 +39,10 @@ export function QuickCapture({ accounts, categories, templates, today }: { accou
   const toast = useToast();
   const active = accounts.filter((a) => !a.is_archived);
 
-  const read = (input = text) => startTransition(async () => {
-    setMsg(undefined); setDone(null);
-    const r = await parseCaptureAction(input);
+  const read = (input = text, ai = false) => startTransition(async () => {
+    setMsg(undefined); setNotice(undefined); setDone(null);
+    const r = ai ? await parseCaptureAiAction(input) : await parseCaptureAction(input);
+    if (ai && r.ok) setNotice(r.message ?? "Dibaca dengan AI lokal. Periksa setiap baris sebelum dicatat.");
     if (!r.ok) { setRows(null); setMsg(r.message); return; }
     setRows(r.drafts.map(toRow));
   });
@@ -101,6 +104,7 @@ export function QuickCapture({ accounts, categories, templates, today }: { accou
         <div className="mt-3 flex flex-wrap gap-2">
           <Button onClick={() => read()} disabled={pending || !text.trim()}><Sparkles className="h-4 w-4" aria-hidden />{pending ? "Membaca…" : "Baca"}</Button>
           <Button variant="secondary" onClick={paste} disabled={pending}><ClipboardPaste className="h-4 w-4" aria-hidden />Tempel dari clipboard</Button>
+          {aiEnabled && <Button variant="secondary" onClick={() => read(text, true)} disabled={pending || !text.trim()} title="Memakai Ollama di komputer ini. Jika tidak tersedia, dipakai pembaca bawaan."><Sparkles className="h-4 w-4" aria-hidden />Baca dengan AI lokal</Button>}
         </div>
         <div className="mt-3 flex flex-wrap items-center gap-1.5 text-xs">
           <span className="text-muted">Contoh:</span>
@@ -114,6 +118,7 @@ export function QuickCapture({ accounts, categories, templates, today }: { accou
         )}
       </section>
 
+      {notice && <p role="status" className="rounded-md border border-line bg-sunken px-3 py-2 text-sm">{notice}</p>}
       {msg && <p role="alert" className="rounded-md border border-loss/40 bg-loss/10 px-3 py-2 text-sm text-loss">{msg}</p>}
       {done && (
         <p role="status" className="flex flex-wrap items-center gap-2 rounded-md border border-brand/40 bg-brand/10 px-3 py-2 text-sm text-brand">

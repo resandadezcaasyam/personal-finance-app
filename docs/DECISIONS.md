@@ -55,3 +55,14 @@
 53. **Strategies prepay whole installments only,** with rollover of unspent budget, so costs and rebates stay exact.
 54. **Recording a real settlement is separate, explicit and narrow:** full, dated today, no rebate/quotation, amount computed on the server. Other cases are explained and point to the debt page.
 55. **Only the single-debt simulation can be saved;** strategy comparisons are recomputed from the URL (shareable) and not stored.
+56. **Planned recurring entries are derived on demand, not generated into the database.** There is no background job and no GET that writes; idempotency is a unique (rule, due date) decision row plus a unique ledger `source_ref`.
+57. **A new rule starts from its creation day.** No backlog of past months is created (that would flood the user); the window is also capped at 62 days back.
+58. **Link instead of post when a matching transaction exists** (type, account, amount within 15%, within 5 days). It is the same convention the forecast uses for income already received.
+59. **Pattern suggestions are conservative:** 3+ occurrences, steady rhythm and amount, still active, not already covered. Better to suggest little than to nag.
+60. **Action priority:** money-at-risk items outrank bookkeeping. Found in testing: an old unconfirmed salary entry initially ranked above an overdue installment; unconfirmed income is now "medium" (low when due today).
+61. **Budgets on top-level categories only,** with subcategories rolled up, so one rupiah is never counted in two budgets.
+62. **Goals are earmarks, not transfers.** Simple, honest and reversible; a real savings account is just another account the user already tracks.
+63. **Reports are computed on request from the ledger** (no stored aggregates), so they cannot drift; reconciliation tests guard it.
+64. **Exports are GET downloads of the same numbers**, generated locally; PDF via pdf-lib (no browser/headless dependency).
+65. **Optional AI is a convenience, never a dependency:** off by default, local only, names-only context, validated output, automatic fallback. A tampered non-local URL in the database disables it.
+66. **Reconciling to an already-correct balance is recorded** (audit entry, no transaction), so "verified today" clears the reconciliation reminder.

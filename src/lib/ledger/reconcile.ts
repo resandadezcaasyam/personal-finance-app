@@ -30,7 +30,11 @@ export function reconcileAccount(
   return db.transaction(() => {
     const recorded = getBalance(db, input.account_id);
     const diff = input.actual_balance - recorded;
-    if (diff === 0) return { adjusted: false, difference: 0 };
+    if (diff === 0) {
+      // Nothing to adjust, but the user did verify this balance: remember it (it clears "needs reconciliation" reminders).
+      writeAudit(db, "account", account.id, "reconcile", { balance: recorded }, { balance: input.actual_balance, verified: true });
+      return { adjusted: false, difference: 0 };
+    }
     const description = `Rekonsiliasi: tercatat ${formatIDR(recorded)}, aktual ${formatIDR(input.actual_balance)}${note ? ` (${note})` : ""}`;
     const id = Number(
       db.prepare(

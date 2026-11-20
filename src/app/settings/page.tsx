@@ -8,6 +8,8 @@ import { getDb } from "@/lib/db/client";
 import { listCategories } from "@/lib/ledger/categories";
 import { CategoryManager } from "@/components/ledger/category-manager";
 import { ResetDemoButton } from "@/components/reset-demo-button";
+import { AiSettings } from "@/components/ai-settings";
+import { loadAiSettings } from "@/lib/capture/ollama";
 import { DEFAULT_SETTINGS } from "@/lib/db/defaults";
 import { switchProfile } from "./actions";
 
@@ -17,6 +19,7 @@ export default function SettingsPage() {
   const s = getDbStatus();
   const demo = s.profile === "demo";
   const categories = listCategories(getDb(), { includeArchived: true });
+  const ai = loadAiSettings(getDb());
   return (
     <>
       <PageHeader title="Pengaturan" description="Tampilan, mode demo, dan informasi penyimpanan lokal." />
@@ -64,6 +67,11 @@ export default function SettingsPage() {
             <p><span className="text-muted">Versi skema: </span>{s.schemaVersion}</p>
             <p className="text-muted">Semua data tersimpan di komputer ini. Cadangan otomatis dibuat di <code>data/backups</code> sebelum migrasi skema.</p>
           </CardBody>
+        </Card>
+
+        <Card className="lg:col-span-2">
+          <CardHeader><CardTitle>AI lokal (opsional)</CardTitle><Badge tone={ai.enabled ? "brand" : "neutral"}>{ai.enabled ? "Aktif" : "Nonaktif"}</Badge></CardHeader>
+          <CardBody><AiSettings enabled={ai.enabled} url={ai.url} model={ai.model} /></CardBody>
         </Card>
 
         <Card className="lg:col-span-2">

@@ -20,8 +20,8 @@ A privacy-first, local-first personal finance OS (Windows laptop, `http://localh
 | 4 | Smart capture (NL parser, OCR, imports, inbox, dedupe, matching, templates) | `feat: implement smart transaction capture` | Done |
 | 5 | Cash flow forecasting (daily engine, scenarios, payday survival) | `feat: implement cash flow forecasting` | Done |
 | 6 | Early repayment simulator & strategies | `feat: implement early repayment simulator` | Done |
-| 7 | Automation, budgets, goals, insights, reports/exports, optional Ollama | `feat: implement automation and analytics` | Next |
-| 8 | Security, backup/restore, E2E tests, offline verification, final docs | `chore: finalize testing and security` | |
+| 7 | Automation, budgets, goals, insights, reports/exports, optional Ollama | `feat: implement automation and analytics` | Done |
+| 8 | Security, backup/restore, E2E tests, offline verification, final docs | `chore: finalize testing and security` | Next |
 
 Per-phase acceptance criteria are tracked in `DEVELOPMENT_PROGRESS.md` and `NEXT_PHASE.md`. Process rules: one phase at a time, read existing code first, never reset data, real logic only, tests/typecheck/lint/build every phase, stop after each phase.
 
@@ -76,3 +76,12 @@ Per-phase acceptance criteria are tracked in `DEVELOPMENT_PROGRESS.md` and `NEXT
 - Real data remains unchanged after simulation. ✔ (row-count tests and browser check; only an explicit, separate confirmation records a real payment)
 - Scenarios can be saved and reopened. ✔ (save, open, compare side by side, duplicate, delete)
 - Calculation tests pass. ✔ (43 simulator tests)
+
+## Phase 7 acceptance criteria
+- Recurring schedules are accurate. ✔ (weekly/monthly/quarterly/yearly, month-end clamping, start/end dates; unit + browser tested)
+- Daily Review works. ✔ (new transactions since the last review, inbox/duplicates, upcoming payments, discrepancies, last review date)
+- Financial actions are based on real data. ✔ (overdue and upcoming obligations, forecast deficits, budgets, missing income, reconciliation, inbox; each explains why)
+- Budgets and goals persist correctly. ✔ (including the upgrade path from earlier databases)
+- Reports reconcile with financial records. ✔ (monthly rows = ledger month totals; categories sum to total expense; exports equal the report)
+- All exports work without internet. ✔ (CSV, JSON and PDF are generated locally; PDF verified offline)
+- Optional local AI. ✔ off by default, localhost-only, never required, never used for calculations; verified against a fake local Ollama and with it unreachable. **Not verified against a real Ollama install.**

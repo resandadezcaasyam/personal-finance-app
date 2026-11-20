@@ -10,7 +10,7 @@ import { getCommitmentsOverview } from "@/lib/obligations";
 const dir = path.join(process.cwd(), "src/lib/db/migrations");
 
 describe("migration 0002", () => {
-  it("upgrades a Phase 1 database (through 0002 to 0005) without losing data, and runs the backup hook", () => {
+  it("upgrades a Phase 1 database (through 0002 to 0006) without losing data, and runs the backup hook", () => {
     const db = new Database(":memory:");
     db.pragma("foreign_keys = ON");
     const all = loadMigrations(dir);
@@ -18,7 +18,7 @@ describe("migration 0002", () => {
     db.prepare("INSERT INTO accounts (name,type,initial_balance) VALUES ('BCA','bank',123)").run();
     db.prepare("INSERT INTO categories (name,kind) VALUES ('Gaji','income')").run(); // collides with a default name
     let backups = 0;
-    expect(migrate(db, all, { backup: () => backups++ })).toEqual([2, 3, 4, 5]);
+    expect(migrate(db, all, { backup: () => backups++ })).toEqual([2, 3, 4, 5, 6]);
     expect(backups).toBe(1);
     expect(db.prepare("SELECT initial_balance b FROM accounts WHERE name='BCA'").get()).toEqual({ b: 123 });
     expect(db.prepare("SELECT COUNT(*) c FROM categories WHERE name='Gaji' AND kind='income'").get()).toEqual({ c: 1 });

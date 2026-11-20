@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { LineChart as LineIcon, Inbox as InboxIcon, CalendarClock, Landmark, TrendingUp, TrendingDown, Scale, PieChart, ArrowLeftRight, Database, Wallet, ArrowRight } from "lucide-react";
+import { ListChecks, LineChart as LineIcon, Inbox as InboxIcon, CalendarClock, Landmark, TrendingUp, TrendingDown, Scale, PieChart, ArrowLeftRight, Database, Wallet, ArrowRight } from "lucide-react";
 import { PageHeader } from "@/components/page-header";
 import { Card, CardBody, CardHeader, CardTitle } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -11,6 +11,7 @@ import { getDbStatus } from "@/lib/db/status";
 import { getDashboardSummary } from "@/lib/ledger/summary";
 import { getCommitmentsOverview } from "@/lib/obligations";
 import { inboxCounts } from "@/lib/inbox/inbox";
+import { loadActions } from "@/lib/actions/data";
 import { horizonDays, loadForecastContext } from "@/lib/forecast/data";
 import { PRESETS, runForecast } from "@/lib/forecast/engine";
 import { currentMonthWIB, formatDateID, formatIDR, formatMonthID, formatNumber, todayWIB } from "@/lib/format";
@@ -31,6 +32,7 @@ export default function DashboardPage() {
   const hasAccounts = d.accounts.length > 0;
   const ob = getCommitmentsOverview(getDb(), todayWIB(), 14);
   const inbox = inboxCounts(getDb());
+  const todo = loadActions(getDb(), todayWIB());
   const fc = runForecast(loadForecastContext(getDb(), { today: todayWIB() }).input, PRESETS.baseline, horizonDays(todayWIB(), 1));
   const obItems = [...ob.overdue, ...ob.upcoming].slice(0, 5);
   const metrics = [
@@ -167,6 +169,22 @@ export default function DashboardPage() {
               </div>
             )}
           </CardBody>
+        </Card>
+
+        <Card className="lg:col-span-2">
+          <CardHeader><CardTitle>Langkah keuangan berikutnya</CardTitle>{todo.length > 0 ? <Link href="/next-actions" className="text-sm font-medium text-brand">Lihat semua ({todo.length})</Link> : null}</CardHeader>
+          {todo.length === 0 ? (
+            <CardBody><EmptyState icon={ListChecks} title="Tidak ada yang mendesak" description="Tidak ada pembayaran terlambat, kekurangan kas, atau anggaran terlampaui saat ini." /></CardBody>
+          ) : (
+            <ul className="divide-y divide-line">
+              {todo.slice(0, 3).map((a) => (
+                <li key={a.id}><Link href={a.href} className="block px-5 py-3 text-sm hover:bg-sunken">
+                  <p className="flex flex-wrap items-center gap-2 font-medium">{a.title}<Badge tone={a.severity === "critical" || a.severity === "high" ? "loss" : a.severity === "medium" ? "warn" : "neutral"}>{a.severity === "critical" ? "Segera" : a.severity === "high" ? "Penting" : a.severity === "medium" ? "Perlu perhatian" : "Bisa menunggu"}</Badge></p>
+                  <p className="mt-0.5 line-clamp-2 text-xs text-muted">{a.why}</p>
+                </Link></li>
+              ))}
+            </ul>
+          )}
         </Card>
 
         <Card>

@@ -1,31 +1,37 @@
 # Development Progress
 
-**Current phase:** 6 of 8 complete. Next: Phase 7.
+**Current phase:** 7 of 8 complete. Next: Phase 8 (final).
 
-## Phases 1-5: done
-Foundation and demo mode; core ledger; debts, installments and bills; smart capture; cash-flow forecasting. See git history.
+## Phases 1-6: done
+Foundation; ledger; debts/bills; smart capture; cash-flow forecast; early-repayment simulator. See git history.
 
-## Phase 6: done (`feat: implement early repayment simulator`)
-- **/early-repayment:** choose a debt, a date (today to 12 months), full or partial, optional provider quotation, rebate %, early-repayment fee, penalty, the underlying forecast scenario and a cash buffer.
-- **A vs B comparison** over 12 months: closing cash, lowest balance and date, negative days, liquidity risk (rendah/sedang/tinggi), payments on the debt, total remaining payments, scheduled interest+fees remaining, average installments per month, routine monthly surplus, debt-free date, each with the difference. A plain-language verdict above the table.
-- **Payment breakdown** on the repayment date (installments covered, schedule cost, rebate/quotation, fee, penalty, total cash-out) and an honest note: no interest saving is assumed unless the user enters a rebate or quotation; the scheduled interest is shown only as an upper bound.
-- **Chart** (A solid, B dashed, repayment-date marker) and a monthly comparison table.
-- **Strategy comparison** for all active debts: minimum, snowball, avalanche, custom priority, with an extra monthly budget and optional rebate; debt-free month, months, total paid, interest+fees paid, saving vs minimum, month each debt clears, ranking basis, and a 4-line chart (distinct dash patterns).
-- **Saved scenarios:** save, re-open, compare up to 4 side by side (recomputed with today's data), duplicate, delete.
-- **Real repayment is separate:** a confirmation dialog records an actual full settlement (today, no rebate/quotation) through the normal debt-payment path; otherwise the page explains why and links to the debt page. Debt pages link to the simulator.
-- Engine extension: optional `oneOffs` (dated outflows). No migration.
+## Phase 7: done (`feat: implement automation and analytics`)
+- **Aturan Otomasi:** recurring rules (income/expense; weekly/monthly/quarterly/yearly; start/end; account and category). Planned occurrences wait for a decision: **confirm** (posts one transaction), **link** an existing transaction (no duplicate), or **skip**. Detected recurring patterns are suggested and created only on approval.
+- **Langkah Keuangan Berikutnya** (`/next-actions`): ranked actions with a "Mengapa" explanation (overdue payments, upcoming obligations, forecast deficits, budget overruns, missing income, reconciliation, imports waiting). **Tinjauan harian** tab: new transactions since the last review, inbox and duplicate warnings, upcoming payments, discrepancies, last review date, "tandai sudah ditinjau".
+- **Anggaran bulanan** on the Pengeluaran page: per top-level category with subcategory roll-up, status (aman / hampir habis / terlampaui), copy from the previous month.
+- **Target Tabungan:** emergency fund (with a 3-6 month hint), travel, purchase, custom; contributions and withdrawals (earmarks only), progress, pace, required monthly amount, projected date, on-track status, archive.
+- **Laporan & Analitik:** income vs expense trend, savings rate, category breakdown with subcategories, debt reduction, budget vs actual, cash/debt over time; presets and custom ranges; **CSV (transactions, monthly, categories), JSON and PDF exports**, all generated offline.
+- **AI lokal opsional** (Ollama): off by default, localhost only, names-only context, validated output, automatic fallback to the built-in parser; a "Baca dengan AI lokal" button in Catat Cepat when enabled.
+- Dashboard card "Langkah keuangan berikutnya"; demo data now includes a recurring expense, budgets and a goal; migration `0006_automation_goals.sql`.
+- Reconciling to a balance that already matches is now recorded.
 
 ## Verification (Linux sandbox, Node 22)
 - `npm run typecheck`, `npm run lint`, `npm run build`: clean.
-- `npm test`: **323 tests passing** across 16 files (43 new: engine one-offs, settlement maths, A-vs-B scenarios, strategies, real-database behavior, scenario storage, URL parsing).
-- Browser E2E (Playwright/Chromium, clean database; numbers computed by hand beforehand): empty state; link from the debt page; full settlement + fee gives cash-out Rp 1.140.000 and closing B - A = -Rp 20.000; 50% rebate gives payoff Rp 1.060.000 and +Rp 40.000; quotation gives +Rp 100.000; partial Rp 500rb pays #2 and part of #3 oldest-first; six validation messages; hostile URL parameters; **all simulations leave the database and balances unchanged**; scenario save, duplicate-name refusal, compare, duplicate, delete, re-open; strategies (all pay the same total Rp 1.944.000 and finish sooner than minimum; with a 100% rebate avalanche saves more than snowball; custom order); low cash + settling before payday gives Risiko Tinggi and one negative day; real recording only when allowed, balance reduced by outstanding + fee and debt settled; settled debt no longer offered.
-- Zero non-localhost requests and zero page errors during the E2E run; persistence after restart, demo mode, dark mode and mobile screenshots reviewed.
+- `npm test`: **424 tests passing** across 22 files (101 new: automation 21, budgets+goals 13, actions 18, reports 16, local AI 32, migration 0006 1).
+- Browser E2E (Playwright/Chromium, clean database): empty states; rules created, overdue occurrences derived without posting anything; an existing transaction detected and **linked without changing the balance**; confirming posts exactly one transaction (`source=recurring`) and skipping hides; a recurring pattern detected from five monthly entries, created only after approval; budgets (92% "hampir habis", then "terlampaui" with remaining -Rp 20.000), copy to the next month and clearing; actions ranked with the overdue installment first and every item explained; daily review date stored and the new-transaction list resets; goals (17% progress without touching balances or the ledger, over-withdrawal refused, auto "Tercapai", archive); report totals equal the ledger; PDF/JSON/CSV exports reconcile (CSV rows = JSON rows); bad export requests rejected; AI: non-local address refused, connection test, draft from a fake local Ollama appears in the normal preview with only the sentence and names sent, and an unreachable AI falls back automatically.
+- Zero non-localhost requests and zero page errors during the E2E run; persistence after restart; demo mode populated; dark mode and mobile screenshots reviewed.
+- Real upgrade 5 -> 6 on a populated database: data intact, new tables present, pre-migration backup created, a legacy goal's saved amount preserved as an opening contribution.
+
+## Bugs/risks found and fixed during verification
+1. An unconfirmed salary entry from last month ranked above an overdue installment. Priorities adjusted (and a test added).
+2. Reconciling to an already-correct balance left no trace, so the "needs reconciliation" reminder never cleared. It is now recorded.
+3. A goal's `saved_amount` set outside the contribution rows would be lost on the next contribution; migration 0006 now converts it into an opening contribution.
 
 ## Not yet verified / known limitations
+- **A real Ollama installation was not available.** The AI path is verified against a fake local Ollama server (success, malformed output, errors, timeouts, redirects, unreachable) and the app is verified to work fully without it. Real model output quality is untested.
 - Windows CMD with a real `npm install` has not been run.
-- The simulator cannot know contract terms: early-repayment fees, rebates and quotations must be entered by the user; partial payments are modelled as paying the next installments earlier with no assumed interest saving; real contracts may recalculate the schedule differently.
-- Avalanche ranking uses scheduled interest+fees per rupiah of remaining principal as a proxy for the true rate.
-- The strategy comparison models the debts only (it does not feed the extra budget back into the cash-flow forecast); the page shows the baseline routine surplus as a hint for choosing a budget.
-- Only single-debt simulations are saved; strategy comparisons live in the URL.
-- A real settlement with a rebate or quotation cannot be recorded automatically (the ledger has no way to represent a waived amount); the user records the amount actually paid on the debt page.
-- The horizon is fixed at 12 months.
+- The E2E scripts used for verification are not yet part of the repository; Phase 8 should add them as a proper Playwright test project.
+- Goals are earmarks (no real money moves). Budgets exist only for top-level categories.
+- Pattern detection needs about three months of history and steady amounts; it will not find irregular recurring items.
+- The PDF report is a text-and-bars summary (standard fonts); it is not a designed document.
+- Phase 7 has no PIN/password or encryption; see Phase 8.

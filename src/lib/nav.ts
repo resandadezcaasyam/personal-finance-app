@@ -11,7 +11,7 @@ export interface NavItem {
   phase: number;
 }
 
-export const CURRENT_PHASE = 6;
+export const CURRENT_PHASE = 7;
 
 export const NAV_ITEMS: NavItem[] = [
   { href: "/", label: "Dasbor", icon: LayoutDashboard, phase: 1 },
@@ -27,7 +27,7 @@ export const NAV_ITEMS: NavItem[] = [
   { href: "/forecast", label: "Proyeksi Arus Kas", icon: LineChart, phase: 5 },
   { href: "/early-repayment", label: "Simulasi Pelunasan Dini", icon: Calculator, phase: 6 },
   { href: "/goals", label: "Target Tabungan", icon: PiggyBank, phase: 7 },
-  { href: "/actions", label: "Langkah Keuangan Berikutnya", icon: ListChecks, phase: 7 },
+  { href: "/next-actions", label: "Langkah Keuangan Berikutnya", icon: ListChecks, phase: 7 },
   { href: "/reports", label: "Laporan & Analitik", icon: BarChart3, phase: 7 },
   { href: "/automation", label: "Aturan Otomasi", icon: Workflow, phase: 7 },
   { href: "/settings", label: "Pengaturan", icon: Settings, phase: 1 },
