@@ -10,7 +10,7 @@ import { getCommitmentsOverview } from "@/lib/obligations";
 const dir = path.join(process.cwd(), "src/lib/db/migrations");
 
 describe("migration 0002", () => {
-  it("upgrades a Phase 1 database (through 0002 and 0003) without losing data, and runs the backup hook", () => {
+  it("upgrades a Phase 1 database (through 0002, 0003 and 0004) without losing data, and runs the backup hook", () => {
     const db = new Database(":memory:");
     db.pragma("foreign_keys = ON");
     const all = loadMigrations(dir);
@@ -18,7 +18,7 @@ describe("migration 0002", () => {
     db.prepare("INSERT INTO accounts (name,type,initial_balance) VALUES ('BCA','bank',123)").run();
     db.prepare("INSERT INTO categories (name,kind) VALUES ('Gaji','income')").run(); // collides with a default name
     let backups = 0;
-    expect(migrate(db, all, { backup: () => backups++ })).toEqual([2, 3]);
+    expect(migrate(db, all, { backup: () => backups++ })).toEqual([2, 3, 4]);
     expect(backups).toBe(1);
     expect(db.prepare("SELECT initial_balance b FROM accounts WHERE name='BCA'").get()).toEqual({ b: 123 });
     expect(db.prepare("SELECT COUNT(*) c FROM categories WHERE name='Gaji' AND kind='income'").get()).toEqual({ c: 1 });
@@ -41,6 +41,8 @@ describe("demo seed", () => {
     // Obligations were seeded too: a paid-down loan, an upcoming loan, and bills (one overdue).
     expect(db.prepare("SELECT COUNT(*) c FROM debts").get()).toEqual({ c: 2 });
     expect(db.prepare("SELECT COUNT(*) c FROM bills").get()).toEqual({ c: 4 });
+    expect(db.prepare("SELECT status FROM inbox_items ORDER BY id").all()).toEqual([{ status: "new" }, { status: "needs_review" }, { status: "potential_duplicate" }]);
+    expect(db.prepare("SELECT COUNT(*) c FROM favorite_templates").get()).toEqual({ c: 1 });
     expect(getCommitmentsOverview(db, "2026-11-20").overdue.map((i) => i.title)).toEqual(["Iuran sampah (fiktif)"]);
     const t = monthTotals(db, "2026-11");
     expect(t.income + t.expense).toBeGreaterThan(0);

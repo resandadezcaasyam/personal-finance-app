@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { CalendarClock, Landmark, TrendingUp, TrendingDown, Scale, PieChart, ArrowLeftRight, Database, Wallet, ArrowRight } from "lucide-react";
+import { Inbox as InboxIcon, CalendarClock, Landmark, TrendingUp, TrendingDown, Scale, PieChart, ArrowLeftRight, Database, Wallet, ArrowRight } from "lucide-react";
 import { PageHeader } from "@/components/page-header";
 import { Card, CardBody, CardHeader, CardTitle } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -10,6 +10,7 @@ import { getDb } from "@/lib/db/client";
 import { getDbStatus } from "@/lib/db/status";
 import { getDashboardSummary } from "@/lib/ledger/summary";
 import { getCommitmentsOverview } from "@/lib/obligations";
+import { inboxCounts } from "@/lib/inbox/inbox";
 import { currentMonthWIB, formatDateID, formatIDR, formatMonthID, formatNumber, todayWIB } from "@/lib/format";
 import type { LedgerEntry } from "@/lib/ledger/types";
 
@@ -27,6 +28,7 @@ export default function DashboardPage() {
   const d = getDashboardSummary(getDb(), month);
   const hasAccounts = d.accounts.length > 0;
   const ob = getCommitmentsOverview(getDb(), todayWIB(), 14);
+  const inbox = inboxCounts(getDb());
   const obItems = [...ob.overdue, ...ob.upcoming].slice(0, 5);
   const metrics = [
     { label: "Total kas", icon: Wallet, value: d.totalCash, tone: d.totalCash < 0 ? "text-loss" : "", note: `${d.accounts.length} akun aktif` },
@@ -125,6 +127,24 @@ export default function DashboardPage() {
               ))}
             </ul>
           )}
+        </Card>
+
+        <Card>
+          <CardHeader><CardTitle>Kotak masuk</CardTitle>{inbox.pending > 0 ? <Badge tone="warn">{inbox.pending} menunggu</Badge> : null}</CardHeader>
+          <CardBody>
+            {inbox.pending === 0 ? (
+              <EmptyState icon={InboxIcon} title="Kotak masuk kosong" description="Impor mutasi, foto struk, atau ketik transaksi dengan Catat Cepat." action={<Link href="/quick-capture"><Button size="sm" variant="secondary">Catat cepat</Button></Link>} />
+            ) : (
+              <div className="space-y-3 text-sm">
+                <dl className="space-y-1.5">
+                  <div className="flex justify-between"><dt className="text-muted">Perlu ditinjau</dt><dd className="num">{inbox.needs_review}</dd></div>
+                  <div className="flex justify-between"><dt className="text-muted">Potensi duplikat</dt><dd className="num">{inbox.potential_duplicate}</dd></div>
+                  <div className="flex justify-between"><dt className="text-muted">Siap disetujui</dt><dd className="num">{inbox.new}</dd></div>
+                </dl>
+                <Link href="/inbox"><Button size="sm">Tinjau sekarang</Button></Link>
+              </div>
+            )}
+          </CardBody>
         </Card>
 
         <Card>

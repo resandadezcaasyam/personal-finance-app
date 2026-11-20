@@ -1,4 +1,5 @@
-export default function Loading() {
+/** Loading placeholder for routes whose client state is disposable (dialogs/forms that close after saving). */
+export function PageSkeleton() {
   return (
     <div role="status" aria-live="polite" className="space-y-4">
       <div className="h-8 w-56 animate-pulse rounded-md bg-sunken" />

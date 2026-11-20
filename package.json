@@ -1,6 +1,6 @@
 {
   "name": "personal-finance-os",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "private": true,
   "description": "Privacy-first, local-first personal finance application",
   "scripts": {
@@ -14,20 +14,28 @@
     "check:offline": "node scripts/check-offline.mjs"
   },
   "dependencies": {
+    "@hyzyla/pdfium": "^3.0.0",
+    "@tesseract.js-data/eng": "^1.0.0",
+    "@tesseract.js-data/ind": "^1.0.0",
     "better-sqlite3": "^11.5.0",
     "clsx": "^2.1.1",
     "date-fns": "^3.6.0",
     "lucide-react": "^0.454.0",
     "next": "14.2.35",
+    "pdfjs-dist": "^4.10.38",
+    "pngjs": "^7.0.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
+    "read-excel-file": "^9.3.20",
     "recharts": "^2.15.4",
     "tailwind-merge": "^2.5.4",
+    "tesseract.js": "^5.1.1",
     "zod": "^3.23.8"
   },
   "devDependencies": {
     "@types/better-sqlite3": "^7.6.11",
     "@types/node": "^20.17.0",
+    "@types/pngjs": "^6.0.5",
     "@types/react": "^18.3.12",
     "@types/react-dom": "^18.3.1",
     "autoprefixer": "^10.4.20",

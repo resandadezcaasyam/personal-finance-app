@@ -28,7 +28,9 @@ export function formatCompactIDR(amount: number): string {
  * "1.250.000", "Rp 30.000". Returns null when the text is not a clear amount.
  */
 export function parseIDR(input: string): number | null {
-  const text = input.trim().toLowerCase().replace(/^rp\.?\s*/, "").replace(/\s+/g, "");
+  let text = input.trim().toLowerCase().replace(/^rp\.?\s*/, "").replace(/\s+/g, "");
+  // "9.5jt" / "1.5k": a dot with 1-2 digits before a unit is a decimal point, not a thousands separator.
+  text = text.replace(/^(\d+)\.(\d{1,2})(rb|ribu|k|jt|juta|m)$/, "$1,$2$3");
   const m = text.match(/^(\d{1,3}(?:\.\d{3})+|\d+)(?:,(\d+))?(rb|ribu|k|jt|juta|m)?$/);
   if (!m) return null;
   const whole = m[1].replace(/\./g, "");

@@ -5,6 +5,9 @@ import { createTransaction } from "../ledger/transactions";
 import { createTransfer } from "../ledger/transfers";
 import { createDebt, recordDebtPayment } from "../debts/debts";
 import { createBill, payBill } from "../bills/bills";
+import { createInboxItems } from "../inbox/inbox";
+import { loadMatcher } from "../capture/rules";
+import { createTemplate } from "../capture/templates";
 import { shiftDate, todayWIB } from "../format";
 
 /**
@@ -42,6 +45,14 @@ export function seedDemo(db: Database.Database, today: string = todayWIB()) {
     createBill(db, { name: "Listrik PLN (fiktif)", kind: "bill", category_id: exp("Listrik"), account_id: bank, amount: null, frequency: "monthly", next_due_date: shiftDate(today, 3), remind_days: 5 });
     createBill(db, { name: "StreamDemo (fiktif)", kind: "subscription", category_id: exp("Langganan Digital"), account_id: bank, amount: 54_000, frequency: "monthly", next_due_date: shiftDate(today, 7), remind_days: 3 });
     createBill(db, { name: "Iuran sampah (fiktif)", kind: "bill", category_id: exp("Rumah Tangga") ?? exp("Lainnya"), account_id: cash, amount: 25_000, frequency: "monthly", next_due_date: shiftDate(today, -2), remind_days: 3 });
+
+    // Fictional inbox: one clean item, one that needs a category, and one that duplicates an existing entry.
+    createInboxItems(db, [
+      { type: "expense", amount: 25_000, occurred_on: shiftDate(today, -1), description: "KOPI KENANGAN QRIS", account_id: bank, category_id: null, source_kind: "csv", confidence: 0.9 },
+      { type: "expense", amount: 38_000, occurred_on: shiftDate(today, -2), description: "WARUNG BU TINI (fiktif)", account_id: wallet, category_id: null, source_kind: "csv", confidence: 0.9 },
+      { type: "expense", amount: 25_000, occurred_on: shiftDate(today, -5), description: "KOPI KENANGAN", account_id: cash, category_id: null, source_kind: "csv", confidence: 0.9 },
+    ], { matcher: loadMatcher(db), today });
+    createTemplate(db, { name: "Kopi pagi", type: "expense", amount: 25_000, account_id: cash, category_id: exp("Kopi"), description: "Kopi pagi" });
     db.prepare("INSERT INTO settings (key, value) VALUES ('demo_seeded','1')").run();
   })();
 }

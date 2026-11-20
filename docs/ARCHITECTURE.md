@@ -13,6 +13,10 @@ src/lib/db/migrations/   numbered .sql files (0001_initial_schema.sql)
 src/lib/debts/           schedule.ts (pure: generator, allocation), debts.ts (DB: create, pay, void, summaries)
 src/lib/bills/           bills.ts (recurrence, pay/skip/void, statuses)
 src/lib/obligations.ts   commitments overview, upcoming/overdue feed, month agenda (calendar)
+src/lib/capture/         nl-parser (Indonesian quick entry), receipt (OCR text -> fields), rules (merchant rules), templates, post (quick capture -> ledger/inbox), text (shared pure helpers)
+src/lib/imports/         table (CSV, cell parsing, mapping, normalization), pdf-table (positional PDF -> table), files (XLSX/PDF readers), ocr (offline Tesseract), templates (saved mappings)
+src/lib/inbox/           inbox (create/list/edit/approve/batches), matching (installment/bill suggestions), fingerprint, import-commit
+src/app/api/             import/parse, import/commit, ocr/receipt (multipart/JSON routes; same-origin checked)
 src/lib/ledger/          accounts, categories, transactions (+list/filter), transfers, reconcile, summary, recurring, validate, audit
 src/app/actions/ledger.ts  server actions: Zod validation, LedgerError -> UI messages
 src/components/ledger/   AccountsManager, TransactionsManager, FilterBar, SpendingChart, ...
@@ -65,3 +69,23 @@ No remote fonts/scripts (system font stack, inline theme script), Next telemetry
 - **Variable bills** (`amount IS NULL`) take the amount at payment time.
 - **Obligations feed** (`obligations.ts`): installments come from real schedules; for bills the next due date is real and later occurrences are labelled projections. Nothing in this module changes a balance.
 - **Server-action redirects:** after creating a debt the action calls `redirect()` (outside try/catch). A client-side `router.push` after a server action was overwritten by the revalidation refresh.
+
+## Phase 4: capture pipeline
+```
+ text (Catat Cepat) ─┐                         ┌─ plain income/expense  -> createTransaction
+ screenshot / receipt ├─> parser ─> inbox_items ─> approve ─┼─ matched installment   -> recordDebtPayment
+ CSV / XLSX / PDF ───┘   (nothing posted)                  ├─ matched bill          -> payBill
+                                                            └─ paired transfer       -> createTransfer
+```
+- **The inbox is the only way in.** `approveInboxItems` is the single path from `inbox_items` to the ledger and it calls the same domain functions as manual entry, so every Phase 2/3 rule (no future dates, active accounts, one expense per obligation payment, unique source refs) still holds. Quick Capture "Catat sekarang" queues and immediately approves through the same function inside one DB transaction, so a failing row rolls the whole submission back.
+- **Statuses:** `new` (complete, categorized, confident) · `needs_review` (missing field/category or low confidence, e.g. every OCR'd PDF row) · `potential_duplicate` (looks like an existing ledger row) · `approved` · `rejected`. Statuses are advice: bulk approval skips duplicates but will approve uncategorized items the user selected.
+- **Idempotency, three layers:** (1) `import_batches.file_hash` is unique, so the same file/screenshot is refused; (2) `inbox_items.fingerprint` is unique: bank reference + amount when present, otherwise account + date + amount + type + normalized text + the *occurrence number* of identical lines in the file (keeps two real identical purchases apart yet matches again in an overlapping statement); (3) the ledger's unique `(source, source_ref)`.
+- **Duplicate detection** compares with posted transactions and transfers: same account, type and amount, date within one day. It flags, never deletes.
+- **Matching** (`matching.ts`): an expense is suggested as an installment payment (amount equals the next open installment within 10 days of its due date, or the provider is named) or a bill payment (fixed amount equal, or the bill name appears, within 10 days). Two equally good candidates yield *no* suggestion. The suggestion is re-checked at approval and invalidated if the situation changed. Two pending items in different own accounts with opposite direction, equal amount and dates within a day are paired and become one transfer.
+- **Rules:** `merchant_rules` (92 defaults, user rules win; longest pattern first; whole-word phrase match; category kind must match). A category set by the user is stored with `category_source='user'` and never overwritten.
+- **Quick-capture parser** is deterministic and offline: splits on lines/";"/"sama"/"dan"/amounts, reads `25rb`, `9.5jt`, `Rp30.000`, dates (kemarin, 17/11, tgl 3, weekday names; never the future), accounts by name plus cash aliases, transfers (`dari X ke Y`, `isi X dari Y`), type words (gaji, bayar...), then rules for category/merchant. Anything uncertain becomes an `issue` shown in the preview.
+- **OCR:** `tesseract.js` v5 with Indonesian+English language data from the npm packages `@tesseract.js-data/ind|eng` (copied once to `os.tmpdir()/pfos-tessdata`). One lazily created worker, one image at a time, 90 s timeout, closed after 5 idle minutes. Images are processed in memory and never stored; only the file hash and up to 2000 characters of recognized text (`raw_payload`) are kept.
+- **Receipt extraction** picks the total line (not balance/subtotal/fee/discount lines), reports a confidence and the reasons, and never invents values.
+- **Statements:** CSV (delimiter detection, quotes, windows-1252 fallback), XLSX (`read-excel-file`), text PDF (`pdfjs-dist` positions -> columns via the header, so debit/credit stay apart), scanned PDF (PDFium renders pages, OCR reads them; always flagged for review), plain images. Column mapping is guessed from Indonesian/English headers, editable, and saveable as a template keyed by the header signature. Direction comes from debit/credit columns, a D/K column or DB/CR suffix, the sign, or the running balance; when none can decide, the row is reported as an error rather than guessed. The server re-normalizes the table with the submitted mapping before anything is queued.
+- **Security:** state-changing API routes require a same-origin request; file size limits (15 MB statements, 10 MB images); file type sniffed from content.
+- **Pitfall (fixed):** a root `loading.tsx` made Next.js remount the page after any revalidating server action, wiping client state (preview rows, selections, result dialogs). Skeletons now live only on routes with disposable client state, not on `/quick-capture`, `/inbox`, `/import`.

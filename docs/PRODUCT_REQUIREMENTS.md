@@ -17,8 +17,8 @@ A privacy-first, local-first personal finance OS (Windows laptop, `http://localh
 | 1 | Foundation, database & UI shell | `feat: initialize personal finance os` | Done |
 | 2 | Core ledger & accounts (accounts, income, expenses, transfers, reconciliation, dashboard metrics) | `feat: implement core financial ledger` | Done |
 | 3 | Debt, installments & bills | `feat: implement debt and bills management` | Done |
-| 4 | Smart capture (NL parser, OCR, imports, inbox, dedupe, matching, templates) | `feat: implement smart transaction capture` | Next |
-| 5 | Cash flow forecasting (daily engine, scenarios, payday survival) | `feat: implement cash flow forecasting` | |
+| 4 | Smart capture (NL parser, OCR, imports, inbox, dedupe, matching, templates) | `feat: implement smart transaction capture` | Done |
+| 5 | Cash flow forecasting (daily engine, scenarios, payday survival) | `feat: implement cash flow forecasting` | Next |
 | 6 | Early repayment simulator & strategies | `feat: implement early repayment simulator` | |
 | 7 | Automation, budgets, goals, insights, reports/exports, optional Ollama | `feat: implement automation and analytics` | |
 | 8 | Security, backup/restore, E2E tests, offline verification, final docs | `chore: finalize testing and security` | |
@@ -49,3 +49,13 @@ Per-phase acceptance criteria are tracked in `DEVELOPMENT_PROGRESS.md` and `NEXT
 - Upcoming and overdue obligations are accurate. ✔
 - Bills marked as paid generate the appropriate ledger entry. ✔ (once per occurrence)
 - Tests cover zero-interest, partial, late, and irregular payments. ✔
+
+## Phase 4 acceptance criteria
+- Natural-language input generates correct editable transaction drafts. ✔ (all five spec examples, multi-item, dates, transfers)
+- Multiple screenshots can be processed locally. ✔ (batch upload, offline OCR; verified with the network cut)
+- CSV/XLSX/PDF imports work for supported formats. ✔ for CSV, XLSX, text PDF and scanned PDF *fixtures*. Not claimed for any specific bank: no real statement samples were available (see Known limitations).
+- Smart Inbox supports bulk review. ✔
+- Repeat imports do not duplicate ledger entries. ✔ (file hash, line fingerprints, ledger unique index)
+- Category corrections can be reused. ✔ (user merchant rules)
+- Imported transactions can be matched to debt payments. ✔ (also bills and transfer pairs)
+- Financial balances remain accurate. ✔ (E2E reconciles to the rupiah)

@@ -27,3 +27,15 @@
 25. **Bill payment history keeps one settlement per occurrence** (DB-enforced) and only the newest can be undone, so due dates cannot become inconsistent.
 26. **"Early" payment needs a 7-day margin** so paying a few days ahead of the due date is not mislabelled.
 27. **Calendar projections are labelled.** Future bill occurrences are extrapolated, shown dashed/"Proyeksi", and excluded from totals of what is actually owed.
+28. **The inbox is the only door to the ledger.** Even typed Quick Capture goes through it ("Catat sekarang" = queue + approve in one transaction). One posting path means matching, duplicate checks and validation cannot be bypassed.
+29. **Fingerprints include an occurrence counter** for identical lines, so genuine repeat purchases survive while overlapping statements still dedupe.
+30. **Duplicates are flagged, never deleted or auto-posted.** Bulk approval excludes them; approving one needs an explicit confirmation.
+31. **Suggested matches apply by default but are re-validated at approval and can be dismissed.** Ambiguity produces no suggestion. This favors not creating a second expense for an obligation.
+32. **No bank-specific templates are claimed.** Without real statement samples we ship generic header detection and user-saved mapping templates, and say so. Add built-in presets only from real files.
+33. **Direction inference never guesses.** Rows whose direction cannot be derived (no sign/marker/debit-credit/previous balance) are reported as errors with the original row number.
+34. **Scanned PDFs and weak OCR are always `needs_review`;** confident receipts become `new`. Observed in testing: OCR read "QRIS" as "ORIS" on a scanned page, which is why review is mandatory there.
+35. **Images are never stored.** Only the hash (idempotency) and extracted text are kept. The recognized text can contain personal details, so the database file should be treated as sensitive (Phase 8 covers backup/PIN guidance).
+36. **Library choices:** `tesseract.js` (WebAssembly, no native build on Windows) with npm-packaged language data (no runtime download); `pdfjs-dist` for positional text and `@hyzyla/pdfium` to render scanned pages (pdfjs needs a native canvas to render); `read-excel-file` instead of the npm `xlsx` package (known advisories); `pngjs` to encode renders.
+37. **Categories are optional for approval.** `needs_review` is advisory; the user decides.
+38. **No root `loading.tsx`** (see Architecture, Phase 4 pitfall).
+39. **Clipboard access is explicit only:** buttons call the clipboard API on click, and the image drop zone accepts Ctrl+V only while focused.

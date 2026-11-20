@@ -2,7 +2,7 @@
 
 Aplikasi keuangan pribadi yang **privat dan berjalan lokal**. Semua data tersimpan di komputer Anda (SQLite). Tidak memerlukan internet setelah instalasi.
 
-**Status:** Fase 3 dari 8 selesai (ledger inti + utang, cicilan, tagihan, dan langganan). Lihat `docs/DEVELOPMENT_PROGRESS.md`.
+**Status:** Fase 4 dari 8 selesai (ledger inti, utang/tagihan, dan pencatatan cerdas: Catat Cepat, OCR, impor mutasi, kotak masuk). Lihat `docs/DEVELOPMENT_PROGRESS.md`.
 
 ## Fitur yang sudah tersedia
 
@@ -13,9 +13,17 @@ Aplikasi keuangan pribadi yang **privat dan berjalan lokal**. Semua data tersimp
 - **Dasbor** dengan total kas, pemasukan/pengeluaran bulan ini, saldo akun, dan transaksi terbaru.
 - **Utang & Cicilan:** jadwal otomatis (tanpa bunga, flat, menurun/anuitas, atau manual), pembayaran penuh/sebagian/terlambat (denda)/dipercepat/pelunasan, ringkasan kewajiban, jadwal bulanan, dan kalender.
 - **Tagihan & Langganan:** listrik, internet, sewa, langganan, dll. Bayar (tercatat sebagai satu pengeluaran), lewati, batalkan, dan lihat riwayat. Nominal boleh berubah tiap periode.
+- **Catat Cepat:** ketik `kopi 25rb gopay` atau `gaji masuk 9.5jt seabank`; beberapa transaksi sekaligus, pratinjau yang bisa diedit, template favorit. Dibaca offline.
+- **Pusat Impor:** screenshot/foto struk (OCR offline, bisa banyak sekaligus) dan mutasi CSV, XLSX, atau PDF (termasuk PDF hasil pindai). Pemetaan kolom bisa disimpan sebagai template.
+- **Kotak Masuk Pintar:** semua hasil impor/OCR berhenti di sini dulu. Tinjau, ubah, setujui massal. Hanya yang disetujui memengaruhi saldo. Duplikat ditandai, dan pembayaran yang cocok dengan cicilan, tagihan, atau transfer antar akun dicatat dengan benar (tanpa pengeluaran ganda).
+- **Aturan merchant:** 90+ aturan bawaan (Fore Coffee → Kopi, PLN → Listrik, Netflix → Langganan) dan aturan buatan Anda dari koreksi kategori.
 - **Mode demo** dengan data fiktif terpisah, dan manajemen kategori di Pengaturan.
 
 Catatan: transaksi tidak boleh bertanggal di masa depan. Jadwal cicilan dan tagihan adalah rencana, bukan pembayaran: saldo baru berubah saat Anda mencatat pembayaran. Rumus bunga adalah konvensi umum; jika berbeda dari kontrak penyedia, gunakan jadwal manual.
+
+## Catatan OCR dan PDF
+
+Data bahasa OCR (Indonesia dan Inggris, sekitar 20 MB) dan pustaka PDF ikut terpasang saat `npm install`. Setelah itu semuanya berjalan **tanpa internet**: OCR memakai WebAssembly, jadi tidak ada kompilasi tambahan di Windows. Gambar struk tidak disimpan; hanya hash dan teks hasil bacaan. Akurasi OCR pada foto yang buram atau miring lebih rendah, karena itu hasil yang meragukan selalu masuk ke "Perlu ditinjau". Format bank tertentu belum dijamin: periksa pemetaan kolom pada impor pertama lalu simpan sebagai template.
 
 ## Instalasi (Windows CMD)
 
